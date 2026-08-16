@@ -55,40 +55,55 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ----------------- AUTOMATIC GPS LOCATION REQUEST ON LOAD -----------------
-function autoRequestUserLocation() {
+async function autoRequestUserLocation() {
     const hudTag = document.getElementById('live-ingestion-tag');
     const gpsBtn = document.getElementById('btn-gps-locate');
 
-    if (!navigator.geolocation) {
-        fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
-        return;
-    }
-
-    if (hudTag) hudTag.textContent = '📍 Requesting browser GPS access...';
     if (gpsBtn) {
         gpsBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> <span>Acquiring GPS...</span>';
         if (window.lucide) window.lucide.createIcons();
     }
+    if (hudTag) hudTag.textContent = '📡 Requesting Live GPS & Satellite Ingestion...';
 
-    navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            await updateActiveCoordinates(lat, lon);
-            if (gpsBtn) {
-                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
-                if (window.lucide) window.lucide.createIcons();
-            }
-        },
-        async (err) => {
-            if (gpsBtn) {
-                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
-                if (window.lucide) window.lucide.createIcons();
-            }
-            await fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
-        },
-        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-    );
+    let ipResolved = false;
+
+    // 1. Instant Fast IP Geolocation fallback so user immediately sees their local region
+    try {
+        const ipRes = await fetch('https://ipapi.co/json/');
+        const ipData = await ipRes.json();
+        if (ipData && ipData.latitude && ipData.longitude) {
+            ipResolved = true;
+            await updateActiveCoordinates(parseFloat(ipData.latitude), parseFloat(ipData.longitude));
+        }
+    } catch (e) {}
+
+    // 2. High-Precision Browser HTML5 GPS
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+                await updateActiveCoordinates(lat, lon);
+                if (gpsBtn) {
+                    gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>GPS Locked 📍</span>';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+                if (hudTag) hudTag.textContent = '🟢 High-Precision GPS Locked';
+            },
+            async (err) => {
+                if (!ipResolved) {
+                    await fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
+                }
+                if (gpsBtn) {
+                    gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    } else if (!ipResolved) {
+        await fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
+    }
 }
 
 // ----------------- LEAFLET GIS MAP & POLYGON BOUNDARY DRAWER -----------------
@@ -287,12 +302,29 @@ async function updateActiveCoordinates(lat, lon) {
     AppState.currentLat = lat;
     AppState.currentLon = lon;
 
-    if (AppState.map && AppState.marker) {
-        AppState.marker.setLatLng([lat, lon]);
-        AppState.map.panTo([lat, lon]);
+    if (AppState.map) {
+        if (AppState.marker) {
+            AppState.marker.setLatLng([lat, lon]);
+        } else {
+            AppState.marker = L.marker([lat, lon], { draggable: true, title: 'Active Monitored Field' }).addTo(AppState.map);
+        }
+        
+        // Fly smoothly to the exact field location with high-resolution zoom
+        AppState.map.flyTo([lat, lon], 17, { animate: true, duration: 1.2 });
+
+        // Add or update accuracy perimeter circle
+        if (AppState.accuracyCircle) AppState.map.removeLayer(AppState.accuracyCircle);
+        AppState.accuracyCircle = L.circle([lat, lon], {
+            radius: 120,
+            color: '#059669',
+            fillColor: '#10b981',
+            fillOpacity: 0.2,
+            weight: 2
+        }).addTo(AppState.map);
     }
 
-    document.getElementById('active-gps-display').textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+    const gpsDisplay = document.getElementById('active-gps-display');
+    if (gpsDisplay) gpsDisplay.textContent = `📍 ${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
 
     try {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
@@ -301,7 +333,7 @@ async function updateActiveCoordinates(lat, lon) {
                 if (data && data.display_name) {
                     const parts = data.display_name.split(',');
                     const placeName = parts.slice(0, 3).join(', ');
-                    document.getElementById('active-gps-display').textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E (${placeName})`;
+                    if (gpsDisplay) gpsDisplay.textContent = `📍 ${placeName} (${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E)`;
                 }
             }).catch(() => {});
     } catch (e) {}
