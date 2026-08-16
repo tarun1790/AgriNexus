@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriNexus — AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
-    <meta name="description" content="Interoperable agricultural intelligence converting satellite imagery, soil health, and weather forecasting into localized field-level climate resilience decisions.">
+    <title>AgriNexus — Real-Time AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
+    <meta name="description" content="Live real-time agricultural intelligence converting live GPS location, real-time weather streams, ISRIC SoilGrids, and satellite imagery into field-level climate resilience decisions.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Leaflet GIS Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Custom Design System Styles -->
+    <!-- Custom Design System Styles (White & Green) -->
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
@@ -27,15 +31,21 @@
                 </div>
                 <div class="brand-text">
                     <h1>AgriNexus</h1>
-                    <span class="brand-subtitle">AI Digital Public Infrastructure for Climate-Resilient Agriculture</span>
+                    <span class="brand-subtitle">Real-Time AI Digital Public Infrastructure for Climate-Resilient Agriculture</span>
                 </div>
             </div>
 
             <div class="nav-controls">
-                <!-- Regional Farm Selector -->
+                <!-- One-Click Live GPS Geolocation Button -->
+                <button class="btn-gps-locate" id="btn-gps-locate" title="Detect your exact current field coordinates via GPS">
+                    <i data-lucide="navigation"></i> <span>Locate My Field (GPS)</span>
+                </button>
+
+                <!-- Regional Preset or Live Switcher -->
                 <div class="control-group">
-                    <label for="farm-selector" class="control-label"><i data-lucide="map-pin"></i> Region / Farm:</label>
+                    <label for="farm-selector" class="control-label"><i data-lucide="map-pin"></i> Region:</label>
                     <select id="farm-selector" class="custom-select">
+                        <option value="realtime_custom_field" selected>📍 Live GPS / Custom Location</option>
                         <option value="farm_in_cotton_01">🇮🇳 India — Krishna Basin (Cotton, 2.4 Ac)</option>
                         <option value="farm_in_rice_02">🇮🇳 India — Punjab Alluvial (Rice, 4.0 Ac)</option>
                         <option value="farm_br_soy_03">🇧🇷 Brazil — Mato Grosso (Soybean, 50 Ac)</option>
@@ -61,14 +71,28 @@
             </div>
         </header>
 
+        <!-- LIVE GEOSPATIAL SEARCH BAR -->
+        <div class="location-search-strip">
+            <div class="search-input-wrap">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="map-search-input" placeholder="Search any village, mandal, district, or GPS coordinate (e.g. Guntur, Ludhiana, Sorriso)..." autocomplete="off">
+                <button id="btn-search-location" class="btn-search-apply">Search & Ingest Real-Time Data</button>
+            </div>
+            <div class="live-coords-hud">
+                <span class="hud-label">Active Field GPS:</span>
+                <strong id="active-gps-display">16.5062° N, 80.6480° E</strong>
+                <span class="hud-tag" id="live-ingestion-tag">🟢 Live Weather & Soil Streams Active</span>
+            </div>
+        </div>
+
         <!-- Main Navigation Tabs -->
         <nav class="sub-nav">
             <div class="nav-tabs" role="tablist">
                 <button class="nav-tab active" data-tab="tab-advisory" id="tab-btn-advisory" role="tab">
-                    <i data-lucide="sparkles"></i> Field Digital Twin & Advisory
+                    <i data-lucide="sparkles"></i> Live Field Digital Twin & Advisory
                 </button>
                 <button class="nav-tab" data-tab="tab-soil" id="tab-btn-soil" role="tab">
-                    <i data-lucide="leaf"></i> Soil Health & Regenerative Optimizer
+                    <i data-lucide="leaf"></i> Real-Time Soil & Regenerative Optimizer
                 </button>
                 <button class="nav-tab" data-tab="tab-simulator" id="tab-btn-simulator" role="tab">
                     <i data-lucide="sliders"></i> "What-If" Climate Simulator
@@ -94,31 +118,43 @@
                     <div class="alert-header">
                         <div class="alert-title-wrap">
                             <span class="urgency-badge" id="urgency-badge">Immediate Action (18-24h)</span>
-                            <h2 id="advisory-headline" class="alert-headline">Irrigate your 2.4-acre cotton field within the next 18–24 hours.</h2>
+                            <h2 id="advisory-headline" class="alert-headline">Irrigate your field within the next 18–24 hours based on live weather data.</h2>
                         </div>
                         <button class="audio-btn" id="voice-speak-btn" title="Listen to advisory voice narration">
                             <i data-lucide="volume-2"></i> <span>Listen Voice</span>
                         </button>
                     </div>
                     <div class="alert-body" id="advisory-body-text">
-                        Loading field evidence layer and aggregating multispectral data...
+                        Ingesting live meteorological streams and computing Google Earth Engine Sentinel-2 indices...
                     </div>
                 </div>
 
-                <div class="dashboard-grid">
+                <!-- Interactive Leaflet Satellite GIS Map -->
+                <div class="panel-card gis-map-card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <h3><i data-lucide="map"></i> Interactive Real-Time GIS Map (Click anywhere on Earth to Ingest Data)</h3>
+                            <span class="card-tag">Google Earth Engine & OpenStreetMap Base</span>
+                        </div>
+                        <span class="map-hint"><i data-lucide="mouse-pointer"></i> Click anywhere on the map to place a pin and monitor that field in real time</span>
+                    </div>
+                    <div id="gis-leaflet-map" class="gis-map-canvas"></div>
+                </div>
+
+                <div class="dashboard-grid" style="margin-top: 1.75rem;">
                     <!-- Satellite Field Health Map -->
                     <div class="panel-card field-map-card">
                         <div class="card-header">
                             <div class="card-title-group">
                                 <h3><i data-lucide="satellite"></i> Field Satellite Zonation (10m Sentinel-2)</h3>
-                                <span class="card-tag" id="satellite-timestamp">Acquired: Recent Pass</span>
+                                <span class="card-tag" id="satellite-timestamp">Acquired: Real-Time</span>
                             </div>
                             <!-- Spectral Layer Switcher -->
                             <div class="spectral-layer-switch">
-                                <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy Vigour)</button>
-                                <button class="btn-spectral" data-layer="ndwi">NDWI (Water Stress)</button>
+                                <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy)</button>
+                                <button class="btn-spectral" data-layer="ndwi">NDWI (Moisture)</button>
                                 <button class="btn-spectral" data-layer="evi">EVI (Biomass)</button>
-                                <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adjusted)</button>
+                                <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adj)</button>
                             </div>
                         </div>
 
@@ -153,40 +189,34 @@
                         </div>
                     </div>
 
-                    <!-- Environmental Telemetry & IoT Soil Probe -->
+                    <!-- Environmental Telemetry & Real-Time Weather -->
                     <div class="panel-card climate-telemetry-card">
                         <div class="card-header">
-                            <h3><i data-lucide="radio"></i> Live IoT Root-Zone Soil Probe HUD</h3>
-                            <span class="pulse-badge" id="iot-status-badge"><span class="pulse-dot"></span> Telemetry Stream Live</span>
+                            <h3><i data-lucide="cloud-sun"></i> Live Meteorological Stream (Open-Meteo / IMD)</h3>
+                            <span class="pulse-badge" id="iot-status-badge"><span class="pulse-dot"></span> Live Stream</span>
                         </div>
 
-                        <!-- Stratified Probe Layers -->
+                        <!-- Live Weather Metrics Row -->
                         <div class="iot-probe-grid">
                             <div class="iot-layer-box">
-                                <span class="layer-depth">Topsoil (15cm)</span>
-                                <strong class="layer-moisture" id="iot-m15">20.5%</strong>
-                                <span class="layer-note">Evaporation Zone</span>
+                                <span class="layer-depth">Live Temperature</span>
+                                <strong class="layer-moisture" id="live-temp-display">34.5°C</strong>
+                                <span class="layer-note">Ambient Sensor</span>
                             </div>
                             <div class="iot-layer-box active-layer">
-                                <span class="layer-depth">Root-Zone (30cm)</span>
-                                <strong class="layer-moisture text-warning" id="iot-m30">24.1%</strong>
-                                <span class="layer-note text-warning">Depletion Alert</span>
+                                <span class="layer-depth">Relative Humidity</span>
+                                <strong class="layer-moisture" id="live-humidity-display">62.0%</strong>
+                                <span class="layer-note">Atmospheric VPD</span>
                             </div>
                             <div class="iot-layer-box">
-                                <span class="layer-depth">Subsoil (60cm)</span>
-                                <strong class="layer-moisture text-success" id="iot-m60">29.2%</strong>
-                                <span class="layer-note">Deep Taproot Reserve</span>
+                                <span class="layer-depth">Rain Probability</span>
+                                <strong class="layer-moisture" id="live-rainprob-display">18%</strong>
+                                <span class="layer-note">Forecast 48h</span>
                             </div>
-                        </div>
-
-                        <div class="iot-secondary-metrics">
-                            <span>🌡️ Soil Temp: <strong id="iot-temp">29.5°C</strong></span>
-                            <span>⚡ EC: <strong id="iot-ec">0.85 dS/m</strong></span>
-                            <span>💧 Water Potential: <strong id="iot-kpa">-136 kPa</strong></span>
                         </div>
 
                         <div class="card-header" style="margin-top: 1.25rem; margin-bottom: 0.75rem;">
-                            <h3><i data-lucide="cloud-sun"></i> Microclimate & Hazard Matrix</h3>
+                            <h3><i data-lucide="shield-alert"></i> Hazard Vulnerability Matrix</h3>
                             <span class="risk-badge badge-high" id="overall-risk-badge">Risk: HIGH</span>
                         </div>
 
@@ -230,7 +260,7 @@
                 <div class="soil-grid">
                     <div class="panel-card">
                         <div class="card-header">
-                            <h3><i data-lucide="activity"></i> Soil Health Scorecard</h3>
+                            <h3><i data-lucide="activity"></i> Soil Health Scorecard (ISRIC SoilGrids Live)</h3>
                             <span class="soil-score-badge" id="soil-health-badge">Score: 64 / 100</span>
                         </div>
 
@@ -242,7 +272,7 @@
                             </div>
                             <div class="soil-attributes-grid">
                                 <div class="attr-box">
-                                    <span class="attr-name">Soil pH</span>
+                                    <span class="attr-name">Soil pH (in H2O)</span>
                                     <strong class="attr-val" id="soil-ph-val">6.4</strong>
                                     <span class="attr-status text-success">Optimal Range</span>
                                 </div>
@@ -269,7 +299,7 @@
                                 <div class="attr-box">
                                     <span class="attr-name">Water Capacity (AWC)</span>
                                     <strong class="attr-val" id="soil-awc-val">34.8 mm</strong>
-                                    <span class="attr-status text-info">Medium-High Clay</span>
+                                    <span class="attr-status text-info">Clayey Vertisol</span>
                                 </div>
                             </div>
                         </div>
@@ -279,7 +309,7 @@
                             <div class="credit-icon"><i data-lucide="coins"></i></div>
                             <div class="credit-info">
                                 <h4>Regenerative Carbon Credit Monetization</h4>
-                                <p>By adopting cover cropping & biochar, this 2.4-acre field can sequester <strong>~1.45 tons C/year</strong> ($<span id="carbon-usd-val">58.20</span> USD potential offset credit value).</p>
+                                <p>By adopting cover cropping & biochar, this field can sequester <strong>~1.45 tons C/year</strong> ($<span id="carbon-usd-val">58.20</span> USD potential offset credit value).</p>
                             </div>
                         </div>
                     </div>
@@ -422,12 +452,19 @@
                         <div class="upload-dropzone" id="leaf-dropzone">
                             <i data-lucide="upload-cloud" class="drop-icon"></i>
                             <p class="drop-text">Drag & drop leaf photograph or click to browse</p>
-                            <span class="drop-sub">Supports high-res JPG, PNG (Leaves, stems, lesions)</span>
+                            <span class="drop-sub">Supports camera capture & high-res JPG/PNG</span>
                             <input type="file" id="leaf-file-input" accept="image/*" class="hidden-file-input">
                         </div>
 
+                        <!-- Camera Action Bar -->
+                        <div class="camera-action-bar">
+                            <button class="btn btn-secondary w-full" id="btn-camera-snap">
+                                <i data-lucide="camera"></i> <span>Open Device Camera to Snap Leaf</span>
+                            </button>
+                        </div>
+
                         <!-- Preset sample triggers -->
-                        <div class="preset-samples">
+                        <div class="preset-samples" style="margin-top: 1rem;">
                             <span class="preset-label">Or test with verified pathology samples:</span>
                             <div class="preset-buttons">
                                 <button class="btn-sample" data-sample="cotton_blight"><i data-lucide="leaf"></i> Cotton Blight</button>
@@ -551,9 +588,9 @@
 
                     <div class="api-endpoints-table">
                         <div class="api-endpoint-row">
-                            <span class="method get">GET</span>
-                            <code class="endpoint-uri">/api/v1/farms/{id}</code>
-                            <span class="endpoint-desc">Fetch sovereign farm boundary, soil properties, and crop profile</span>
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/realtime/field-intel</code>
+                            <span class="endpoint-desc">Ingest live meteorological and SoilGrids data for any GPS coordinate</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
@@ -621,7 +658,8 @@
                 </div>
 
                 <form class="copilot-input-bar" id="copilot-form">
-                    <input type="text" id="copilot-input" placeholder="Type or ask a farming question..." autocomplete="off">
+                    <input type="text" id="copilot-input" placeholder="Type or speak a farming question..." autocomplete="off">
+                    <button type="button" class="copilot-mic-btn" id="copilot-mic-btn" title="Speak via microphone"><i data-lucide="mic"></i></button>
                     <button type="submit" class="copilot-send-btn"><i data-lucide="send"></i></button>
                 </form>
             </div>

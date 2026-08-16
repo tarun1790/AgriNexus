@@ -21,10 +21,6 @@
     --brand-mint: #34d399;
     --brand-pastel: #ecfdf5;
     
-    --green-vigorous: #059669;
-    --green-moderate: #34d399;
-    --green-stress: #86efac;
-    
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
@@ -71,7 +67,7 @@ body {
     border-bottom: 1px solid var(--border-medium);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: var(--shadow-sm);
 }
 
@@ -111,13 +107,35 @@ body {
 .nav-controls {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1rem;
+}
+
+.btn-gps-locate {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-gps-locate:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
 }
 
 .control-group {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
 }
 
 .control-label {
@@ -126,7 +144,7 @@ body {
     color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
 }
 
 .control-label i {
@@ -139,7 +157,7 @@ body {
     background: var(--bg-surface);
     color: var(--text-primary);
     border: 1px solid var(--border-medium);
-    padding: 0.5rem 0.9rem;
+    padding: 0.5rem 0.85rem;
     border-radius: var(--radius-sm);
     font-size: 0.86rem;
     font-weight: 600;
@@ -173,6 +191,92 @@ body {
     border-radius: 50%;
     background-color: var(--brand-primary);
     box-shadow: 0 0 6px rgba(5, 150, 105, 0.6);
+}
+
+/* LOCATION SEARCH STRIP */
+.location-search-strip {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-medium);
+    padding: 0.85rem 2.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.search-input-wrap {
+    flex: 1;
+    max-width: 680px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 0.5rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--brand-primary);
+    width: 17px;
+    height: 17px;
+}
+
+.search-input-wrap input {
+    width: 100%;
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 1rem 0.55rem 2.4rem;
+    font-size: 0.88rem;
+    font-family: inherit;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.search-input-wrap input:focus {
+    border-color: var(--brand-primary);
+    background: #ffffff;
+}
+
+.btn-search-apply {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.84rem;
+    font-weight: 700;
+    font-family: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-search-apply:hover {
+    background: var(--brand-dark);
+}
+
+.live-coords-hud {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.hud-label {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.hud-tag {
+    background: var(--brand-pastel);
+    border: 1px solid var(--border-medium);
+    color: var(--brand-dark);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
 }
 
 /* SUB NAVIGATION TABS */
@@ -242,6 +346,36 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* LEAFLET GIS MAP */
+.gis-map-card {
+    margin-bottom: 1.75rem;
+}
+
+.gis-map-canvas {
+    height: 320px;
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-medium);
+    z-index: 10;
+}
+
+.map-hint {
+    font-size: 0.78rem;
+    color: var(--brand-dark);
+    background: var(--brand-pastel);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.map-hint i {
+    width: 13px;
+    height: 13px;
+}
+
 /* ALERT ACTION CARD */
 .action-alert-card {
     background: #ffffff;
@@ -249,7 +383,7 @@ body {
     border-left: 6px solid var(--brand-primary);
     border-radius: var(--radius-lg);
     padding: 1.5rem 1.85rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
     box-shadow: var(--shadow-md);
 }
 
@@ -308,10 +442,6 @@ body {
 .audio-btn:hover {
     background: #d1fae5;
     border-color: var(--brand-primary);
-}
-
-.audio-btn:active {
-    transform: scale(0.97);
 }
 
 .alert-body {
@@ -429,17 +559,9 @@ body {
     outline: 2px solid var(--brand-dark);
 }
 
-.grid-cell.cell-vigorous {
-    background: #059669;
-}
-
-.grid-cell.cell-moderate {
-    background: #34d399;
-}
-
-.grid-cell.cell-severe {
-    background: #86efac;
-}
+.grid-cell.cell-vigorous { background: #059669; }
+.grid-cell.cell-moderate { background: #34d399; }
+.grid-cell.cell-severe { background: #86efac; }
 
 .cell-inspector {
     background: var(--bg-base);
@@ -555,18 +677,6 @@ body {
 .layer-note {
     font-size: 0.7rem;
     color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.iot-secondary-metrics {
-    display: flex;
-    justify-content: space-around;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: var(--bg-base);
-    padding: 0.55rem 0.75rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-medium);
     font-weight: 600;
 }
 
@@ -963,11 +1073,11 @@ body {
     border: 2px dashed var(--border-medium);
     border-radius: var(--radius-lg);
     background: var(--bg-base);
-    padding: 2.75rem 1.75rem;
+    padding: 2rem 1.5rem;
     text-align: center;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
-    margin-bottom: 1.35rem;
+    margin-bottom: 0.85rem;
 }
 
 .upload-dropzone:hover {
@@ -976,26 +1086,30 @@ body {
 }
 
 .drop-icon {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
     color: var(--brand-primary);
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.65rem;
 }
 
 .drop-text {
     font-weight: 800;
-    font-size: 1rem;
-    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
     color: var(--text-primary);
 }
 
 .drop-sub {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: var(--text-muted);
 }
 
 .hidden-file-input {
     display: none;
+}
+
+.camera-action-bar {
+    margin-bottom: 0.85rem;
 }
 
 .preset-samples {
@@ -1265,7 +1379,7 @@ body {
     position: fixed;
     bottom: 1.75rem;
     right: 1.75rem;
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .copilot-toggle-btn {
@@ -1435,6 +1549,26 @@ body {
     border-color: var(--brand-primary);
 }
 
+.copilot-mic-btn {
+    background: var(--brand-pastel);
+    color: var(--brand-dark);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.copilot-mic-btn.recording {
+    background: #fecaca;
+    color: #dc2626;
+    border-color: #ef4444;
+    animation: blink 1s infinite;
+}
+
 .copilot-send-btn {
     background: var(--brand-primary);
     color: #ffffff;
@@ -1517,6 +1651,10 @@ body {
     }
     .roi-stats-row {
         grid-template-columns: 1fr 1fr;
+    }
+    .location-search-strip {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }
 

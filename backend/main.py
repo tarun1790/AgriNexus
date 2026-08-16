@@ -37,12 +37,14 @@ from backend.services.bigquery_service import bigquery_service
 from backend.services.public_data_service import public_data_service
 from backend.services.agent_orchestrator import agent_orchestrator
 from backend.services.iot_telemetry_service import iot_service
+from backend.services.live_weather_service import live_weather_service
+from backend.services.live_soil_service import live_soil_service
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
     title="AgriNexus API — AI Digital Public Infrastructure for Climate-Resilient Agriculture",
-    version="2.0.0",
-    description="Cross-border agronomic intelligence network powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech), Multi-Agent Orchestration, and Decentralized Federated Learning."
+    version="2.5.0",
+    description="Live Real-Time Cross-Border Agronomic Intelligence DPI powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech), Live Meteorological Ingestion, and Federated Learning."
 )
 
 app.add_middleware(
@@ -59,7 +61,12 @@ def health_check():
     import torch
     return {
         "status": "online",
-        "service": "AgriNexus Agricultural Intelligence Engine v2.0",
+        "service": "AgriNexus Real-Time Agricultural Intelligence Engine v2.5",
+        "live_data_ingestion": {
+            "meteorological_stream": "Open-Meteo & IMD High-Resolution Real-Time Grids",
+            "soilgrids_stream": "ISRIC Global SoilGrids 250m REST API",
+            "satellite_stream": "Google Earth Engine & Copernicus Sentinel-2 MSI (10m)"
+        },
         "google_ai_stack": {
             "generative_ai": "Google Gemini 1.5 Pro / Flash & Vertex AI GenAI",
             "agentic_orchestration": "Gemini Multi-Agent Autonomous Agronomic Orchestrator",
@@ -69,15 +76,57 @@ def health_check():
             "voice_multilingual": "Google Cloud Text-to-Speech & Cloud Translation",
             "data_warehouse": "Google Cloud BigQuery & Firebase Real-time DB"
         },
-        "public_data_sources": [
-            "Copernicus Open Access Hub",
-            "FAO (FAOSTAT)",
-            "IMD & National Meteorological Services",
-            "BRICS Open Data Registries"
-        ],
         "cuda_available": torch.cuda.is_available(),
         "device": str(disease_engine.device),
-        "protocol": "Agri-DPI Standard v2.0 (BRICS Interoperable)"
+        "protocol": "Agri-DPI Standard v2.5 (Live Real-Time Interoperable)"
+    }
+
+# ----------------- REAL-TIME DYNAMIC FIELD INTELLIGENCE -----------------
+@app.post("/api/v1/realtime/field-intel")
+def get_realtime_field_intelligence(
+    lat: float = 16.5062,
+    lon: float = 80.6480,
+    crop: str = "Cotton",
+    area_acres: float = 2.4,
+    farmer_name: str = "Field Operator"
+):
+    """
+    100% Real-Time Live Dynamic Endpoint:
+    Fetches real live weather & soil data for ANY GPS coordinate on Earth,
+    computes satellite indices, soil health, climate hazards, and fused advisory.
+    """
+    live_weather = live_weather_service.fetch_live_weather(lat=lat, lon=lon)
+    live_soil = live_soil_service.fetch_live_soil_properties(lat=lat, lon=lon)
+
+    field_profile = FarmProfile(
+        farm_id="realtime_custom_field",
+        farmer_name=farmer_name,
+        country_code="IN" if (8.0 <= lat <= 35.0 and 68.0 <= lon <= 89.0) else "GLOBAL",
+        region=f"GPS ({lat:.4f}, {lon:.4f})",
+        crop=crop,
+        crop_stage="Active Field Monitoring",
+        field=FieldCoordinates(latitude=lat, longitude=lon, area_acres=area_acres),
+        soil=live_soil,
+        weather=live_weather
+    )
+
+    satellite_res = satellite_engine.generate_field_multispectral_matrix(lat=lat, lon=lon, crop=crop)
+    soil_res = soil_engine.calculate_soil_health(soil=live_soil, crop=crop)
+    climate_res = climate_engine.assess_climate_risk(weather=live_weather, soil=live_soil, crop=crop)
+    advisory_res = advisory_engine.generate_advisory(
+        profile=field_profile,
+        satellite=satellite_res,
+        soil=soil_res,
+        climate=climate_res
+    )
+
+    return {
+        "field_profile": field_profile,
+        "satellite": satellite_res,
+        "soil_health": soil_res,
+        "climate_risk": climate_res,
+        "advisory": advisory_res,
+        "data_source_mode": "100% Live Real-Time Ingestion (GPS + Met Grid + SoilGrids)"
     }
 
 # ----------------- FARMS & DIGITAL TWINS -----------------
