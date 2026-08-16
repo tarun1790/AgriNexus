@@ -1,0 +1,38 @@
+<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Gradient Definitions -->
+    <defs>
+        <linearGradient id="riceGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fef08a" />
+            <stop offset="50%" stop-color="#fde047" />
+            <stop offset="100%" stop-color="#f59e0b" />
+        </linearGradient>
+        <linearGradient id="stemGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#34d399" />
+            <stop offset="60%" stop-color="#fef08a" />
+            <stop offset="100%" stop-color="#fde047" />
+        </linearGradient>
+    </defs>
+
+    <!-- Curved Panicle Rachis / Main Stem -->
+    <path d="M16 56 C20 42, 26 26, 44 10" stroke="url(#stemGrad)" stroke-width="2.8" stroke-linecap="round"/>
+
+    <!-- Terminal Top Rice Grain -->
+    <path d="M44 10 C49 5, 54 7, 50 14 C46 20, 40 16, 44 10Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+    <path d="M44 10 L48 4" stroke="#d97706" stroke-width="1" stroke-linecap="round"/>
+
+    <!-- Grain Pair 1 (Upper) -->
+    <path d="M40 18 C47 13, 52 16, 47 23 C42 29, 37 24, 40 18Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+    <path d="M33 22 C26 17, 22 21, 27 27 C31 33, 36 27, 33 22Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+
+    <!-- Grain Pair 2 (Middle) -->
+    <path d="M36 29 C43 25, 48 29, 42 36 C37 42, 32 36, 36 29Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+    <path d="M28 33 C21 29, 18 34, 23 40 C28 45, 32 39, 28 33Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+
+    <!-- Grain Pair 3 (Lower) -->
+    <path d="M31 40 C37 37, 41 42, 36 48 C31 53, 27 47, 31 40Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+    <path d="M23 44 C17 41, 15 47, 19 52 C24 56, 27 50, 23 44Z" fill="url(#riceGoldGrad)" stroke="#d97706" stroke-width="1.2"/>
+
+    <!-- Basal Flag Leaf Sheath -->
+    <path d="M16 56 C12 44, 10 32, 14 24 C16 35, 18 46, 16 56Z" fill="#10b981" stroke="#059669" stroke-width="1"/>
+    <path d="M16 56 C22 52, 28 53, 32 55 C26 56, 20 57, 16 56Z" fill="#34d399" opacity="0.8"/>
+</svg>
