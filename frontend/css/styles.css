@@ -324,6 +324,86 @@ body {
     100% { transform: translateX(-50%); }
 }
 
+/* INTERACTIVE GPS PROMPT BANNER */
+.gps-prompt-banner {
+    background: linear-gradient(135deg, #022c1b 0%, #064e3b 50%, #059669 100%);
+    color: #ffffff;
+    padding: 1.15rem 2.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 1px solid rgba(52, 211, 153, 0.4);
+    box-shadow: 0 4px 20px rgba(6, 78, 59, 0.25);
+    animation: slideFadeDown 0.35s ease-out;
+}
+
+@keyframes slideFadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.gps-prompt-content {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.gps-prompt-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.gps-prompt-text h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
+}
+
+.gps-prompt-text p {
+    font-size: 0.84rem;
+    color: #d1fae5;
+    line-height: 1.4;
+}
+
+.gps-prompt-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+}
+
+.btn-gps-primary {
+    background: #ffffff;
+    color: #064e3b;
+    border: none;
+    padding: 0.72rem 1.45rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-gps-primary:hover {
+    background: #ecfdf5;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
 /* LOCATION SEARCH & ORBIT STRIP */
 .location-search-strip {
     background: rgba(255, 255, 255, 0.94);
@@ -333,12 +413,68 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1.8rem;
+    gap: 1.4rem;
+    flex-wrap: wrap;
+}
+
+.manual-coords-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.35rem 0.65rem;
+}
+
+.coord-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.coord-label {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.coord-input {
+    width: 90px;
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-xs);
+    padding: 0.35rem 0.5rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    outline: none;
+}
+.coord-input:focus {
+    border-color: var(--brand-primary);
+}
+
+.btn-coord-apply {
+    background: var(--brand-primary);
+    color: #ffffff;
+    border: none;
+    padding: 0.42rem 0.85rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.2s ease;
+}
+.btn-coord-apply:hover {
+    background: var(--brand-dark);
 }
 
 .search-input-wrap {
     flex: 1;
-    max-width: 580px;
+    max-width: 420px;
     display: flex;
     align-items: center;
     position: relative;

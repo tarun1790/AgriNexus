@@ -102,27 +102,56 @@
             </div>
         </div>
 
+        <!-- INTERACTIVE LIVE GPS LOCATION ACTIVATION BANNER -->
+        <div class="gps-prompt-banner" id="gps-prompt-banner">
+            <div class="gps-prompt-content">
+                <div class="gps-prompt-icon"><i data-lucide="crosshair"></i></div>
+                <div class="gps-prompt-text">
+                    <h4>📍 Connect Your Exact Field Location (Live GPS)</h4>
+                    <p>Click below to grant browser GPS permission and ingest live Sentinel-2 satellite imagery, weather, and 12-parameter soil health for your exact field coordinates.</p>
+                </div>
+            </div>
+            <div class="gps-prompt-actions">
+                <button class="btn-gps-primary" id="btn-trigger-gps">
+                    <i data-lucide="navigation"></i> <span>Detect My Field via GPS</span>
+                </button>
+            </div>
+        </div>
+
         <!-- LIVE GEOSPATIAL SEARCH BAR & SATELLITE ORBIT TICKER -->
         <div class="location-search-strip">
             <div class="search-input-wrap">
                 <i data-lucide="search" class="search-icon"></i>
-                <input type="text" id="map-search-input" placeholder="Search any village, mandal, district, or GPS coordinate (e.g. Guntur, Ludhiana, Sorriso)..." autocomplete="off">
-                <button id="btn-search-location" class="btn-search-apply">Search & Ingest Real-Time Data</button>
+                <input type="text" id="map-search-input" placeholder="Search any village, mandal, district, or city (e.g. Guntur, Warangal, Bhatinda)..." autocomplete="off">
+                <button id="btn-search-location" class="btn-search-apply">Search City</button>
             </div>
-            
+
+            <!-- Direct Lat / Lon Input Controls -->
+            <div class="manual-coords-wrap">
+                <div class="coord-input-group">
+                    <span class="coord-label">Lat:</span>
+                    <input type="number" id="input-manual-lat" step="0.0001" value="16.5062" class="coord-input">
+                </div>
+                <div class="coord-input-group">
+                    <span class="coord-label">Lon:</span>
+                    <input type="number" id="input-manual-lon" step="0.0001" value="80.6480" class="coord-input">
+                </div>
+                <button id="btn-apply-manual-coords" class="btn-coord-apply"><i data-lucide="check"></i> Apply</button>
+            </div>
+
             <!-- Live Orbit Pass Pill -->
             <div class="orbit-pass-ticker" id="orbit-pass-ticker">
                 <i data-lucide="satellite" class="orbit-icon"></i>
                 <div>
-                    <span class="orbit-title">Next Sentinel-2B Overpass:</span>
-                    <strong id="orbit-time-text">In 18h 22m (10m MSI)</strong>
+                    <span class="orbit-title">Sentinel-2B Pass:</span>
+                    <strong id="orbit-time-text">In 18h 22m</strong>
                 </div>
             </div>
 
             <div class="live-coords-hud">
                 <span class="hud-label">Field:</span>
                 <strong id="active-gps-display">16.5062° N, 80.6480° E</strong>
-                <span class="hud-tag" id="live-ingestion-tag">🟢 Live Weather & Soil Streams Active</span>
+                <span class="hud-tag" id="live-ingestion-tag">🟢 Live Streams Active</span>
             </div>
         </div>
 

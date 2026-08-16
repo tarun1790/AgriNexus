@@ -210,7 +210,25 @@ function initLeafletMap() {
     const gpsBtn = document.getElementById('btn-gps-locate');
     if (gpsBtn) {
         gpsBtn.addEventListener('click', () => {
-            autoRequestUserLocation();
+            autoRequestUserLocation(true);
+        });
+    }
+
+    const triggerGpsBtn = document.getElementById('btn-trigger-gps');
+    if (triggerGpsBtn) {
+        triggerGpsBtn.addEventListener('click', () => {
+            autoRequestUserLocation(true);
+        });
+    }
+
+    const manualApplyBtn = document.getElementById('btn-apply-manual-coords');
+    if (manualApplyBtn) {
+        manualApplyBtn.addEventListener('click', async () => {
+            const latVal = parseFloat(document.getElementById('input-manual-lat').value);
+            const lonVal = parseFloat(document.getElementById('input-manual-lon').value);
+            if (!isNaN(latVal) && !isNaN(lonVal)) {
+                await updateActiveCoordinates(latVal, lonVal);
+            }
         });
     }
 
@@ -235,7 +253,7 @@ function initLeafletMap() {
         } catch (e) {
             console.error('Geocoding error:', e);
         } finally {
-            searchBtn.textContent = 'Search & Ingest Real-Time Data';
+            searchBtn.textContent = 'Search City';
         }
     };
 
@@ -325,6 +343,11 @@ async function updateActiveCoordinates(lat, lon) {
 
     const gpsDisplay = document.getElementById('active-gps-display');
     if (gpsDisplay) gpsDisplay.textContent = `📍 ${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+
+    const latInput = document.getElementById('input-manual-lat');
+    const lonInput = document.getElementById('input-manual-lon');
+    if (latInput) latInput.value = lat.toFixed(4);
+    if (lonInput) lonInput.value = lon.toFixed(4);
 
     try {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
