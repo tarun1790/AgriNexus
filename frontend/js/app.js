@@ -410,15 +410,22 @@ function renderSoilHealthCard(shc) {
     if (grid) {
         grid.innerHTML = '';
         shc.parameters.forEach(p => {
+            const isDef = p.status.includes('DEFICIENT') || p.status.includes('LOW');
+            const isOpt = p.status.includes('OPTIMAL') || p.status.includes('SUFFICIENT') || p.status.includes('NORMAL');
+            const meterWidth = isDef ? 34 : (isOpt ? 82 : 95);
+
             const card = document.createElement('div');
             card.className = 'shc-param-card';
             card.innerHTML = `
                 <span class="param-category-tag">${p.category}</span>
                 <span class="param-name">${p.name}</span>
                 <span class="param-val">${p.value}</span>
-                <span class="param-benchmark">Norm: ${p.benchmark}</span>
+                <span class="param-benchmark">Benchmark: ${p.benchmark}</span>
+                <div class="shc-meter-bar">
+                    <div class="shc-meter-fill ${isDef ? 'meter-deficient' : ''}" style="width: ${meterWidth}%;"></div>
+                </div>
                 <span class="param-status-tag ${p.color}">${p.status}</span>
-                <span style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.3rem; font-style: italic; border-top: 1px dashed var(--border-subtle); padding-top: 0.2rem;">🔬 ${p.method || 'ICAR Standard Extraction'}</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.35rem; font-style: italic; border-top: 1px dashed var(--border-subtle); padding-top: 0.25rem;">🔬 ${p.method || 'ICAR Standard Extraction'}</span>
             `;
             grid.appendChild(card);
         });
