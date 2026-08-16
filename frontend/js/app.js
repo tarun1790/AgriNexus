@@ -96,18 +96,45 @@ function initLeafletMap() {
     const mapEl = document.getElementById('gis-leaflet-map');
     if (!mapEl || typeof L === 'undefined') return;
 
-    AppState.map = L.map('gis-leaflet-map').setView([AppState.currentLat, AppState.currentLon], 14);
+    AppState.map = L.map('gis-leaflet-map', {
+        zoomControl: true,
+        maxZoom: 19
+    }).setView([AppState.currentLat, AppState.currentLon], 16);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors | Google Earth Engine Hybrid'
+    // High-Resolution True-Color Satellite Orthophoto Layer (Esri World Imagery)
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        maxZoom: 19
     }).addTo(AppState.map);
+
+    // Hybrid Reference Labels (Places, Roads, Administrative Perimeters)
+    const labelsLayer = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '&copy; Esri World Boundaries & Places',
+        maxZoom: 19
+    }).addTo(AppState.map);
+
+    // Standard Street Layer for optional toggle
+    const streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    });
+
+    // Add Layer Control in top right corner
+    const baseMaps = {
+        "🛰️ High-Res Satellite View": satelliteLayer,
+        "🗺️ Street & Road Map": streetLayer
+    };
+    const overlayMaps = {
+        "🏷️ Village & Boundary Labels": labelsLayer
+    };
+    L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(AppState.map);
 
     AppState.marker = L.marker([AppState.currentLat, AppState.currentLon], {
         draggable: true,
         title: "Active Monitored Field"
     }).addTo(AppState.map);
 
-    AppState.marker.bindPopup("<b>Active Monitored Field</b><br>Real-Time Ingestion Active").openPopup();
+    AppState.marker.bindPopup("<b>🛰️ Active Monitored Field</b><br>High-Res Satellite Stream Active").openPopup();
 
     AppState.map.on('click', async (e) => {
         const { lat, lng } = e.latlng;
