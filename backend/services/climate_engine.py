@@ -12,12 +12,10 @@ class ClimateIntelligenceEngine:
     """
     Predictive Multi-Hazard Climate Risk & 'What-If' Climate Scenario Simulator.
     Simulates physiological crop yield impacts, evapotranspiration changes,
-    and ranks climate-resilient alternative crop pathways.
+    multi-year ROI forecasts, and ranks climate-resilient alternative crop pathways.
     """
 
     def assess_climate_risk(self, weather: WeatherData, soil: SoilData, crop: str = "Cotton") -> ClimateRiskAssessment:
-        # 1. Temperature-Humidity Index (THI) & Heat Stress
-        # THI = 0.8 * T + (RH/100) * (T - 14.4) + 46.4
         t = weather.temperature_celsius
         rh = weather.humidity_percentage
         thi = 0.8 * t + (rh / 100.0) * (t - 14.4) + 46.4
@@ -29,23 +27,17 @@ class ClimateIntelligenceEngine:
         else:
             heat_stress = max(10.0, t * 0.8)
 
-        # 2. Drought Risk
-        # Combines low soil moisture, low rain probability, and high solar radiation
         moisture_deficit = max(0.0, 35.0 - soil.moisture_percentage)
         rain_deficit = max(0.0, 50.0 - weather.rain_probability_pct)
         drought_risk = min(98.0, (moisture_deficit * 1.5) + (rain_deficit * 0.6) + (weather.solar_radiation_mj * 0.5))
 
-        # 3. Flood Risk
         flood_risk = min(95.0, (weather.rainfall_forecast_mm * 1.8) + (weather.rain_probability_pct * 0.3) if weather.rainfall_forecast_mm > 25 else (weather.rainfall_forecast_mm * 0.5))
 
-        # 4. Disease-Conducive Microclimate Risk
-        # Warm + high humidity (RH > 75% and Temp between 24-32 C triggers fungal germination)
         if rh >= 70 and 22 <= t <= 33:
             disease_risk = min(92.0, 50.0 + (rh - 70) * 1.4)
         else:
             disease_risk = max(15.0, rh * 0.4)
 
-        # Overall synthesis
         max_hazard = max(heat_stress, drought_risk, flood_risk, disease_risk)
         if max_hazard >= 75:
             overall_tier = "CRITICAL"
@@ -56,7 +48,6 @@ class ClimateIntelligenceEngine:
         else:
             overall_tier = "LOW"
 
-        # Targeted irrigation calculation
         irrigation_needed = drought_risk > 45 or soil.moisture_percentage < 25.0
         est_liters_acre = int(max(0, (30.0 - soil.moisture_percentage) * 850)) if irrigation_needed else 0
 
@@ -99,39 +90,32 @@ class ClimateIntelligenceEngine:
         )
 
     def simulate_what_if_scenario(self, req: WhatIfSimulationRequest) -> WhatIfSimulationResponse:
-        """
-        Simulate climate change scenario (+ΔT, -ΔRainfall, extreme heat days)
-        on crop yield, water deficit, and discover climate-resilient alternative crops.
-        """
         crop = req.crop.lower()
         delta_t = req.delta_temperature_c
         delta_r = req.delta_rainfall_pct
         extreme_days = req.extreme_heat_days
+        sim_years = req.simulation_years
 
-        # Crop sensitivity coefficients (% yield change per +1C and per -10% rain)
         sensitivity = {
-            "cotton": {"temp_sens": -4.2, "rain_sens": -3.8, "base_yield": 2.2, "water_base": 6500},
-            "rice": {"temp_sens": -6.5, "rain_sens": -7.2, "base_yield": 4.1, "water_base": 12000},
-            "wheat": {"temp_sens": -5.8, "rain_sens": -4.5, "base_yield": 3.4, "water_base": 5500},
-            "maize": {"temp_sens": -5.0, "rain_sens": -5.5, "base_yield": 4.8, "water_base": 6200},
-            "soybean": {"temp_sens": -4.8, "rain_sens": -4.2, "base_yield": 2.1, "water_base": 5000}
+            "cotton": {"temp_sens": -4.2, "rain_sens": -3.8, "base_yield": 2.2, "water_base": 6500, "profit_base": 620},
+            "rice": {"temp_sens": -6.5, "rain_sens": -7.2, "base_yield": 4.1, "water_base": 12000, "profit_base": 780},
+            "wheat": {"temp_sens": -5.8, "rain_sens": -4.5, "base_yield": 3.4, "water_base": 5500, "profit_base": 550},
+            "maize": {"temp_sens": -5.0, "rain_sens": -5.5, "base_yield": 4.8, "water_base": 6200, "profit_base": 680},
+            "soybean": {"temp_sens": -4.8, "rain_sens": -4.2, "base_yield": 2.1, "water_base": 5000, "profit_base": 720}
         }
         params = sensitivity.get(crop, sensitivity["cotton"])
 
-        # Yield impact calculation
         temp_loss = delta_t * params["temp_sens"] if delta_t > 0 else delta_t * (params["temp_sens"] * 0.3)
         rain_loss = (delta_r / 10.0) * params["rain_sens"]
         extreme_penalty = extreme_days * -0.9
-        om_benefit = req.soil_organic_matter_delta * 4.5  # regenerative soil organic matter buffers climate shock!
+        om_benefit = req.soil_organic_matter_delta * 4.5
 
         total_yield_delta = round(temp_loss + rain_loss + extreme_penalty + om_benefit, 1)
 
-        # Evapotranspiration water deficit
-        et_multiplier = 1.0 + (delta_t * 0.062)  # ~6.2% more ET per +1C
+        et_multiplier = 1.0 + (delta_t * 0.062)
         rain_deficit_factor = max(0.0, -delta_r / 100.0)
         water_deficit_liters_acre = round((params["water_base"] * (et_multiplier - 1.0) + (params["water_base"] * rain_deficit_factor * 0.7)) * 100, 0)
 
-        # Vulnerability tier
         if total_yield_delta <= -25.0:
             tier = "Severe Vulnerability (High Climate Risk)"
         elif total_yield_delta <= -12.0:
@@ -155,7 +139,6 @@ class ClimateIntelligenceEngine:
         if delta_r <= -20:
             strategies.append("Adopt rainwater harvesting farm ponds (Jal Kund) for supplemental critical flowering stage irrigation.")
 
-        # Alternative climate-smart crops library
         alternatives: List[AlternativeCropOption] = [
             AlternativeCropOption(
                 crop_name="Pearl Millet (Bajra / Pennisetum glaucum)",
@@ -195,6 +178,19 @@ class ClimateIntelligenceEngine:
             )
         ]
 
+        # Multi-Year Financial & Carbon ROI projection
+        net_profit_delta_usd_per_acre = round((params["profit_base"] * (total_yield_delta / 100.0)), 2)
+        regenerative_benefit_5yr_usd = round((58.20 * sim_years) + (params["profit_base"] * 0.12 * sim_years), 2)
+        water_saved_5yr_m3 = round((water_deficit_liters_acre * 0.35 * sim_years) / 1000.0, 1)
+
+        multi_year_roi = {
+            "simulation_horizon_years": sim_years,
+            "projected_unadapted_loss_usd_per_acre": abs(net_profit_delta_usd_per_acre) if net_profit_delta_usd_per_acre < 0 else 0,
+            "regenerative_adaptation_gain_5yr_usd": regenerative_benefit_5yr_usd,
+            "cumulative_water_conserved_m3": water_saved_5yr_m3,
+            "carbon_offset_tco2e_sequestered": round(1.45 * sim_years * 2.4, 2)
+        }
+
         return WhatIfSimulationResponse(
             baseline_crop=req.crop,
             simulated_yield_change_pct=total_yield_delta,
@@ -203,7 +199,8 @@ class ClimateIntelligenceEngine:
             vulnerability_tier=tier,
             climate_impact_summary=summary,
             adaptation_strategies=strategies,
-            alternative_resilient_crops=alternatives
+            alternative_resilient_crops=alternatives,
+            multi_year_roi_projection=multi_year_roi
         )
 
 climate_engine = ClimateIntelligenceEngine()

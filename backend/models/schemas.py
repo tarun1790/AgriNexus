@@ -26,7 +26,7 @@ class WeatherData(BaseModel):
     solar_radiation_mj: float = Field(default=21.0, description="Solar radiation in MJ/m2")
 
 class FarmProfile(BaseModel):
-    farm_id: str = Field(default="farm_in_ap_001")
+    farm_id: str = Field(default="farm_in_cotton_01")
     farmer_name: str = Field(default="Ramesh Kumar")
     country_code: str = Field(default="IN")
     region: str = Field(default="Andhra Pradesh, Krishna Basin")
@@ -44,12 +44,14 @@ class SatelliteGridCell(BaseModel):
     ndvi: float
     ndwi: float
     evi: float
-    health_status: str  # "vigorous", "moderate_stress", "severe_stress", "waterlogged"
+    savi: float
+    health_status: str
 
 class SatelliteAnalysisResponse(BaseModel):
     mean_ndvi: float
     mean_ndwi: float
     mean_evi: float
+    mean_savi: float
     stress_area_pct: float
     healthy_area_pct: float
     vegetation_index_trend: List[Dict[str, Any]]
@@ -62,7 +64,7 @@ class SatelliteAnalysisResponse(BaseModel):
 
 class RegenerativeRecommendation(BaseModel):
     practice_name: str
-    impact_category: str  # "Soil Organic Matter", "Water Retention", "Carbon Sequestration", "Biodiversity"
+    impact_category: str
     description: str
     soil_carbon_gain_tons_per_yr: float
     water_saving_pct: float
@@ -70,7 +72,7 @@ class RegenerativeRecommendation(BaseModel):
 
 class SoilHealthResponse(BaseModel):
     soil_health_score: int
-    rating_category: str  # "Degraded", "Moderate", "Healthy", "Optimal"
+    rating_category: str
     npk_status: Dict[str, str]
     carbon_status: str
     water_retention_capacity_mm: float
@@ -79,7 +81,7 @@ class SoilHealthResponse(BaseModel):
     carbon_credit_potential_est_usd: float
 
 class ClimateRiskAssessment(BaseModel):
-    overall_risk_level: str  # "LOW", "MODERATE", "HIGH", "CRITICAL"
+    overall_risk_level: str
     heat_stress_pct: float
     drought_risk_pct: float
     flood_risk_pct: float
@@ -89,10 +91,11 @@ class ClimateRiskAssessment(BaseModel):
 
 class WhatIfSimulationRequest(BaseModel):
     crop: str = Field(default="Cotton")
-    delta_temperature_c: float = Field(default=2.0, ge=-5.0, le=8.0, description="Temperature anomaly in C")
-    delta_rainfall_pct: float = Field(default=-20.0, ge=-80.0, le=100.0, description="Rainfall anomaly in %")
-    soil_organic_matter_delta: float = Field(default=0.0, ge=-1.0, le=2.0, description="Organic matter change %")
+    delta_temperature_c: float = Field(default=2.0, ge=-5.0, le=8.0)
+    delta_rainfall_pct: float = Field(default=-20.0, ge=-80.0, le=100.0)
+    soil_organic_matter_delta: float = Field(default=0.0, ge=-1.0, le=2.0)
     extreme_heat_days: int = Field(default=5, ge=0, le=30)
+    simulation_years: int = Field(default=1, ge=1, le=5)
     current_soil: Optional[SoilData] = None
 
 class AlternativeCropOption(BaseModel):
@@ -113,12 +116,13 @@ class WhatIfSimulationResponse(BaseModel):
     climate_impact_summary: str
     adaptation_strategies: List[str]
     alternative_resilient_crops: List[AlternativeCropOption]
+    multi_year_roi_projection: Dict[str, Any]
 
 class DiseaseDetectionResponse(BaseModel):
     disease_name: str
-    pathogen_type: str  # "Fungal", "Bacterial", "Viral", "Pest Infestation", "Nutrient Deficiency", "Healthy"
+    pathogen_type: str
     confidence_pct: float
-    severity_level: str  # "Mild", "Moderate", "Severe", "None"
+    severity_level: str
     affected_crop: str
     description: str
     cultural_practices: List[str]
@@ -138,7 +142,7 @@ class LocalizedAdvisoryResponse(BaseModel):
     fertilizer_prescription: Dict[str, Any]
     pest_disease_prescription: Dict[str, Any]
     multilingual_versions: Dict[str, Dict[str, str]]
-    urgency_badge: str  # "Immediate Action (12-24h)", "Scheduled", "Normal"
+    urgency_badge: str
 
 class FederatedNodeStatus(BaseModel):
     node_id: str
@@ -158,3 +162,35 @@ class FederatedAggregationResponse(BaseModel):
     aggregation_algorithm: str
     privacy_guarantee: str
     convergence_status: str
+
+# ----------------- ADVANCED MULTI-AGENT & IOT SCHEMAS -----------------
+class AgentReport(BaseModel):
+    agent_name: str
+    role: str
+    key_findings: List[str]
+    confidence_score: float
+
+class CopilotChatRequest(BaseModel):
+    message: str = Field(..., example="How much water should I apply if temperature hits 40°C tomorrow?")
+    farm_id: Optional[str] = "farm_in_cotton_01"
+    language: Optional[str] = "en"
+    context: Optional[Dict[str, Any]] = None
+
+class CopilotChatResponse(BaseModel):
+    reply: str
+    language: str
+    participating_agents: List[AgentReport]
+    recommended_actions: List[str]
+    voice_audio_params: Dict[str, Any]
+
+class IoTProbeTelemetry(BaseModel):
+    probe_id: str
+    timestamp: str
+    battery_level_pct: float
+    depth_15cm_moisture_pct: float
+    depth_30cm_moisture_pct: float
+    depth_60cm_moisture_pct: float
+    soil_temp_celsius: float
+    electrical_conductivity_ds_m: float
+    root_zone_water_potential_kpa: float
+    probe_status: str

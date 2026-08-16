@@ -113,10 +113,12 @@
                                 <h3><i data-lucide="satellite"></i> Field Satellite Zonation (10m Sentinel-2)</h3>
                                 <span class="card-tag" id="satellite-timestamp">Acquired: Recent Pass</span>
                             </div>
-                            <div class="map-legend">
-                                <span class="legend-item"><span class="color-dot vigorous"></span> Vigorous Canopy (NDVI &gt; 0.62)</span>
-                                <span class="legend-item"><span class="color-dot moderate"></span> Moderate Stress (0.45-0.62)</span>
-                                <span class="legend-item"><span class="color-dot severe"></span> Moisture/Nutrient Stress (&lt; 0.45)</span>
+                            <!-- Spectral Layer Switcher -->
+                            <div class="spectral-layer-switch">
+                                <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy Vigour)</button>
+                                <button class="btn-spectral" data-layer="ndwi">NDWI (Water Stress)</button>
+                                <button class="btn-spectral" data-layer="evi">EVI (Biomass)</button>
+                                <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adjusted)</button>
                             </div>
                         </div>
 
@@ -141,8 +143,8 @@
                                 <span class="stat-value" id="mean-ndwi-val">0.24</span>
                             </div>
                             <div class="mini-stat">
-                                <span class="stat-label">Vigour Area</span>
-                                <span class="stat-value text-success" id="vigour-area-pct">68.5%</span>
+                                <span class="stat-label">Mean SAVI (L=0.5)</span>
+                                <span class="stat-value text-info" id="mean-savi-val">0.52</span>
                             </div>
                             <div class="mini-stat">
                                 <span class="stat-label">Stress Anomaly Area</span>
@@ -151,9 +153,39 @@
                         </div>
                     </div>
 
-                    <!-- Environmental Telemetry & Hazard Risks -->
+                    <!-- Environmental Telemetry & IoT Soil Probe -->
                     <div class="panel-card climate-telemetry-card">
                         <div class="card-header">
+                            <h3><i data-lucide="radio"></i> Live IoT Root-Zone Soil Probe HUD</h3>
+                            <span class="pulse-badge" id="iot-status-badge"><span class="pulse-dot"></span> Telemetry Stream Live</span>
+                        </div>
+
+                        <!-- Stratified Probe Layers -->
+                        <div class="iot-probe-grid">
+                            <div class="iot-layer-box">
+                                <span class="layer-depth">Topsoil (15cm)</span>
+                                <strong class="layer-moisture" id="iot-m15">20.5%</strong>
+                                <span class="layer-note">Evaporation Zone</span>
+                            </div>
+                            <div class="iot-layer-box active-layer">
+                                <span class="layer-depth">Root-Zone (30cm)</span>
+                                <strong class="layer-moisture text-warning" id="iot-m30">24.1%</strong>
+                                <span class="layer-note text-warning">Depletion Alert</span>
+                            </div>
+                            <div class="iot-layer-box">
+                                <span class="layer-depth">Subsoil (60cm)</span>
+                                <strong class="layer-moisture text-success" id="iot-m60">29.2%</strong>
+                                <span class="layer-note">Deep Taproot Reserve</span>
+                            </div>
+                        </div>
+
+                        <div class="iot-secondary-metrics">
+                            <span>🌡️ Soil Temp: <strong id="iot-temp">29.5°C</strong></span>
+                            <span>⚡ EC: <strong id="iot-ec">0.85 dS/m</strong></span>
+                            <span>💧 Water Potential: <strong id="iot-kpa">-136 kPa</strong></span>
+                        </div>
+
+                        <div class="card-header" style="margin-top: 1.25rem; margin-bottom: 0.75rem;">
                             <h3><i data-lucide="cloud-sun"></i> Microclimate & Hazard Matrix</h3>
                             <span class="risk-badge badge-high" id="overall-risk-badge">Risk: HIGH</span>
                         </div>
@@ -181,42 +213,11 @@
 
                             <div class="hazard-meter-item">
                                 <div class="meter-labels">
-                                    <span><i data-lucide="cloud-rain"></i> Excessive Rain / Flood Risk</span>
-                                    <strong id="flood-risk-val">19%</strong>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill flood-fill" id="flood-risk-bar" style="width: 19%;"></div>
-                                </div>
-                            </div>
-
-                            <div class="hazard-meter-item">
-                                <div class="meter-labels">
                                     <span><i data-lucide="bug"></i> Disease-Conducive Microclimate</span>
                                     <strong id="disease-risk-val">71%</strong>
                                 </div>
                                 <div class="progress-bar-bg">
                                     <div class="progress-bar-fill disease-fill" id="disease-risk-bar" style="width: 71%;"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Prescriptions Grid -->
-                        <div class="prescriptions-summary">
-                            <div class="prescription-tile">
-                                <div class="tile-icon"><i data-lucide="droplets"></i></div>
-                                <div class="tile-details">
-                                    <span class="tile-subtitle">Irrigation Demand</span>
-                                    <strong id="presc-irr-vol">22,000 L / Acre</strong>
-                                    <span class="tile-note" id="presc-irr-window">Window: Next 18-24 Hours</span>
-                                </div>
-                            </div>
-
-                            <div class="prescription-tile">
-                                <div class="tile-icon"><i data-lucide="test-tube"></i></div>
-                                <div class="tile-details">
-                                    <span class="tile-subtitle">Nutrient / Carbon Balance</span>
-                                    <strong id="presc-fert-title">Nitrogen Deficit</strong>
-                                    <span class="tile-note" id="presc-fert-note">Bio-enriched compost & neem cake</span>
                                 </div>
                             </div>
                         </div>
@@ -338,7 +339,6 @@
                                 <span class="slider-val" id="sim-som-display">+0.0 % (Unmanaged)</span>
                             </div>
                             <input type="range" id="sim-som-slider" min="-0.5" max="1.5" step="0.25" value="0.0" class="custom-range">
-                            <span class="slider-hints"><span>-0.5% (Eroded)</span><span>0% (Current)</span><span>+1.5% (Biochar/Cover Crops)</span></span>
                         </div>
 
                         <button class="btn btn-primary w-full" id="run-sim-btn">
@@ -375,7 +375,18 @@
                             </div>
                         </div>
 
-                        <div class="alternative-crops-section">
+                        <!-- 5-Year Multi-Year Financial & Carbon ROI Box -->
+                        <div class="roi-projection-box">
+                            <h4><i data-lucide="trending-up"></i> 5-Year Climate Adaptation ROI Forecast</h4>
+                            <div class="roi-stats-row">
+                                <div><span>Unadapted Loss:</span> <strong class="text-danger" id="roi-loss">$114.08/ac</strong></div>
+                                <div><span>Regenerative Gain:</span> <strong class="text-success" id="roi-gain">$663.00</strong></div>
+                                <div><span>Water Conserved:</span> <strong class="text-info" id="roi-water">144.2 m³</strong></div>
+                                <div><span>Carbon Sequestered:</span> <strong class="text-success" id="roi-carbon">17.4 tCO2e</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="alternative-crops-section" style="margin-top: 1.25rem;">
                             <h4><i data-lucide="shuffle"></i> Ranked Climate-Smart Alternative Crops</h4>
                             <div class="crops-table-wrapper">
                                 <table class="crops-table" id="alternative-crops-table">
@@ -404,7 +415,7 @@
                     <div class="panel-card disease-upload-card">
                         <div class="card-header">
                             <h3><i data-lucide="camera"></i> Foliar Pathology Scanner</h3>
-                            <span class="card-tag">PyTorch Vision AI</span>
+                            <span class="card-tag">PyTorch Vision AI (CUDA)</span>
                         </div>
 
                         <!-- Dropzone -->
@@ -547,27 +558,27 @@
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/satellite/indices</code>
-                            <span class="endpoint-desc">Compute multispectral NDVI, NDWI, EVI and 8x8 zonal stress matrices</span>
+                            <span class="endpoint-desc">Compute multispectral NDVI, NDWI, EVI, SAVI and 8x8 zonal stress matrices</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/soil/health</code>
-                            <span class="endpoint-desc">Evaluate Soil Health Score (0-100), nutrient balances, and regenerative plans</span>
+                            <code class="endpoint-uri">/api/v1/copilot/chat</code>
+                            <span class="endpoint-desc">Gemini Multi-Agent Autonomous Agronomic Orchestrator Copilot</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/iot/live-telemetry</code>
+                            <span class="endpoint-desc">Live LoRaWAN soil probe telemetry stream across 15cm, 30cm, 60cm</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/climate/simulate</code>
-                            <span class="endpoint-desc">Execute "What-If" climate change scenario on crop yield and water deficit</span>
+                            <span class="endpoint-desc">Execute "What-If" climate scenario simulation with multi-year ROI</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/disease/detect</code>
                             <span class="endpoint-desc">PyTorch CUDA leaf lesion diagnostics with organic and chemical remedies</span>
-                        </div>
-                        <div class="api-endpoint-row">
-                            <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/advisory/generate</code>
-                            <span class="endpoint-desc">Evidence layer fusion yielding localized advisory in English, Telugu, and Hindi</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
@@ -578,6 +589,43 @@
                 </div>
             </section>
         </main>
+
+        <!-- FLOATING GEMINI MULTI-AGENT COPILOT DRAWER -->
+        <div class="copilot-floating-widget" id="copilot-widget">
+            <button class="copilot-toggle-btn" id="copilot-toggle-btn">
+                <i data-lucide="bot"></i> <span>Ask Gemini Agronomic Copilot</span>
+            </button>
+
+            <div class="copilot-drawer hidden" id="copilot-drawer">
+                <div class="copilot-header">
+                    <div class="copilot-brand">
+                        <i data-lucide="sparkles" class="text-warning"></i>
+                        <div>
+                            <h4>Gemini Agronomic Copilot</h4>
+                            <span class="copilot-subtitle">3 Autonomous Agents Active</span>
+                        </div>
+                    </div>
+                    <button class="close-copilot-btn" id="close-copilot-btn"><i data-lucide="x"></i></button>
+                </div>
+
+                <div class="copilot-messages" id="copilot-messages">
+                    <div class="msg-bot">
+                        👋 Hello! I am your <strong>AgriNexus Copilot</strong>, powered by Google Gemini and 3 specialized agronomic sub-agents (Satellite Scout, Soil Microbiome, and Hydrology Forecaster). Ask me anything about your field!
+                    </div>
+                </div>
+
+                <div class="copilot-quick-prompts">
+                    <button class="quick-chip" data-prompt="How much water should I apply if temperature hits 40°C tomorrow?">🌡️ Water if 40°C?</button>
+                    <button class="quick-chip" data-prompt="How can I restore my soil organic carbon naturally?">🌱 Restore Organic Carbon?</button>
+                    <button class="quick-chip" data-prompt="Which climate-smart crop is most profitable this season?">🌾 Best Alternative Crop?</button>
+                </div>
+
+                <form class="copilot-input-bar" id="copilot-form">
+                    <input type="text" id="copilot-input" placeholder="Type or ask a farming question..." autocomplete="off">
+                    <button type="submit" class="copilot-send-btn"><i data-lucide="send"></i></button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->

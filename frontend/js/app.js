@@ -1,7 +1,8 @@
 /**
- * AgriNexus — Frontend Application Logic
- * Integrates Field Digital Twins, Satellite Zonation, What-If Climate Simulator,
- * Disease Scanner, and Federated DPI Interoperability Layer.
+ * AgriNexus v2.0 — Frontend Application Logic
+ * Integrates Field Digital Twins, Spectral Layer Switching (NDVI, NDWI, EVI, SAVI),
+ * Live IoT Soil Probe HUD, What-If Climate Simulator with Multi-Year ROI,
+ * Leaf Pathology Scanner, and Gemini Multi-Agent Autonomous Copilot.
  */
 
 const API_BASE = '';
@@ -9,6 +10,7 @@ const API_BASE = '';
 const AppState = {
     currentFarmId: 'farm_in_cotton_01',
     currentLanguage: 'en',
+    activeSpectralLayer: 'ndvi',
     farmProfile: null,
     satelliteData: null,
     soilData: null,
@@ -16,24 +18,23 @@ const AppState = {
     advisoryData: null,
     diseaseData: null,
     federatedData: null,
-    isPlayingAudio: false
+    iotInterval: null
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize Lucide Icons
-    if (window.lucide) {
-        window.lucide.createIcons();
-    }
+    if (window.lucide) window.lucide.createIcons();
 
     initTabs();
     initControls();
+    initSpectralSwitcher();
     initSimulator();
     initDiseaseScanner();
     initFederatedNetwork();
+    initCopilot();
     
-    // Load initial health and data
     await checkSystemHealth();
     await loadFarmData(AppState.currentFarmId);
+    startIoTPolling();
 });
 
 // ----------------- TAB NAVIGATION -----------------
@@ -94,14 +95,25 @@ function initControls() {
     });
 }
 
+// ----------------- SPECTRAL LAYER SWITCHER -----------------
+function initSpectralSwitcher() {
+    const buttons = document.querySelectorAll('.btn-spectral');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            AppState.activeSpectralLayer = btn.getAttribute('data-layer');
+            renderSatelliteGrid();
+        });
+    });
+}
+
 // ----------------- DATA LOADING & ADVISORY -----------------
 async function loadFarmData(farmId) {
     try {
-        // Fetch farm profile
         const farmRes = await fetch(`${API_BASE}/api/v1/farms/${farmId}`);
         AppState.farmProfile = await farmRes.json();
 
-        // Fetch satellite indices
         const satRes = await fetch(`${API_BASE}/api/v1/satellite/indices`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -113,7 +125,6 @@ async function loadFarmData(farmId) {
         });
         AppState.satelliteData = await satRes.json();
 
-        // Fetch soil health
         const soilRes = await fetch(`${API_BASE}/api/v1/soil/health`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -121,7 +132,6 @@ async function loadFarmData(farmId) {
         });
         AppState.soilData = await soilRes.json();
 
-        // Fetch climate risk
         const climRes = await fetch(`${API_BASE}/api/v1/climate/risk`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -133,13 +143,11 @@ async function loadFarmData(farmId) {
         });
         AppState.climateRisk = await climRes.json();
 
-        // Fetch advisory
         const advRes = await fetch(`${API_BASE}/api/v1/advisory/generate?farm_id=${farmId}`, {
             method: 'POST'
         });
         AppState.advisoryData = await advRes.json();
 
-        // Render UI panels
         renderAdvisoryPanel();
         renderSatelliteGrid();
         renderSoilPanel();
@@ -153,15 +161,6 @@ async function loadFarmData(farmId) {
 function renderAdvisoryPanel() {
     if (!AppState.advisoryData) return;
     renderLocalizedAdvisory();
-
-    const irrVol = AppState.advisoryData.irrigation_prescription.liters_per_acre;
-    const irrWin = AppState.advisoryData.irrigation_prescription.urgency_window;
-    document.getElementById('presc-irr-vol').textContent = irrVol > 0 ? `${irrVol.toLocaleString()} L / Acre` : '0 L (Adequate)';
-    document.getElementById('presc-irr-window').textContent = `Window: ${irrWin}`;
-
-    const fertN = AppState.advisoryData.fertilizer_prescription.nitrogen_status;
-    document.getElementById('presc-fert-title').textContent = `Nitrogen: ${fertN}`;
-    document.getElementById('presc-fert-note').textContent = AppState.advisoryData.fertilizer_prescription.recommendation;
 }
 
 function renderLocalizedAdvisory() {
@@ -207,14 +206,15 @@ function speakCurrentAdvisory() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ----------------- SATELLITE FIELD GRID -----------------
+// ----------------- SATELLITE FIELD GRID (MULTI-SPECTRAL) -----------------
 function renderSatelliteGrid() {
     if (!AppState.satelliteData) return;
     const data = AppState.satelliteData;
+    const layer = AppState.activeSpectralLayer;
 
     document.getElementById('mean-ndvi-val').textContent = data.mean_ndvi;
     document.getElementById('mean-ndwi-val').textContent = data.mean_ndwi;
-    document.getElementById('vigour-area-pct').textContent = `${data.healthy_area_pct}%`;
+    document.getElementById('mean-savi-val').textContent = data.mean_savi;
     document.getElementById('stress-area-pct').textContent = `${data.stress_area_pct}%`;
     document.getElementById('satellite-timestamp').textContent = `Pass: ${data.acquisition_date}`;
 
@@ -226,15 +226,22 @@ function renderSatelliteGrid() {
             const div = document.createElement('div');
             div.className = 'grid-cell';
 
-            if (cell.health_status === 'vigorous') {
-                div.classList.add('cell-vigorous');
-            } else if (cell.health_status === 'moderate_stress') {
-                div.classList.add('cell-moderate');
+            let val = cell.ndvi;
+            if (layer === 'ndwi') val = cell.ndwi;
+            else if (layer === 'evi') val = cell.evi;
+            else if (layer === 'savi') val = cell.savi;
+
+            if (layer === 'ndwi') {
+                if (val >= 0.25) div.classList.add('cell-vigorous');
+                else if (val >= 0.12) div.classList.add('cell-moderate');
+                else div.classList.add('cell-severe');
             } else {
-                div.classList.add('cell-severe');
+                if (val >= 0.60) div.classList.add('cell-vigorous');
+                else if (val >= 0.45) div.classList.add('cell-moderate');
+                else div.classList.add('cell-severe');
             }
 
-            div.title = `Parcel [${rIdx},${cIdx}] NDVI: ${cell.ndvi} | NDWI: ${cell.ndwi}`;
+            div.title = `[${rIdx},${cIdx}] ${layer.toUpperCase()}: ${val}`;
             div.addEventListener('click', () => {
                 inspectCell(cell, rIdx, cIdx);
             });
@@ -250,11 +257,36 @@ function inspectCell(cell, r, c) {
         <div style="line-height: 1.6;">
             <strong>Parcel Coordinate:</strong> (${cell.lat}, ${cell.lon})<br>
             <strong>Grid Sector:</strong> Row ${r + 1}, Col ${c + 1}<br>
-            <strong>NDVI (Vigour):</strong> <span class="text-success">${cell.ndvi}</span><br>
-            <strong>NDWI (Moisture):</strong> <span class="text-info">${cell.ndwi}</span><br>
-            <strong>Status:</strong> <span class="${cell.health_status === 'vigorous' ? 'text-success' : 'text-danger'}">${cell.health_status.toUpperCase().replace('_', ' ')}</span>
+            <strong>NDVI (Vigour):</strong> <span class="text-success">${cell.ndvi}</span> | <strong>NDWI:</strong> <span class="text-info">${cell.ndwi}</span><br>
+            <strong>EVI:</strong> <span>${cell.evi}</span> | <strong>SAVI:</strong> <span class="text-warning">${cell.savi}</span><br>
+            <strong>Diagnosis:</strong> <span class="${cell.health_status === 'vigorous' ? 'text-success' : 'text-danger'}">${cell.health_status.toUpperCase().replace('_', ' ')}</span>
         </div>
     `;
+}
+
+// ----------------- LIVE IOT SOIL PROBE STREAM -----------------
+function startIoTPolling() {
+    if (AppState.iotInterval) clearInterval(AppState.iotInterval);
+
+    const updateIoT = async () => {
+        try {
+            const baseM = AppState.farmProfile ? AppState.farmProfile.soil.moisture_percentage : 24.0;
+            const res = await fetch(`${API_BASE}/api/v1/iot/live-telemetry?moisture=${baseM}`);
+            const data = await res.json();
+
+            document.getElementById('iot-m15').textContent = `${data.depth_15cm_moisture_pct}%`;
+            document.getElementById('iot-m30').textContent = `${data.depth_30cm_moisture_pct}%`;
+            document.getElementById('iot-m60').textContent = `${data.depth_60cm_moisture_pct}%`;
+            document.getElementById('iot-temp').textContent = `${data.soil_temp_celsius}°C`;
+            document.getElementById('iot-ec').textContent = `${data.electrical_conductivity_ds_m} dS/m`;
+            document.getElementById('iot-kpa').textContent = `${data.root_zone_water_potential_kpa} kPa`;
+        } catch (e) {
+            console.warn('IoT stream update deferred', e);
+        }
+    };
+
+    updateIoT();
+    AppState.iotInterval = setInterval(updateIoT, 4000);
 }
 
 // ----------------- CLIMATE METERS -----------------
@@ -268,9 +300,6 @@ function renderClimateMeters() {
 
     document.getElementById('drought-risk-val').textContent = `${c.drought_risk_pct}%`;
     document.getElementById('drought-risk-bar').style.width = `${c.drought_risk_pct}%`;
-
-    document.getElementById('flood-risk-val').textContent = `${c.flood_risk_pct}%`;
-    document.getElementById('flood-risk-bar').style.width = `${c.flood_risk_pct}%`;
 
     document.getElementById('disease-risk-val').textContent = `${c.disease_conducive_risk_pct}%`;
     document.getElementById('disease-risk-bar').style.width = `${c.disease_conducive_risk_pct}%`;
@@ -360,7 +389,6 @@ function initSimulator() {
         executeSimulation();
     });
 
-    // Run baseline simulation
     executeSimulation();
 }
 
@@ -379,7 +407,8 @@ async function executeSimulation() {
                 delta_temperature_c: deltaT,
                 delta_rainfall_pct: deltaR,
                 extreme_heat_days: extremeDays,
-                soil_organic_matter_delta: somDelta
+                soil_organic_matter_delta: somDelta,
+                simulation_years: 5
             })
         });
 
@@ -394,6 +423,14 @@ async function executeSimulation() {
 
         document.getElementById('sim-water-deficit').textContent = `+${Math.round(sim.simulated_water_deficit_liters_per_acre).toLocaleString()} L`;
         document.getElementById('sim-stress-index').textContent = `${sim.projected_stress_index} / 100`;
+
+        if (sim.multi_year_roi_projection) {
+            const roi = sim.multi_year_roi_projection;
+            document.getElementById('roi-loss').textContent = `$${roi.projected_unadapted_loss_usd_per_acre}/ac`;
+            document.getElementById('roi-gain').textContent = `$${roi.regenerative_adaptation_gain_5yr_usd}`;
+            document.getElementById('roi-water').textContent = `${roi.cumulative_water_conserved_m3} m³`;
+            document.getElementById('roi-carbon').textContent = `${roi.carbon_offset_tco2e_sequestered} tCO2e`;
+        }
 
         const tableBody = document.querySelector('#alternative-crops-table tbody');
         tableBody.innerHTML = '';
@@ -453,7 +490,6 @@ function initDiseaseScanner() {
         });
     });
 
-    // Default diagnosis preview
     testSampleDiagnosis('cotton_blight');
 }
 
@@ -596,4 +632,72 @@ function renderFederatedRound(data) {
 [PRIVACY] ${data.privacy_guarantee}
 [DIFF] Global weights aggregated across 4 sovereign nodes without raw record egress.
 \n` + logBox.textContent;
+}
+
+// ----------------- GEMINI MULTI-AGENT COPILOT DRAWER -----------------
+function initCopilot() {
+    const toggleBtn = document.getElementById('copilot-toggle-btn');
+    const closeBtn = document.getElementById('close-copilot-btn');
+    const drawer = document.getElementById('copilot-drawer');
+    const form = document.getElementById('copilot-form');
+    const input = document.getElementById('copilot-input');
+    const messages = document.getElementById('copilot-messages');
+    const chips = document.querySelectorAll('.quick-chip');
+
+    toggleBtn.addEventListener('click', () => {
+        drawer.classList.toggle('hidden');
+    });
+
+    closeBtn.addEventListener('click', () => {
+        drawer.classList.add('hidden');
+    });
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const prompt = chip.getAttribute('data-prompt');
+            sendCopilotMessage(prompt);
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (text) {
+            sendCopilotMessage(text);
+            input.value = '';
+        }
+    });
+
+    async function sendCopilotMessage(text) {
+        // Append user message
+        const uDiv = document.createElement('div');
+        uDiv.className = 'msg-user';
+        uDiv.textContent = text;
+        messages.appendChild(uDiv);
+        messages.scrollTop = messages.scrollHeight;
+
+        // Append loading message
+        const botDiv = document.createElement('div');
+        botDiv.className = 'msg-bot';
+        botDiv.textContent = '🧠 Gemini & 3 sub-agents reasoning over field evidence...';
+        messages.appendChild(botDiv);
+        messages.scrollTop = messages.scrollHeight;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/copilot/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    farm_id: AppState.currentFarmId,
+                    language: AppState.currentLanguage
+                })
+            });
+            const data = await res.json();
+            botDiv.innerHTML = data.reply.replace(/\n/g, '<br>');
+            messages.scrollTop = messages.scrollHeight;
+        } catch (e) {
+            botDiv.textContent = 'Unable to reach Gemini Orchestrator service.';
+        }
+    }
 }

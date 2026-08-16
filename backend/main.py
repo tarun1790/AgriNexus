@@ -18,7 +18,10 @@ from backend.models.schemas import (
     DiseaseDetectionResponse,
     LocalizedAdvisoryResponse,
     FederatedNodeStatus,
-    FederatedAggregationResponse
+    FederatedAggregationResponse,
+    CopilotChatRequest,
+    CopilotChatResponse,
+    IoTProbeTelemetry
 )
 from backend.services.satellite_engine import satellite_engine
 from backend.services.soil_engine import soil_engine
@@ -32,12 +35,14 @@ from backend.services.vertex_ai_service import vertex_ai_service
 from backend.services.gcp_speech_service import gcp_speech_service
 from backend.services.bigquery_service import bigquery_service
 from backend.services.public_data_service import public_data_service
+from backend.services.agent_orchestrator import agent_orchestrator
+from backend.services.iot_telemetry_service import iot_service
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
     title="AgriNexus API — AI Digital Public Infrastructure for Climate-Resilient Agriculture",
-    version="1.0.0",
-    description="Cross-border agronomic intelligence network powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech) and Decentralized Federated Learning."
+    version="2.0.0",
+    description="Cross-border agronomic intelligence network powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech), Multi-Agent Orchestration, and Decentralized Federated Learning."
 )
 
 app.add_middleware(
@@ -54,9 +59,10 @@ def health_check():
     import torch
     return {
         "status": "online",
-        "service": "AgriNexus Agricultural Intelligence Engine",
+        "service": "AgriNexus Agricultural Intelligence Engine v2.0",
         "google_ai_stack": {
             "generative_ai": "Google Gemini 1.5 Pro / Flash & Vertex AI GenAI",
+            "agentic_orchestration": "Gemini Multi-Agent Autonomous Agronomic Orchestrator",
             "predictive_modelling": "Vertex AI AutoML & Model Serving",
             "vision_multimodal": "Gemini Multimodal Vision & Vertex AI Vision",
             "geospatial": "Google Earth Engine & Copernicus Sentinel-2 MSI",
@@ -71,7 +77,7 @@ def health_check():
         ],
         "cuda_available": torch.cuda.is_available(),
         "device": str(disease_engine.device),
-        "protocol": "Agri-DPI Standard v1.0 (BRICS Interoperable)"
+        "protocol": "Agri-DPI Standard v2.0 (BRICS Interoperable)"
     }
 
 # ----------------- FARMS & DIGITAL TWINS -----------------
@@ -151,6 +157,16 @@ def generate_advisory(farm_id: Optional[str] = "farm_in_cotton_01", custom_profi
         soil=soil_res,
         climate=climate_res
     )
+
+# ----------------- GEMINI MULTI-AGENT COPILOT -----------------
+@app.post("/api/v1/copilot/chat", response_model=CopilotChatResponse)
+def chat_with_agronomic_copilot(req: CopilotChatRequest):
+    return agent_orchestrator.process_query(req)
+
+# ----------------- IOT FIELD TELEMETRY STREAM -----------------
+@app.get("/api/v1/iot/live-telemetry", response_model=IoTProbeTelemetry)
+def get_live_iot_telemetry(moisture: float = 24.0):
+    return iot_service.get_live_probe_reading(baseline_moisture=moisture)
 
 # ----------------- VERTEX AI PREDICTIVE YIELD -----------------
 @app.post("/api/v1/vertex-ai/predict-yield")

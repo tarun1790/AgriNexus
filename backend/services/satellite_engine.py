@@ -6,14 +6,14 @@ from backend.models.schemas import SatelliteAnalysisResponse, SatelliteGridCell
 class SatelliteIntelligenceEngine:
     """
     Multispectral Satellite Analytics Engine for Field Digital Twins.
-    Computes NDVI, NDWI, EVI indices, field zoning, and vegetation stress detection.
+    Computes NDVI, NDWI, EVI, and SAVI indices, field zoning, and vegetation stress detection.
     """
 
     def __init__(self):
         np.random.seed(42)
 
     def compute_indices(self, nir: np.ndarray, red: np.ndarray, green: np.ndarray, swir: np.ndarray, blue: np.ndarray) -> Dict[str, np.ndarray]:
-        """Compute core multispectral vegetation and moisture indices with numerical stability."""
+        """Compute core multispectral vegetation, moisture, and soil-adjusted indices."""
         denom_ndvi = nir + red
         denom_ndvi[denom_ndvi == 0] = 1e-6
         ndvi = (nir - red) / denom_ndvi
@@ -26,12 +26,19 @@ class SatelliteIntelligenceEngine:
         denom_evi[denom_evi == 0] = 1e-6
         evi = 2.5 * ((nir - red) / denom_evi)
 
-        # Clip within physical reflectance bounds
+        # SAVI (Soil Adjusted Vegetation Index with L=0.5)
+        L = 0.5
+        denom_savi = nir + red + L
+        denom_savi[denom_savi == 0] = 1e-6
+        savi = ((nir - red) / denom_savi) * (1.0 + L)
+
+        # Clip within physical bounds
         ndvi = np.clip(ndvi, -1.0, 1.0)
         ndwi = np.clip(ndwi, -1.0, 1.0)
         evi = np.clip(evi, -1.0, 1.5)
+        savi = np.clip(savi, -1.0, 1.2)
 
-        return {"ndvi": ndvi, "ndwi": ndwi, "evi": evi}
+        return {"ndvi": ndvi, "ndwi": ndwi, "evi": evi, "savi": savi}
 
     def generate_field_multispectral_matrix(
         self,
@@ -46,7 +53,6 @@ class SatelliteIntelligenceEngine:
         Synthesize high-fidelity Sentinel-2 level multispectral spatial raster
         with spatial clustering reflecting actual canopy health zones.
         """
-        # Base reflectance by crop type
         crop_profiles = {
             "cotton": {"base_nir": 0.58, "base_red": 0.14, "base_green": 0.18, "base_swir": 0.22, "base_blue": 0.08},
             "rice": {"base_nir": 0.65, "base_red": 0.12, "base_green": 0.19, "base_swir": 0.28, "base_blue": 0.07},
@@ -56,17 +62,14 @@ class SatelliteIntelligenceEngine:
         }
         profile = crop_profiles.get(crop.lower(), crop_profiles["cotton"])
 
-        # Spatial coordinate offset step (~10m Sentinel resolution)
         lat_step = 0.0001
         lon_step = 0.0001
 
-        # Create structured spatial stress gradient (e.g. Northeast corner moisture deficiency)
         x = np.linspace(-1, 1, grid_cols)
         y = np.linspace(-1, 1, grid_rows)
         xx, yy = np.meshgrid(x, y)
         gradient = 0.5 * (xx + yy) + 0.2 * np.sin(3 * xx)
 
-        # Generate spatial bands with localized noise
         noise_nir = np.random.normal(0, 0.03, (grid_rows, grid_cols))
         noise_red = np.random.normal(0, 0.02, (grid_rows, grid_cols))
         noise_swir = np.random.normal(0, 0.02, (grid_rows, grid_cols))
@@ -81,6 +84,7 @@ class SatelliteIntelligenceEngine:
         ndvi_arr = indices["ndvi"]
         ndwi_arr = indices["ndwi"]
         evi_arr = indices["evi"]
+        savi_arr = indices["savi"]
 
         matrix: List[List[SatelliteGridCell]] = []
         healthy_count = 0
@@ -92,6 +96,7 @@ class SatelliteIntelligenceEngine:
                 val_ndvi = float(np.round(ndvi_arr[r, c], 3))
                 val_ndwi = float(np.round(ndwi_arr[r, c], 3))
                 val_evi = float(np.round(evi_arr[r, c], 3))
+                val_savi = float(np.round(savi_arr[r, c], 3))
 
                 cell_lat = round(lat + (r - grid_rows // 2) * lat_step, 6)
                 cell_lon = round(lon + (c - grid_cols // 2) * lon_step, 6)
@@ -118,6 +123,7 @@ class SatelliteIntelligenceEngine:
                         ndvi=val_ndvi,
                         ndwi=val_ndwi,
                         evi=val_evi,
+                        savi=val_savi,
                         health_status=status
                     )
                 )
@@ -127,20 +133,21 @@ class SatelliteIntelligenceEngine:
         mean_ndvi = float(np.round(np.mean(ndvi_arr), 3))
         mean_ndwi = float(np.round(np.mean(ndwi_arr), 3))
         mean_evi = float(np.round(np.mean(evi_arr), 3))
+        mean_savi = float(np.round(np.mean(savi_arr), 3))
 
         healthy_pct = float(np.round((healthy_count / total_cells) * 100, 1))
         stress_pct = float(np.round((stress_count / total_cells) * 100, 1))
 
-        # Generate 30-day temporal trend
+        # 30-day temporal trend
         trend_days = 6
         trend_data = []
         base_date = datetime.now() - timedelta(days=30)
         for i in range(trend_days):
             t_date = (base_date + timedelta(days=i * 5)).strftime("%b %d")
-            # slight upward then plateau or dip
             t_ndvi = round(mean_ndvi - 0.15 + (i * 0.04) + np.random.uniform(-0.02, 0.02), 2)
             t_ndwi = round(mean_ndwi - 0.10 + (i * 0.03) + np.random.uniform(-0.02, 0.02), 2)
-            trend_data.append({"date": t_date, "ndvi": max(0.2, t_ndvi), "ndwi": max(0.1, t_ndwi)})
+            t_savi = round(mean_savi - 0.12 + (i * 0.03) + np.random.uniform(-0.02, 0.02), 2)
+            trend_data.append({"date": t_date, "ndvi": max(0.2, t_ndvi), "ndwi": max(0.1, t_ndwi), "savi": max(0.15, t_savi)})
 
         anomaly_detected = stress_pct > 30.0
         anomaly_notes = (
@@ -154,6 +161,7 @@ class SatelliteIntelligenceEngine:
             mean_ndvi=mean_ndvi,
             mean_ndwi=mean_ndwi,
             mean_evi=mean_evi,
+            mean_savi=mean_savi,
             stress_area_pct=stress_pct,
             healthy_area_pct=healthy_pct,
             vegetation_index_trend=trend_data,
