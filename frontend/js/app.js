@@ -313,14 +313,37 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         renderSatelliteTrajectoryChart();
         renderSoilRadarChart(data.field_profile.soil);
 
-        // Fetch Satellite Overpass, VRA, Carbon MRV, and Bharat Indian AgData Hub
+        // Fetch Satellite Overpass, VRA, Carbon MRV, Bharat Indian AgData Hub, and Scientific Biophysics
         fetchSatelliteOverpass(lat, lon);
         fetchVRAPrescription(crop, area, data.satellite.mean_ndvi);
         fetchCarbonMRV(area);
         fetchIndianAgData(lat, lon, crop, area, data.field_profile.soil.organic_carbon, data.field_profile.soil.ph);
+        fetchScientificBiophysics(crop, data.satellite.mean_ndvi);
 
     } catch (err) {
         console.error('Error fetching live field intelligence:', err);
+    }
+}
+
+async function fetchScientificBiophysics(crop, meanNdvi) {
+    try {
+        const [dualRes, nppRes] = await Promise.all([
+            fetch(`${API_BASE}/api/v1/science/fao56-dual-balance?crop=${crop}&mean_ndvi=${meanNdvi}`),
+            fetch(`${API_BASE}/api/v1/science/monteith-npp?crop=${crop}&mean_ndvi=${meanNdvi}`)
+        ]);
+
+        const dual = await dualRes.json();
+        const npp = await nppRes.json();
+
+        const et0El = document.getElementById('fao-et0');
+        const etcEl = document.getElementById('fao-etc');
+        const vpdEl = document.getElementById('fao-vpd');
+
+        if (et0El) et0El.innerHTML = `${dual.reference_et0_mm_day} mm/d <span style="font-size:0.72rem;color:var(--text-muted);">(Kcb=${dual.basal_transpiration_kcb}, Ke=${dual.soil_evaporation_ke})</span>`;
+        if (etcEl) etcEl.innerHTML = `<strong>${dual.actual_evapotranspiration_etc_mm_day} mm/d</strong> <span style="font-size:0.72rem;color:var(--brand-primary);">(Ks=${dual.transpiration_stress_ks})</span>`;
+        if (vpdEl) vpdEl.innerHTML = `NPP: <strong>${npp.net_primary_production_npp_g_c_m2_day} g C/m²/d</strong> <span style="font-size:0.72rem;color:var(--brand-mint);">(${npp.daily_dry_biomass_accumulation_kg_ha_day} kg/ha)</span>`;
+    } catch (e) {
+        console.warn('Scientific biophysics deferred:', e);
     }
 }
 
@@ -368,6 +391,7 @@ function renderSoilHealthCard(shc) {
                 <span class="param-val">${p.value}</span>
                 <span class="param-benchmark">Norm: ${p.benchmark}</span>
                 <span class="param-status-tag ${p.color}">${p.status}</span>
+                <span style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.3rem; font-style: italic; border-top: 1px dashed var(--border-subtle); padding-top: 0.2rem;">🔬 ${p.method || 'ICAR Standard Extraction'}</span>
             `;
             grid.appendChild(card);
         });

@@ -43,6 +43,7 @@ from backend.services.overpass_service import overpass_service
 from backend.services.vra_engine import vra_engine
 from backend.services.regional_soil_knowledge import regional_soil_service
 from backend.services.indian_agri_data_service import indian_agri_service
+from backend.services.scientific_agronomy_engine import scientific_engine
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
@@ -207,6 +208,60 @@ def get_pm_welfare_schemes(area_acres: float = 2.4, crop: str = "Cotton"):
     Government of India welfare, subsidy, and insurance benefit calculator (PM-KISAN, PMKSY, PMFBY).
     """
     return indian_agri_service.get_pm_schemes_eligibility(area_acres=area_acres, crop=crop)
+
+# ----------------- 🔬 PEER-REVIEWED SCIENTIFIC BIOPHYSICS -----------------
+@app.get("/api/v1/science/fao56-dual-balance")
+def get_fao56_dual_water_balance(
+    et0_mm_day: float = 5.4,
+    crop: str = "Cotton",
+    mean_ndvi: float = 0.61,
+    rain_mm: float = 0.0,
+    clay_pct: float = 45.0,
+    sand_pct: float = 25.0
+):
+    """
+    FAO-56 Dual Crop Coefficient Model: ETc = (Ks * Kcb + Ke) * ET0 with Saxton-Rawls pedotransfer TAW/RAW.
+    """
+    return scientific_engine.compute_fao56_dual_crop_coefficient(
+        et0_mm_day=et0_mm_day,
+        crop=crop,
+        mean_ndvi=mean_ndvi,
+        rain_mm=rain_mm,
+        clay_pct=clay_pct,
+        sand_pct=sand_pct
+    )
+
+@app.get("/api/v1/science/monteith-npp")
+def get_monteith_npp_biomass(
+    solar_radiation_mj: float = 19.5,
+    mean_ndvi: float = 0.61,
+    temp_c: float = 30.5,
+    vpd_kpa: float = 1.8,
+    crop: str = "Cotton"
+):
+    """
+    Monteith (1972) Radiation-Use Efficiency (RUE) Net Primary Production (NPP) Carbon Fixation.
+    """
+    return scientific_engine.compute_monteith_light_use_efficiency(
+        solar_radiation_mj_m2_day=solar_radiation_mj,
+        mean_ndvi=mean_ndvi,
+        ambient_temp_c=temp_c,
+        vpd_kpa=vpd_kpa,
+        crop=crop
+    )
+
+@app.get("/api/v1/science/carbon-stoichiometry")
+def get_ipcc_tier2_carbon_stoichiometry(
+    n_saved_kg: float = 34.6,
+    biochar_kg: float = 120.0
+):
+    """
+    IPCC Tier-2 N2O GHG Reduction & Biochar Permanent Recalcitrance Stoichiometry.
+    """
+    return scientific_engine.compute_ipcc_tier2_carbon_stoichiometry(
+        chemical_nitrogen_saved_kg=n_saved_kg,
+        biochar_applied_kg=biochar_kg
+    )
 
 # ----------------- FARMS & DIGITAL TWINS -----------------
 @app.get("/api/v1/farms", response_model=List[FarmProfile])

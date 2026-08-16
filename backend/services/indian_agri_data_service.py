@@ -138,18 +138,18 @@ class IndianAgriDataService:
             "gps_coordinates": f"{lat:.4f}° N, {lon:.4f}° E",
             "agro_ecological_sub_region": aer_name,
             "parameters": [
-                {"name": "Nitrogen (N)", "category": "Macro Nutrient", "value": f"{dyn_n} kg/ha", "benchmark": "280 - 560 kg/ha", "status": n_status, "color": n_color},
-                {"name": "Phosphorus (P)", "category": "Macro Nutrient", "value": f"{dyn_p} kg/ha", "benchmark": "23 - 56 kg/ha", "status": p_status, "color": p_color},
-                {"name": "Potassium (K)", "category": "Macro Nutrient", "value": f"{dyn_k} kg/ha", "benchmark": "140 - 280 kg/ha", "status": k_status, "color": k_color},
-                {"name": "Sulphur (S)", "category": "Secondary Nutrient", "value": f"{dyn_s} ppm", "benchmark": "> 10.0 ppm", "status": s_status, "color": s_color},
-                {"name": "Zinc (Zn)", "category": "Micro Nutrient", "value": f"{dyn_zn} ppm", "benchmark": "> 0.60 ppm", "status": zn_status, "color": zn_color},
-                {"name": "Iron (Fe)", "category": "Micro Nutrient", "value": f"{dyn_fe} ppm", "benchmark": "> 4.5 ppm", "status": fe_status, "color": fe_color},
-                {"name": "Copper (Cu)", "category": "Micro Nutrient", "value": f"{dyn_cu} ppm", "benchmark": "> 0.20 ppm", "status": cu_status, "color": cu_color},
-                {"name": "Manganese (Mn)", "category": "Micro Nutrient", "value": f"{dyn_mn} ppm", "benchmark": "> 2.0 ppm", "status": mn_status, "color": mn_color},
-                {"name": "Boron (B)", "category": "Micro Nutrient", "value": f"{dyn_b} ppm", "benchmark": "> 0.50 ppm", "status": b_status, "color": b_color},
-                {"name": "Soil Reaction (pH)", "category": "Physical Parameter", "value": f"{ph:.1f}", "benchmark": "6.5 - 7.5 (Neutral)", "status": ph_status, "color": ph_color},
-                {"name": "Electrical Conductivity (EC)", "category": "Physical Parameter", "value": f"{dyn_ec} dS/m", "benchmark": "< 1.0 dS/m (Non-saline)", "status": ec_status, "color": ec_color},
-                {"name": "Organic Carbon (OC)", "category": "Physical Parameter", "value": f"{oc:.2f} %", "benchmark": "> 0.75 %", "status": oc_status, "color": oc_color}
+                {"name": "Nitrogen (N)", "category": "Macro Nutrient", "value": f"{dyn_n} kg/ha", "benchmark": "280 - 560 kg/ha", "method": "Alkaline KMnO4 Method (Subbiah & Asija)", "status": n_status, "color": n_color},
+                {"name": "Phosphorus (P)", "category": "Macro Nutrient", "value": f"{dyn_p} kg/ha", "benchmark": "23 - 56 kg/ha", "method": "0.5M NaHCO3 Olsen's Extraction", "status": p_status, "color": p_color},
+                {"name": "Potassium (K)", "category": "Macro Nutrient", "value": f"{dyn_k} kg/ha", "benchmark": "140 - 280 kg/ha", "method": "1N Neutral NH4OAc Flame Photometry", "status": k_status, "color": k_color},
+                {"name": "Sulphur (S)", "category": "Secondary Nutrient", "value": f"{dyn_s} ppm", "benchmark": "> 10.0 ppm", "method": "0.15% CaCl2 Turbidimetry (Chesnin & Yien)", "status": s_status, "color": s_color},
+                {"name": "Zinc (Zn)", "category": "Micro Nutrient", "value": f"{dyn_zn} ppm", "benchmark": "> 0.60 ppm", "method": "0.005M DTPA Extraction (Lindsay & Norvell)", "status": zn_status, "color": zn_color},
+                {"name": "Iron (Fe)", "category": "Micro Nutrient", "value": f"{dyn_fe} ppm", "benchmark": "> 4.5 ppm", "method": "0.005M DTPA Extraction (AAS / ICP-OES)", "status": fe_status, "color": fe_color},
+                {"name": "Copper (Cu)", "category": "Micro Nutrient", "value": f"{dyn_cu} ppm", "benchmark": "> 0.20 ppm", "method": "0.005M DTPA Extraction (Lindsay & Norvell)", "status": cu_status, "color": cu_color},
+                {"name": "Manganese (Mn)", "category": "Micro Nutrient", "value": f"{dyn_mn} ppm", "benchmark": "> 2.0 ppm", "method": "0.005M DTPA Extraction (Lindsay & Norvell)", "status": mn_status, "color": mn_color},
+                {"name": "Boron (B)", "category": "Micro Nutrient", "value": f"{dyn_b} ppm", "benchmark": "> 0.50 ppm", "method": "Azomethine-H Hot Water Soluble Method", "status": b_status, "color": b_color},
+                {"name": "Soil Reaction (pH)", "category": "Physical Parameter", "value": f"{ph:.1f}", "benchmark": "6.5 - 7.5 (Neutral)", "method": "1:2.5 Soil-Water Suspension Potentiometry", "status": ph_status, "color": ph_color},
+                {"name": "Electrical Conductivity (EC)", "category": "Physical Parameter", "value": f"{dyn_ec} dS/m", "benchmark": "< 1.0 dS/m (Non-saline)", "method": "1:2.5 Soil-Water Direct Conductometry", "status": ec_status, "color": ec_color},
+                {"name": "Organic Carbon (OC)", "category": "Physical Parameter", "value": f"{oc:.2f} %", "benchmark": "> 0.75 %", "method": "Walkley & Black Rapid Chromic Acid Oxidation", "status": oc_status, "color": oc_color}
             ],
             "official_recommendation": recommendation
         }
