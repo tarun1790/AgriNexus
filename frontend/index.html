@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriNexus — AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
+    <meta name="description" content="Interoperable agricultural intelligence converting satellite imagery, soil health, and weather forecasting into localized field-level climate resilience decisions.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Design System Styles -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Top Navigation Header -->
+        <header class="top-nav" id="top-nav">
+            <div class="nav-brand">
+                <div class="brand-logo">
+                    <i data-lucide="sprout" class="logo-icon"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>AgriNexus</h1>
+                    <span class="brand-subtitle">AI Digital Public Infrastructure for Climate-Resilient Agriculture</span>
+                </div>
+            </div>
+
+            <div class="nav-controls">
+                <!-- Regional Farm Selector -->
+                <div class="control-group">
+                    <label for="farm-selector" class="control-label"><i data-lucide="map-pin"></i> Region / Farm:</label>
+                    <select id="farm-selector" class="custom-select">
+                        <option value="farm_in_cotton_01">🇮🇳 India — Krishna Basin (Cotton, 2.4 Ac)</option>
+                        <option value="farm_in_rice_02">🇮🇳 India — Punjab Alluvial (Rice, 4.0 Ac)</option>
+                        <option value="farm_br_soy_03">🇧🇷 Brazil — Mato Grosso (Soybean, 50 Ac)</option>
+                        <option value="farm_za_maize_04">🇿🇦 South Africa — Free State (Maize, 15 Ac)</option>
+                    </select>
+                </div>
+
+                <!-- Language Selector -->
+                <div class="control-group">
+                    <label for="lang-selector" class="control-label"><i data-lucide="languages"></i> Language:</label>
+                    <select id="lang-selector" class="custom-select">
+                        <option value="en">English (EN)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                        <option value="hi">हिन्दी (Hindi)</option>
+                    </select>
+                </div>
+
+                <!-- Live System Badge -->
+                <div class="system-status-pill" id="system-status-pill">
+                    <span class="status-dot"></span>
+                    <span id="gpu-status-text">PyTorch CUDA Online</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <nav class="sub-nav">
+            <div class="nav-tabs" role="tablist">
+                <button class="nav-tab active" data-tab="tab-advisory" id="tab-btn-advisory" role="tab">
+                    <i data-lucide="sparkles"></i> Field Digital Twin & Advisory
+                </button>
+                <button class="nav-tab" data-tab="tab-soil" id="tab-btn-soil" role="tab">
+                    <i data-lucide="leaf"></i> Soil Health & Regenerative Optimizer
+                </button>
+                <button class="nav-tab" data-tab="tab-simulator" id="tab-btn-simulator" role="tab">
+                    <i data-lucide="sliders"></i> "What-If" Climate Simulator
+                </button>
+                <button class="nav-tab" data-tab="tab-disease" id="tab-btn-disease" role="tab">
+                    <i data-lucide="scan"></i> AI Leaf Disease Diagnostics
+                </button>
+                <button class="nav-tab" data-tab="tab-federated" id="tab-btn-federated" role="tab">
+                    <i data-lucide="network"></i> Federated DPI Network
+                </button>
+                <button class="nav-tab" data-tab="tab-api" id="tab-btn-api" role="tab">
+                    <i data-lucide="code-2"></i> Interoperable DPI APIs
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB 1: FIELD DIGITAL TWIN & LOCALIZED ADVISORY -->
+            <section id="tab-advisory" class="tab-panel active" role="tabpanel">
+                <!-- Urgency Action Banner -->
+                <div class="action-alert-card" id="action-alert-card">
+                    <div class="alert-header">
+                        <div class="alert-title-wrap">
+                            <span class="urgency-badge" id="urgency-badge">Immediate Action (18-24h)</span>
+                            <h2 id="advisory-headline" class="alert-headline">Irrigate your 2.4-acre cotton field within the next 18–24 hours.</h2>
+                        </div>
+                        <button class="audio-btn" id="voice-speak-btn" title="Listen to advisory voice narration">
+                            <i data-lucide="volume-2"></i> <span>Listen Voice</span>
+                        </button>
+                    </div>
+                    <div class="alert-body" id="advisory-body-text">
+                        Loading field evidence layer and aggregating multispectral data...
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Satellite Field Health Map -->
+                    <div class="panel-card field-map-card">
+                        <div class="card-header">
+                            <div class="card-title-group">
+                                <h3><i data-lucide="satellite"></i> Field Satellite Zonation (10m Sentinel-2)</h3>
+                                <span class="card-tag" id="satellite-timestamp">Acquired: Recent Pass</span>
+                            </div>
+                            <div class="map-legend">
+                                <span class="legend-item"><span class="color-dot vigorous"></span> Vigorous Canopy (NDVI &gt; 0.62)</span>
+                                <span class="legend-item"><span class="color-dot moderate"></span> Moderate Stress (0.45-0.62)</span>
+                                <span class="legend-item"><span class="color-dot severe"></span> Moisture/Nutrient Stress (&lt; 0.45)</span>
+                            </div>
+                        </div>
+
+                        <!-- 8x8 Spatial Grid Matrix -->
+                        <div class="field-grid-container">
+                            <div class="field-grid" id="satellite-field-grid">
+                                <!-- Dynamically Rendered Cells -->
+                            </div>
+                            <div class="cell-inspector" id="cell-inspector">
+                                <h4>Selected Parcel Telemetry</h4>
+                                <div id="inspector-content">Click any cell above to inspect localized NDVI/NDWI reflectance values.</div>
+                            </div>
+                        </div>
+
+                        <div class="satellite-metrics-row">
+                            <div class="mini-stat">
+                                <span class="stat-label">Mean NDVI</span>
+                                <span class="stat-value" id="mean-ndvi-val">0.61</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="stat-label">Mean NDWI (Moisture)</span>
+                                <span class="stat-value" id="mean-ndwi-val">0.24</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="stat-label">Vigour Area</span>
+                                <span class="stat-value text-success" id="vigour-area-pct">68.5%</span>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="stat-label">Stress Anomaly Area</span>
+                                <span class="stat-value text-danger" id="stress-area-pct">31.5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Environmental Telemetry & Hazard Risks -->
+                    <div class="panel-card climate-telemetry-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="cloud-sun"></i> Microclimate & Hazard Matrix</h3>
+                            <span class="risk-badge badge-high" id="overall-risk-badge">Risk: HIGH</span>
+                        </div>
+
+                        <div class="hazard-meters-list">
+                            <div class="hazard-meter-item">
+                                <div class="meter-labels">
+                                    <span><i data-lucide="flame"></i> Heat Stress Index</span>
+                                    <strong id="heat-stress-val">78%</strong>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill heat-fill" id="heat-stress-bar" style="width: 78%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="hazard-meter-item">
+                                <div class="meter-labels">
+                                    <span><i data-lucide="droplet-off"></i> Root-Zone Drought Risk</span>
+                                    <strong id="drought-risk-val">61%</strong>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill drought-fill" id="drought-risk-bar" style="width: 61%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="hazard-meter-item">
+                                <div class="meter-labels">
+                                    <span><i data-lucide="cloud-rain"></i> Excessive Rain / Flood Risk</span>
+                                    <strong id="flood-risk-val">19%</strong>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill flood-fill" id="flood-risk-bar" style="width: 19%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="hazard-meter-item">
+                                <div class="meter-labels">
+                                    <span><i data-lucide="bug"></i> Disease-Conducive Microclimate</span>
+                                    <strong id="disease-risk-val">71%</strong>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill disease-fill" id="disease-risk-bar" style="width: 71%;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescriptions Grid -->
+                        <div class="prescriptions-summary">
+                            <div class="prescription-tile">
+                                <div class="tile-icon"><i data-lucide="droplets"></i></div>
+                                <div class="tile-details">
+                                    <span class="tile-subtitle">Irrigation Demand</span>
+                                    <strong id="presc-irr-vol">22,000 L / Acre</strong>
+                                    <span class="tile-note" id="presc-irr-window">Window: Next 18-24 Hours</span>
+                                </div>
+                            </div>
+
+                            <div class="prescription-tile">
+                                <div class="tile-icon"><i data-lucide="test-tube"></i></div>
+                                <div class="tile-details">
+                                    <span class="tile-subtitle">Nutrient / Carbon Balance</span>
+                                    <strong id="presc-fert-title">Nitrogen Deficit</strong>
+                                    <span class="tile-note" id="presc-fert-note">Bio-enriched compost & neem cake</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: SOIL HEALTH & REGENERATIVE OPTIMIZER -->
+            <section id="tab-soil" class="tab-panel" role="tabpanel">
+                <div class="soil-grid">
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="activity"></i> Soil Health Scorecard</h3>
+                            <span class="soil-score-badge" id="soil-health-badge">Score: 64 / 100</span>
+                        </div>
+
+                        <div class="soil-score-hero">
+                            <div class="score-circle">
+                                <span class="score-number" id="soil-score-main">64</span>
+                                <span class="score-denominator">/ 100</span>
+                                <span class="score-label" id="soil-score-tier">Moderate Health</span>
+                            </div>
+                            <div class="soil-attributes-grid">
+                                <div class="attr-box">
+                                    <span class="attr-name">Soil pH</span>
+                                    <strong class="attr-val" id="soil-ph-val">6.4</strong>
+                                    <span class="attr-status text-success">Optimal Range</span>
+                                </div>
+                                <div class="attr-box">
+                                    <span class="attr-name">Organic Carbon</span>
+                                    <strong class="attr-val" id="soil-oc-val">0.52%</strong>
+                                    <span class="attr-status text-warning">Depletion Risk (&lt;0.75%)</span>
+                                </div>
+                                <div class="attr-box">
+                                    <span class="attr-name">Available N</span>
+                                    <strong class="attr-val" id="soil-n-val">135 kg/ha</strong>
+                                    <span class="attr-status text-danger">Deficient (&lt;200)</span>
+                                </div>
+                                <div class="attr-box">
+                                    <span class="attr-name">Available P</span>
+                                    <strong class="attr-val" id="soil-p-val">21 kg/ha</strong>
+                                    <span class="attr-status text-warning">Moderate (20-30)</span>
+                                </div>
+                                <div class="attr-box">
+                                    <span class="attr-name">Available K</span>
+                                    <strong class="attr-val" id="soil-k-val">175 kg/ha</strong>
+                                    <span class="attr-status text-warning">Moderate</span>
+                                </div>
+                                <div class="attr-box">
+                                    <span class="attr-name">Water Capacity (AWC)</span>
+                                    <strong class="attr-val" id="soil-awc-val">34.8 mm</strong>
+                                    <span class="attr-status text-info">Medium-High Clay</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carbon Credit Offset Estimation -->
+                        <div class="carbon-credit-banner">
+                            <div class="credit-icon"><i data-lucide="coins"></i></div>
+                            <div class="credit-info">
+                                <h4>Regenerative Carbon Credit Monetization</h4>
+                                <p>By adopting cover cropping & biochar, this 2.4-acre field can sequester <strong>~1.45 tons C/year</strong> ($<span id="carbon-usd-val">58.20</span> USD potential offset credit value).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regenerative Interventions -->
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="shield-check"></i> Prescribed Regenerative Interventions</h3>
+                            <span class="card-tag">Climate-Smart Agronomy</span>
+                        </div>
+                        <div class="regenerative-list" id="regenerative-practices-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: "WHAT-IF" CLIMATE SCENARIO SIMULATOR -->
+            <section id="tab-simulator" class="tab-panel" role="tabpanel">
+                <div class="simulator-layout">
+                    <!-- Controls Column -->
+                    <div class="panel-card sim-controls-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="sliders-horizontal"></i> Climate Stress Scenario Parameters</h3>
+                            <button class="btn btn-secondary btn-sm" id="reset-sim-btn">Reset Baseline</button>
+                        </div>
+
+                        <div class="sim-slider-group">
+                            <div class="slider-header">
+                                <label for="sim-temp-slider">Temperature Anomaly (ΔT):</label>
+                                <span class="slider-val" id="sim-temp-display">+2.0 °C</span>
+                            </div>
+                            <input type="range" id="sim-temp-slider" min="-3.0" max="5.0" step="0.5" value="2.0" class="custom-range">
+                            <span class="slider-hints"><span>-3°C (Cooler)</span><span>0°C (Normal)</span><span>+5°C (Severe Heat)</span></span>
+                        </div>
+
+                        <div class="sim-slider-group">
+                            <div class="slider-header">
+                                <label for="sim-rain-slider">Rainfall Anomaly (ΔRain):</label>
+                                <span class="slider-val" id="sim-rain-display">-20 %</span>
+                            </div>
+                            <input type="range" id="sim-rain-slider" min="-60" max="60" step="5" value="-20" class="custom-range">
+                            <span class="slider-hints"><span>-60% (Drought)</span><span>0% (Historical)</span><span>+60% (Monsoon Surge)</span></span>
+                        </div>
+
+                        <div class="sim-slider-group">
+                            <div class="slider-header">
+                                <label for="sim-heatdays-slider">Consecutive Extreme Heat Days (&gt;40°C):</label>
+                                <span class="slider-val" id="sim-heatdays-display">5 Days</span>
+                            </div>
+                            <input type="range" id="sim-heatdays-slider" min="0" max="25" step="1" value="5" class="custom-range">
+                        </div>
+
+                        <div class="sim-slider-group">
+                            <div class="slider-header">
+                                <label for="sim-som-slider">Regenerative Soil Carbon Delta (SOM Δ):</label>
+                                <span class="slider-val" id="sim-som-display">+0.0 % (Unmanaged)</span>
+                            </div>
+                            <input type="range" id="sim-som-slider" min="-0.5" max="1.5" step="0.25" value="0.0" class="custom-range">
+                            <span class="slider-hints"><span>-0.5% (Eroded)</span><span>0% (Current)</span><span>+1.5% (Biochar/Cover Crops)</span></span>
+                        </div>
+
+                        <button class="btn btn-primary w-full" id="run-sim-btn">
+                            <i data-lucide="play"></i> Run Climate Resilience Simulation
+                        </button>
+                    </div>
+
+                    <!-- Simulation Results Column -->
+                    <div class="panel-card sim-results-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="line-chart"></i> Simulation Outcome & Impact Analysis</h3>
+                            <span class="vulnerability-badge" id="sim-vuln-badge">Severe Vulnerability</span>
+                        </div>
+
+                        <div class="sim-summary-box" id="sim-summary-text">
+                            Simulating physiological impact on baseline crop...
+                        </div>
+
+                        <div class="sim-metrics-grid">
+                            <div class="sim-metric-card">
+                                <span class="metric-title">Simulated Yield Impact</span>
+                                <strong class="metric-number text-danger" id="sim-yield-delta">-18.4%</strong>
+                                <span class="metric-desc">Baseline vs Shock Scenario</span>
+                            </div>
+                            <div class="sim-metric-card">
+                                <span class="metric-title">Crop Water Deficit</span>
+                                <strong class="metric-number text-warning" id="sim-water-deficit">+82,400 L</strong>
+                                <span class="metric-desc">Additional Evapotranspiration / Acre</span>
+                            </div>
+                            <div class="sim-metric-card">
+                                <span class="metric-title">Climate Stress Index</span>
+                                <strong class="metric-number text-danger" id="sim-stress-index">74.2 / 100</strong>
+                                <span class="metric-desc">Crop Physiological Hazard Tier</span>
+                            </div>
+                        </div>
+
+                        <div class="alternative-crops-section">
+                            <h4><i data-lucide="shuffle"></i> Ranked Climate-Smart Alternative Crops</h4>
+                            <div class="crops-table-wrapper">
+                                <table class="crops-table" id="alternative-crops-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Crop Variety</th>
+                                            <th>Resilience (10)</th>
+                                            <th>Water Footprint</th>
+                                            <th>Soil Health Boost</th>
+                                            <th>Adaptation Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: AI CROP DISEASE DIAGNOSTICS -->
+            <section id="tab-disease" class="tab-panel" role="tabpanel">
+                <div class="disease-layout">
+                    <div class="panel-card disease-upload-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="camera"></i> Foliar Pathology Scanner</h3>
+                            <span class="card-tag">PyTorch Vision AI</span>
+                        </div>
+
+                        <!-- Dropzone -->
+                        <div class="upload-dropzone" id="leaf-dropzone">
+                            <i data-lucide="upload-cloud" class="drop-icon"></i>
+                            <p class="drop-text">Drag & drop leaf photograph or click to browse</p>
+                            <span class="drop-sub">Supports high-res JPG, PNG (Leaves, stems, lesions)</span>
+                            <input type="file" id="leaf-file-input" accept="image/*" class="hidden-file-input">
+                        </div>
+
+                        <!-- Preset sample triggers -->
+                        <div class="preset-samples">
+                            <span class="preset-label">Or test with verified pathology samples:</span>
+                            <div class="preset-buttons">
+                                <button class="btn-sample" data-sample="cotton_blight"><i data-lucide="leaf"></i> Cotton Blight</button>
+                                <button class="btn-sample" data-sample="rice_blast"><i data-lucide="leaf"></i> Rice Blast</button>
+                                <button class="btn-sample" data-sample="wheat_rust"><i data-lucide="leaf"></i> Wheat Rust</button>
+                                <button class="btn-sample" data-sample="healthy"><i data-lucide="leaf"></i> Healthy Leaf</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnostic Result -->
+                    <div class="panel-card disease-result-card" id="disease-result-container">
+                        <div class="card-header">
+                            <h3><i data-lucide="file-check"></i> Diagnostic Assessment</h3>
+                            <span class="confidence-badge" id="disease-conf-badge">94.8% Confidence</span>
+                        </div>
+
+                        <div class="diagnosis-hero">
+                            <div class="diagnosis-title-wrap">
+                                <h4 id="disease-name-title">Bacterial Blight / Angular Leaf Spot</h4>
+                                <div class="diagnosis-tags">
+                                    <span class="diag-tag pathogen" id="pathogen-type-tag">Pathogen: Bacterial</span>
+                                    <span class="diag-tag severity" id="severity-level-tag">Severity: Moderate-Severe</span>
+                                    <span class="diag-tag device" id="inference-device-tag">PyTorch on CUDA</span>
+                                </div>
+                            </div>
+                            <p class="diagnosis-desc" id="disease-desc-text">
+                                Water-soaked angular lesions bounded by leaf veinlets, progressing to dark brown necrotic patches.
+                            </p>
+                        </div>
+
+                        <div class="treatment-protocols">
+                            <div class="protocol-card cultural">
+                                <h5><i data-lucide="wrench"></i> Cultural Field Practices</h5>
+                                <ul id="cultural-list">
+                                    <!-- Items -->
+                                </ul>
+                            </div>
+                            <div class="protocol-card biological">
+                                <h5><i data-lucide="sprout"></i> Biological & Organic Interventions</h5>
+                                <ul id="biological-list">
+                                    <!-- Items -->
+                                </ul>
+                            </div>
+                            <div class="protocol-card chemical">
+                                <h5><i data-lucide="flask-conical"></i> Safe Approved Chemistry</h5>
+                                <ul id="chemical-list">
+                                    <!-- Items -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: FEDERATED DPI NETWORK -->
+            <section id="tab-federated" class="tab-panel" role="tabpanel">
+                <div class="federated-layout">
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <div>
+                                <h3><i data-lucide="globe"></i> BRICS & Global Sovereign Data Nodes</h3>
+                                <span class="card-subtitle">Zero Raw Data Transfer • Decentralized Model Updates via (ε, δ)-Differential Privacy</span>
+                            </div>
+                            <button class="btn btn-primary" id="trigger-fedavg-btn">
+                                <i data-lucide="refresh-cw"></i> Trigger Federated Aggregation (FedAvg)
+                            </button>
+                        </div>
+
+                        <!-- Nodes Grid -->
+                        <div class="federated-nodes-grid" id="federated-nodes-grid">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Global Aggregated Telemetry -->
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <h3><i data-lucide="cpu"></i> Global Consensus & Convergence Metrics</h3>
+                            <span class="card-tag" id="fed-round-tag">Round #4</span>
+                        </div>
+
+                        <div class="federated-stats-grid">
+                            <div class="fed-stat-box">
+                                <span class="fed-stat-name">Global Shared Model Accuracy</span>
+                                <strong class="fed-stat-val text-success" id="global-acc-val">89.4%</strong>
+                                <span class="fed-stat-sub">+1.2% in last round</span>
+                            </div>
+                            <div class="fed-stat-box">
+                                <span class="fed-stat-name">Decentralized Sample Pool</span>
+                                <strong class="fed-stat-val" id="total-samples-val">40,000+</strong>
+                                <span class="fed-stat-sub">Sovereign farm records</span>
+                            </div>
+                            <div class="fed-stat-box">
+                                <span class="fed-stat-name">Privacy Budget (ε)</span>
+                                <strong class="fed-stat-val text-info">ε = 1.2</strong>
+                                <span class="fed-stat-sub">Provable Differential Privacy</span>
+                            </div>
+                        </div>
+
+                        <div class="convergence-log-card">
+                            <h4>Aggregation Protocol Log</h4>
+                            <pre class="code-log" id="fed-log-box">[PROTOCOL] FedAvg round completed successfully.
+[PRIVACY] (ε=1.2, δ=1e-5) Laplace noise injected to sovereign weight tensors.
+[SECURITY] Raw farmer telemetry preserved strictly within territorial data borders.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: OPEN INTEROPERABILITY DPI APIS -->
+            <section id="tab-api" class="tab-panel" role="tabpanel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="terminal"></i> Agri-DPI Open REST Specifications</h3>
+                            <span class="card-subtitle">Standardized JSON endpoints for government, agritech, and research interoperability</span>
+                        </div>
+                        <a href="/docs" target="_blank" class="btn btn-secondary btn-sm"><i data-lucide="external-link"></i> Interactive Swagger Docs</a>
+                    </div>
+
+                    <div class="api-endpoints-table">
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/farms/{id}</code>
+                            <span class="endpoint-desc">Fetch sovereign farm boundary, soil properties, and crop profile</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/satellite/indices</code>
+                            <span class="endpoint-desc">Compute multispectral NDVI, NDWI, EVI and 8x8 zonal stress matrices</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/soil/health</code>
+                            <span class="endpoint-desc">Evaluate Soil Health Score (0-100), nutrient balances, and regenerative plans</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/climate/simulate</code>
+                            <span class="endpoint-desc">Execute "What-If" climate change scenario on crop yield and water deficit</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/disease/detect</code>
+                            <span class="endpoint-desc">PyTorch CUDA leaf lesion diagnostics with organic and chemical remedies</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/advisory/generate</code>
+                            <span class="endpoint-desc">Evidence layer fusion yielding localized advisory in English, Telugu, and Hindi</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method post">POST</span>
+                            <code class="endpoint-uri">/api/v1/federated/aggregate</code>
+                            <span class="endpoint-desc">Trigger cross-border FedAvg decentralized model parameter update</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
