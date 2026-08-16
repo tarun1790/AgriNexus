@@ -621,6 +621,10 @@ function initTabs() {
                 targetPanel.classList.add('active');
             }
 
+            if (targetId === 'tab-3d' && window.resize3DCanvas) {
+                setTimeout(window.resize3DCanvas, 50);
+            }
+
             if (AppState.map) {
                 setTimeout(() => AppState.map.invalidateSize(), 150);
             }
@@ -657,26 +661,41 @@ function init3DDigitalTwin() {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    let angle = 0;
+    let angle = 0.4;
     let particles = [];
+    let waterDrops = [];
 
-    // Initialize 60 photosynthetic ambient particles
-    for (let i = 0; i < 60; i++) {
+    // Initialize 80 photosynthetic photons
+    for (let i = 0; i < 80; i++) {
         particles.push({
-            x: (Math.random() - 0.5) * 500,
-            y: (Math.random() - 0.5) * 300,
-            z: Math.random() * 120,
-            speed: 0.4 + Math.random() * 0.8,
-            radius: 1.2 + Math.random() * 1.8,
-            opacity: 0.3 + Math.random() * 0.6
+            x: (Math.random() - 0.5) * 560,
+            y: (Math.random() - 0.5) * 380,
+            z: Math.random() * 160,
+            speed: 0.5 + Math.random() * 0.9,
+            radius: 1.5 + Math.random() * 2.2,
+            opacity: 0.4 + Math.random() * 0.6
+        });
+    }
+
+    // Initialize 30 subsoil percolation droplets
+    for (let i = 0; i < 30; i++) {
+        waterDrops.push({
+            x: (Math.random() - 0.5) * 480,
+            y: (Math.random() - 0.5) * 320,
+            z: Math.random() * -100,
+            speed: 0.6 + Math.random() * 0.8,
+            length: 4 + Math.random() * 6
         });
     }
 
     function resizeCanvas() {
-        if (!canvas.parentElement) return;
-        canvas.width = canvas.parentElement.clientWidth;
-        canvas.height = canvas.parentElement.clientHeight;
+        if (!canvas) return;
+        const parentW = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
+        const parentH = canvas.parentElement ? canvas.parentElement.clientHeight : 0;
+        canvas.width = (parentW > 50) ? parentW : (window.innerWidth > 900 ? 980 : window.innerWidth - 60);
+        canvas.height = (parentH > 50) ? parentH : 560;
     }
+    window.resize3DCanvas = resizeCanvas;
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
@@ -686,16 +705,18 @@ function init3DDigitalTwin() {
     if (rotateBtn) {
         rotateBtn.addEventListener('click', () => {
             AppState.is3DRotating = !AppState.is3DRotating;
+            rotateBtn.classList.toggle('btn-primary', AppState.is3DRotating);
         });
     }
 
     if (wireBtn) {
         wireBtn.addEventListener('click', () => {
             AppState.is3DWireframe = !AppState.is3DWireframe;
+            wireBtn.classList.toggle('btn-primary', AppState.is3DWireframe);
         });
     }
 
-    // Interactive mouse rotation drag
+    // Interactive mouse drag to rotate 360°
     let isDragging = false;
     let lastMouseX = 0;
     canvas.addEventListener('mousedown', (e) => {
@@ -706,74 +727,174 @@ function init3DDigitalTwin() {
     canvas.addEventListener('mousemove', (e) => {
         if (isDragging) {
             const dx = e.clientX - lastMouseX;
-            angle += dx * 0.01;
+            angle += dx * 0.008;
             lastMouseX = e.clientX;
         }
     });
 
+    // Touch drag support for mobile/tablet
+    canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            lastMouseX = e.touches[0].clientX;
+        }
+    }, { passive: true });
+    window.addEventListener('touchend', () => { isDragging = false; });
+    canvas.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches.length === 1) {
+            const dx = e.touches[0].clientX - lastMouseX;
+            angle += dx * 0.008;
+            lastMouseX = e.touches[0].clientX;
+        }
+    }, { passive: true });
+
     function render3DFrame() {
-        ctx.fillStyle = '#032014';
+        if (canvas.width <= 0 || canvas.height <= 0) {
+            resizeCanvas();
+        }
+
+        // Deep rich geospatial cockpit backdrop
+        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 50, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
+        grad.addColorStop(0, '#042817');
+        grad.addColorStop(0.6, '#02180e');
+        grad.addColorStop(1, '#010f09');
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const cx = canvas.width / 2;
-        const cy = canvas.height / 2 + 25;
-        const gridW = 18;
-        const gridH = 18;
-        const spacing = 19;
+        const cy = canvas.height / 2 + 30;
+        const gridW = 20;
+        const gridH = 20;
+        const spacing = Math.min(22, canvas.width / 42);
 
-        if (AppState.is3DRotating) angle += 0.006;
+        if (AppState.is3DRotating) angle += 0.005;
 
         const cosA = Math.cos(angle);
         const sinA = Math.sin(angle);
-        const pitch = 0.52;
+        const pitch = 0.50;
 
-        // Draw 3D Isometric Elevation Terrain Grid
+        // 1. Draw 3D Isometric Elevation Terrain Grid
         for (let x = -gridW / 2; x < gridW / 2; x++) {
             for (let y = -gridH / 2; y < gridH / 2; y++) {
                 const rx = x * cosA - y * sinA;
                 const ry = x * sinA + y * cosA;
 
-                const zElevation = (Math.sin(x * 0.35 + angle * 1.2) * Math.cos(y * 0.35) + Math.sin((x + y) * 0.2)) * 26;
+                const zElevation = (Math.sin(x * 0.3 + angle * 0.8) * Math.cos(y * 0.3) + Math.sin((x + y) * 0.18)) * 28;
                 const isoX = cx + (rx - ry) * spacing;
                 const isoY = cy + (rx + ry) * spacing * pitch - zElevation;
 
                 const nextRx = (x + 1) * cosA - y * sinA;
                 const nextRy = (x + 1) * sinA + y * cosA;
-                const nextZElev = (Math.sin((x + 1) * 0.35 + angle * 1.2) * Math.cos(y * 0.35) + Math.sin((x + 1 + y) * 0.2)) * 26;
+                const nextZElev = (Math.sin((x + 1) * 0.3 + angle * 0.8) * Math.cos(y * 0.3) + Math.sin((x + 1 + y) * 0.18)) * 28;
                 const nextIsoX = cx + (nextRx - nextRy) * spacing;
                 const nextIsoY = cy + (nextRx + nextRy) * spacing * pitch - nextZElev;
 
-                ctx.strokeStyle = AppState.is3DWireframe ? 'rgba(52, 211, 153, 0.4)' : 'rgba(5, 150, 105, 0.65)';
-                ctx.lineWidth = 1.3;
+                // Terrain Mesh Grid lines
+                ctx.strokeStyle = AppState.is3DWireframe ? 'rgba(52, 211, 153, 0.45)' : 'rgba(5, 150, 105, 0.55)';
+                ctx.lineWidth = 1.4;
                 ctx.beginPath();
                 ctx.moveTo(isoX, isoY);
                 ctx.lineTo(nextIsoX, nextIsoY);
                 ctx.stroke();
 
-                // Draw Canopy height nodes & solar ray illumination
+                // Cross grid connecting line
+                const crossRx = x * cosA - (y + 1) * sinA;
+                const crossRy = x * sinA + (y + 1) * cosA;
+                const crossZElev = (Math.sin(x * 0.3 + angle * 0.8) * Math.cos((y + 1) * 0.3) + Math.sin((x + y + 1) * 0.18)) * 28;
+                const crossIsoX = cx + (crossRx - crossRy) * spacing;
+                const crossIsoY = cy + (crossRx + crossRy) * spacing * pitch - crossZElev;
+
+                ctx.beginPath();
+                ctx.moveTo(isoX, isoY);
+                ctx.lineTo(crossIsoX, crossIsoY);
+                ctx.stroke();
+
                 if (!AppState.is3DWireframe) {
-                    const isHigh = zElevation > 10;
-                    ctx.fillStyle = isHigh ? '#34d399' : '#059669';
+                    // Stalk & Canopy Foliage Node
+                    const isCanopyHigh = zElevation > 6;
+                    ctx.fillStyle = isCanopyHigh ? '#34d399' : '#10b981';
                     ctx.beginPath();
-                    ctx.arc(isoX, isoY, Math.max(1.8, (zElevation + 30) * 0.12), 0, Math.PI * 2);
+                    ctx.arc(isoX, isoY, Math.max(2.2, (zElevation + 32) * 0.14), 0, Math.PI * 2);
                     ctx.fill();
+
+                    // Vertical Plant Stalk
+                    if ((x + y) % 3 === 0) {
+                        ctx.strokeStyle = 'rgba(52, 211, 153, 0.8)';
+                        ctx.lineWidth = 1.6;
+                        ctx.beginPath();
+                        ctx.moveTo(isoX, isoY);
+                        ctx.lineTo(isoX, isoY - 18);
+                        ctx.stroke();
+
+                        // Leaf bulb
+                        ctx.fillStyle = '#6ee7b7';
+                        ctx.beginPath();
+                        ctx.arc(isoX, isoY - 19, 3.2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Downward Root Taproot
+                        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.moveTo(isoX, isoY);
+                        ctx.lineTo(isoX + (Math.sin(x) * 4), isoY + 22);
+                        ctx.stroke();
+                    }
                 }
             }
         }
 
-        // Draw Floating Photosynthetic Particles
+        // 2. Draw Rising Photosynthetic Photons (Upward Transpiration / CO2 Fixation)
         particles.forEach(p => {
             p.z += p.speed;
-            if (p.z > 140) p.z = 0;
+            if (p.z > 160) p.z = 0;
 
             const px = cx + p.x * cosA - p.y * sinA;
             const py = cy + (p.x * sinA + p.y * cosA) * pitch - p.z;
 
-            ctx.fillStyle = `rgba(110, 231, 183, ${p.opacity * (1 - p.z / 140)})`;
+            ctx.fillStyle = `rgba(110, 231, 183, ${p.opacity * (1 - p.z / 160)})`;
             ctx.beginPath();
             ctx.arc(px, py, p.radius, 0, Math.PI * 2);
             ctx.fill();
         });
+
+        // 3. Draw Subsoil Water Percolation Droplets
+        waterDrops.forEach(w => {
+            w.z -= w.speed;
+            if (w.z < -100) w.z = 0;
+
+            const wx = cx + w.x * cosA - w.y * sinA;
+            const wy = cy + (w.x * sinA + w.y * cosA) * pitch - w.z;
+
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.65)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(wx, wy);
+            ctx.lineTo(wx, wy + w.length);
+            ctx.stroke();
+        });
+
+        // 4. Compass Orientation Indicator
+        ctx.save();
+        ctx.translate(50, 50);
+        ctx.rotate(angle);
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 16);
+        ctx.lineTo(0, -16);
+        ctx.stroke();
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.moveTo(0, -16);
+        ctx.lineTo(5, -6);
+        ctx.lineTo(-5, -6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px Space Grotesk, sans-serif';
+        ctx.fillText('N', -4, -20);
+        ctx.restore();
 
         AppState.anim3DId = requestAnimationFrame(render3DFrame);
     }
