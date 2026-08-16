@@ -159,6 +159,7 @@ POST /api/v1/federated/aggregate     # Execute FedAvg decentralized round
 | :--- | :--- | :--- |
 | **Tarun Jampani** | [@tarun1790](https://github.com/tarun1790) | Lead Architect & Full-Stack AI Engineer |
 | **Varun Teja** | [@varunteja75](https://github.com/varunteja75) | Core Contributor & Agronomic Intelligence Systems |
+| **Nahin Khan Pattan** | [@Nahinkhanpattan](https://github.com/Nahinkhanpattan) | Core Contributor & Geospatial AI Systems |
 
 ---
 
