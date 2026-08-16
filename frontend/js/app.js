@@ -1117,10 +1117,106 @@ function initSpectralSwitcher() {
     });
 }
 
-// ----------------- ADVISORY PANEL -----------------
+// ----------------- ADVISORY PANEL & 4 DECISION PILLARS -----------------
 function renderAdvisoryPanel() {
     if (!AppState.advisoryData) return;
     renderLocalizedAdvisory();
+    renderDecisionPillars();
+}
+
+function renderDecisionPillars() {
+    const adv = AppState.advisoryData;
+    const weather = AppState.farmProfile ? AppState.farmProfile.weather : { rain_probability_pct: 76, temperature_celsius: 30.3 };
+    const crop = AppState.currentCrop || 'Cotton';
+    const area = AppState.currentArea || 2.4;
+
+    // 1. Water Pillar
+    const rainProb = weather.rain_probability_pct;
+    const isRainExpected = rainProb >= 55.0;
+    const decWaterTag = document.getElementById('dec-water-tag');
+    const decWaterHead = document.getElementById('dec-water-headline');
+    const decWaterProb = document.getElementById('dec-water-rainprob');
+    const decWaterVol = document.getElementById('dec-water-vol');
+    const decWaterGuide = document.getElementById('dec-water-guide');
+
+    if (decWaterTag) decWaterTag.textContent = isRainExpected ? 'Weather Watch' : 'Irrigate Field';
+    if (decWaterHead) decWaterHead.textContent = isRainExpected ? `Hold Irrigation — Rain Forecast (${rainProb:.0f}%)` : `Irrigate ${area} Acres via Drip`;
+    if (decWaterProb) decWaterProb.textContent = `${rainProb.toFixed(0)}% (Next 48h)`;
+    if (decWaterVol) decWaterVol.textContent = isRainExpected ? '0 L (Conserved)' : `${Math.round(area * 47700).toLocaleString()} L`;
+    if (decWaterGuide) decWaterGuide.textContent = isRainExpected ? 'Showers expected. Keep field drainage furrows clear to prevent waterlogging.' : 'Volumetric moisture deficit. Run drip pumps for 2.5 hours in early morning.';
+
+    // 2. Fertilizer Pillar
+    const decFertTag = document.getElementById('dec-fert-tag');
+    const decFertHead = document.getElementById('dec-fert-headline');
+    const decFertUrea = document.getElementById('dec-fert-urea');
+    const decFertBio = document.getElementById('dec-fert-bio');
+    const decFertGuide = document.getElementById('dec-fert-guide');
+
+    if (decFertTag) decFertTag.textContent = `Save ₹${Math.round(area * 590).toLocaleString()} via VRA`;
+    if (decFertHead) decFertHead.textContent = `Precision 4-Zone Prescription for ${crop}`;
+    if (decFertUrea) decFertUrea.textContent = `${(area * 0.5).toFixed(1)} Bags (${Math.round(area * 25)} kg)`;
+    if (decFertBio) decFertBio.textContent = `${(area * 1.0).toFixed(1)} Bags (${Math.round(area * 50)} kg)`;
+    if (decFertGuide) decFertGuide.textContent = 'Apply as per 4-Zone VRA map to cut synthetic nitrogen burns and build organic carbon.';
+
+    // 3. Pest Alert Pillar
+    const decPestTag = document.getElementById('dec-pest-tag');
+    const decPestHead = document.getElementById('dec-pest-headline');
+    const decPestTarget = document.getElementById('dec-pest-target');
+    const decPestDose = document.getElementById('dec-pest-dose');
+    const decPestGuide = document.getElementById('dec-pest-guide');
+
+    if (crop === 'Cotton') {
+        if (decPestTag) decPestTag.textContent = 'Moderate Risk';
+        if (decPestHead) decPestHead.textContent = 'Bacterial Blight / Sucking Pests';
+        if (decPestTarget) decPestTarget.textContent = 'Whitefly & Jassids';
+        if (decPestDose) decPestDose.textContent = 'Neem Baan @ 2 ml/L';
+        if (decPestGuide) decPestGuide.textContent = 'Install 8 yellow sticky traps per acre; inspect underside of upper leaves.';
+    } else if (crop === 'Chilli') {
+        if (decPestTag) decPestTag.textContent = 'High Mite Risk';
+        if (decPestHead) decPestHead.textContent = 'Chilli Leaf Curl & Yellow Mites';
+        if (decPestTarget) decPestTarget.textContent = 'Thrips & Mites';
+        if (decPestDose) decPestDose.textContent = 'Diafenthiuron @ 1g/L';
+        if (decPestGuide) decPestGuide.textContent = 'Install 10 blue sticky traps/acre. Spray at early sign of upward leaf cupping.';
+    } else if (crop === 'Rice') {
+        if (decPestTag) decPestTag.textContent = 'Fungal Watch';
+        if (decPestHead) decPestHead.textContent = 'Blast & Brown Planthopper';
+        if (decPestTarget) decPestTarget.textContent = 'Pyricularia / BPH';
+        if (decPestDose) decPestDose.textContent = 'Tricyclazole @ 0.6g/L';
+        if (decPestGuide) decPestGuide.textContent = 'Practice Alternate Wetting and Drying (AWD) to control BPH root colonies.';
+    } else {
+        if (decPestTag) decPestTag.textContent = 'Low Risk';
+        if (decPestHead) decPestHead.textContent = 'Routine Canopy Health';
+        if (decPestTarget) decPestTarget.textContent = 'Foliar Rusts';
+        if (decPestDose) decPestDose.textContent = 'Propiconazole @ 1ml/L';
+        if (decPestGuide) decPestGuide.textContent = 'Scout field corners along a standard W-shaped walking path.';
+    }
+
+    // 4. Market Arbitrage Pillar
+    const decMarketTag = document.getElementById('dec-market-tag');
+    const decMarketHead = document.getElementById('dec-market-headline');
+    const decMarketRate = document.getElementById('dec-market-rate');
+    const decMarketMsp = document.getElementById('dec-market-msp');
+    const decMarketGuide = document.getElementById('dec-market-guide');
+
+    if (crop === 'Cotton') {
+        if (decMarketTag) decMarketTag.textContent = '+₹529 Above MSP';
+        if (decMarketHead) decMarketHead.textContent = 'Guntur APMC Yard (📍 14.2 km)';
+        if (decMarketRate) decMarketRate.textContent = '₹7,650 / Q';
+        if (decMarketMsp) decMarketMsp.textContent = '₹7,121 / Q';
+        if (decMarketGuide) decMarketGuide.textContent = 'Modal rates trading favorably. Sell via e-NAM direct bidding for instant settlement.';
+    } else if (crop === 'Chilli') {
+        if (decMarketTag) decMarketTag.textContent = 'Premium Teja Grade';
+        if (decMarketHead) decMarketHead.textContent = 'Guntur Chilli Yard (📍 14.2 km)';
+        if (decMarketRate) decMarketRate.textContent = '₹16,800 / Q';
+        if (decMarketMsp) decMarketMsp.textContent = '₹14,500 / Q';
+        if (decMarketGuide) decMarketGuide.textContent = 'High export demand for Teja/LCA-334 with moisture < 10%.';
+    } else {
+        if (decMarketTag) decMarketTag.textContent = 'Active Mandi Trade';
+        if (decMarketHead) decMarketHead.textContent = 'Regional APMC Yard (📍 18.5 km)';
+        if (decMarketRate) decMarketRate.textContent = '₹2,320 / Q';
+        if (decMarketMsp) decMarketMsp.textContent = '₹2,183 / Q';
+        if (decMarketGuide) decMarketGuide.textContent = 'Fair Average Quality (FAQ) rates meeting CACP procurement standards.';
+    }
 }
 
 function renderLocalizedAdvisory() {
