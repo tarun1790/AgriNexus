@@ -1560,14 +1560,15 @@ body {
     position: relative;
     overflow: hidden;
 }
-.decision-pillar-card:nth-child(1) { border-top: 4px solid #3b82f6; }
-.decision-pillar-card:nth-child(2) { border-top: 4px solid #10b981; }
-.decision-pillar-card:nth-child(3) { border-top: 4px solid #f43f5e; }
-.decision-pillar-card:nth-child(4) { border-top: 4px solid #f59e0b; }
+.decision-pillar-card:nth-child(1) { border-top: 4px solid #064e3b; }
+.decision-pillar-card:nth-child(2) { border-top: 4px solid #059669; }
+.decision-pillar-card:nth-child(3) { border-top: 4px solid #10b981; }
+.decision-pillar-card:nth-child(4) { border-top: 4px solid #0f766e; }
 
 .decision-pillar-card:hover {
     transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 12px 35px rgba(6, 78, 59, 0.12);
+    border-color: var(--brand-primary);
 }
 
 .pillar-top {
@@ -1586,16 +1587,16 @@ body {
     align-items: center;
     gap: 0.4rem;
 }
-.badge-water { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-.badge-soil { background: var(--brand-pastel); color: var(--brand-dark); border: 1px solid #a7f3d0; }
-.badge-pest { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
-.badge-market { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.badge-water { background: #ecfdf5; color: #064e3b; border: 1px solid #a7f3d0; }
+.badge-soil { background: #d1fae5; color: #047857; border: 1px solid #6ee7b7; }
+.badge-pest { background: #f0fdf4; color: #065f38; border: 1px solid #a7f3d0; }
+.badge-market { background: #ecfdf5; color: #022c1b; border: 1px solid #6ee7b7; }
 
 .pillar-action-tag {
     font-size: 0.72rem;
     font-weight: 800;
     color: var(--brand-dark);
-    background: #f8fafc;
+    background: #ffffff;
     padding: 0.22rem 0.65rem;
     border-radius: var(--radius-xs);
     border: 1px solid var(--border-medium);
