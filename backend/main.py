@@ -174,11 +174,11 @@ def get_carbon_mrv_ledger(area_acres: float = 2.4, oc_gain: float = 0.45):
 
 # ----------------- 🇮🇳 BHARAT AGDATA & MANDI INTELLIGENCE -----------------
 @app.get("/api/v1/india/mandi-prices")
-def get_indian_mandi_prices(crop: str = "Cotton"):
+def get_indian_mandi_prices(lat: float = 16.5062, lon: float = 80.6480, crop: str = "Cotton"):
     """
-    Live APMC Mandi commodity rates (Agmarknet / e-NAM) with CACP MSP benchmarks.
+    Live APMC Mandi commodity rates (Agmarknet / e-NAM) sorted by GPS distance with CACP MSP benchmarks.
     """
-    return indian_agri_service.get_live_mandi_prices(crop=crop)
+    return indian_agri_service.get_live_mandi_prices(lat=lat, lon=lon, crop=crop)
 
 @app.get("/api/v1/india/soil-health-card")
 def get_soil_health_card(lat: float = 16.5062, lon: float = 80.6480, oc: float = 0.52, ph: float = 6.4):
@@ -188,11 +188,11 @@ def get_soil_health_card(lat: float = 16.5062, lon: float = 80.6480, oc: float =
     return indian_agri_service.get_soil_health_card_12_params(lat=lat, lon=lon, oc=oc, ph=ph)
 
 @app.get("/api/v1/india/agromet-bulletin")
-def get_imd_agromet_bulletin(district: str = "Guntur"):
+def get_imd_agromet_bulletin(lat: float = 16.5062, lon: float = 80.6480, district: str = "Local Field Sector"):
     """
-    IMD Gramin Krishi Mausam Sewa (GKMS) DAMU weekly advisory bulletin.
+    IMD Gramin Krishi Mausam Sewa (GKMS) DAMU weekly advisory bulletin computed for GPS coordinates.
     """
-    return indian_agri_service.get_imd_agromet_bulletin(district=district)
+    return indian_agri_service.get_imd_agromet_bulletin(lat=lat, lon=lon, district=district)
 
 @app.get("/api/v1/india/isro-bhuvan")
 def get_isro_bhuvan_telemetry(lat: float = 16.5062, lon: float = 80.6480):

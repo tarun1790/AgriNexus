@@ -62,21 +62,25 @@ class SatelliteIntelligenceEngine:
         }
         profile = crop_profiles.get(crop.lower(), crop_profiles["cotton"])
 
+        # Seed uniquely for this exact GPS coordinate to guarantee dynamic location-specific rastering
+        loc_seed = abs(hash(f"{lat:.4f}_{lon:.4f}_{crop}")) % (2**31 - 1)
+        rng = np.random.default_rng(loc_seed)
+
         lat_step = 0.0001
         lon_step = 0.0001
 
         x = np.linspace(-1, 1, grid_cols)
         y = np.linspace(-1, 1, grid_rows)
         xx, yy = np.meshgrid(x, y)
-        gradient = 0.5 * (xx + yy) + 0.2 * np.sin(3 * xx)
+        gradient = 0.5 * (xx + yy) + 0.2 * np.sin(3 * xx + (lat * 10) % 3.14)
 
-        noise_nir = np.random.normal(0, 0.03, (grid_rows, grid_cols))
-        noise_red = np.random.normal(0, 0.02, (grid_rows, grid_cols))
-        noise_swir = np.random.normal(0, 0.02, (grid_rows, grid_cols))
+        noise_nir = rng.normal(0, 0.03, (grid_rows, grid_cols))
+        noise_red = rng.normal(0, 0.02, (grid_rows, grid_cols))
+        noise_swir = rng.normal(0, 0.02, (grid_rows, grid_cols))
 
         nir_band = np.clip(profile["base_nir"] - (stress_factor * gradient * 0.25) + noise_nir, 0.1, 0.9)
         red_band = np.clip(profile["base_red"] + (stress_factor * gradient * 0.12) + noise_red, 0.05, 0.5)
-        green_band = np.full((grid_rows, grid_cols), profile["base_green"]) + np.random.normal(0, 0.01, (grid_rows, grid_cols))
+        green_band = np.full((grid_rows, grid_cols), profile["base_green"]) + rng.normal(0, 0.01, (grid_rows, grid_cols))
         swir_band = np.clip(profile["base_swir"] + (stress_factor * gradient * 0.15) + noise_swir, 0.05, 0.6)
         blue_band = np.full((grid_rows, grid_cols), profile["base_blue"])
 

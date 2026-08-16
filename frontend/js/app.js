@@ -328,8 +328,8 @@ async function fetchIndianAgData(lat, lon, crop, area, oc, ph) {
     try {
         const [shcRes, mandiRes, damuRes, schemeRes] = await Promise.all([
             fetch(`${API_BASE}/api/v1/india/soil-health-card?lat=${lat}&lon=${lon}&oc=${oc}&ph=${ph}`),
-            fetch(`${API_BASE}/api/v1/india/mandi-prices?crop=${crop}`),
-            fetch(`${API_BASE}/api/v1/india/agromet-bulletin?district=Guntur`),
+            fetch(`${API_BASE}/api/v1/india/mandi-prices?lat=${lat}&lon=${lon}&crop=${crop}`),
+            fetch(`${API_BASE}/api/v1/india/agromet-bulletin?lat=${lat}&lon=${lon}`),
             fetch(`${API_BASE}/api/v1/india/schemes?area_acres=${area}&crop=${crop}`)
         ]);
 
@@ -385,7 +385,7 @@ function renderMandiPrices(mandis) {
         item.innerHTML = `
             <div class="mandi-title-group">
                 <h5>${m.mandi_name}</h5>
-                <span class="mandi-sub">${m.commodity} • Arrival: ${m.arrival_tonnes} T</span>
+                <span class="mandi-sub">📍 <strong>${m.distance_km} km</strong> away from field • ${m.commodity} • Arrival: ${m.arrival_tonnes} T</span>
                 <div style="margin-top: 0.25rem;">
                     <span class="msp-tag">CACP MSP: ₹${m.msp_benchmark}/Q</span>
                     <span style="font-size: 0.72rem; color: var(--brand-primary); font-weight: 700; margin-left: 0.35rem;">${m.price_trend}</span>
