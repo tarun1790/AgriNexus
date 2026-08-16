@@ -166,9 +166,9 @@ class FederatedAggregationResponse(BaseModel):
 # ----------------- ADVANCED MULTI-AGENT & IOT SCHEMAS -----------------
 class AgentReport(BaseModel):
     agent_name: str
-    role: str
-    key_findings: List[str]
-    confidence_score: float
+    domain: str
+    findings: str
+    confidence: float
 
 class CopilotChatRequest(BaseModel):
     message: str = Field(..., example="How much water should I apply if temperature hits 40°C tomorrow?")
@@ -178,10 +178,10 @@ class CopilotChatRequest(BaseModel):
 
 class CopilotChatResponse(BaseModel):
     reply: str
-    language: str
     participating_agents: List[AgentReport]
-    recommended_actions: List[str]
-    voice_audio_params: Dict[str, Any]
+    orchestration_summary: str
+    evidence_chain_count: int
+    agent_thoughts: Optional[List[str]] = None
 
 class IoTProbeTelemetry(BaseModel):
     probe_id: str

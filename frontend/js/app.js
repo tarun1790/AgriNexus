@@ -307,6 +307,7 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         renderSoilPanel();
         renderClimateMeters();
         renderFAO56Hydrology();
+        if (data.regional_grounding) renderRegionalGrounding(data.regional_grounding);
 
         renderWeatherForecastChart(data.field_profile.weather);
         renderSatelliteTrajectoryChart();
@@ -319,6 +320,32 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
 
     } catch (err) {
         console.error('Error fetching live field intelligence:', err);
+    }
+}
+
+function renderRegionalGrounding(g) {
+    const authEl = document.getElementById('grounding-authority-title');
+    const seriesEl = document.getElementById('grounding-series-name');
+    const confEl = document.getElementById('grounding-conf-pill');
+    const minEl = document.getElementById('grounding-mineralogy');
+    const cecEl = document.getElementById('grounding-cec');
+    const drainEl = document.getElementById('grounding-drainage');
+    const protoEl = document.getElementById('grounding-protocol');
+
+    if (authEl) authEl.textContent = `${g.governing_authority} Grounded`;
+    if (seriesEl) seriesEl.textContent = g.soil_series_name;
+    if (confEl) confEl.textContent = `Confidence: ${g.confidence_score}%`;
+    if (minEl) minEl.textContent = g.dominant_mineralogy;
+    if (cecEl) cecEl.textContent = g.regional_cation_exchange;
+    if (drainEl) drainEl.textContent = g.subsurface_drainage_class;
+    if (protoEl) protoEl.textContent = g.recommended_kvk_protocol;
+
+    const stream = document.getElementById('thoughts-stream');
+    if (stream) {
+        stream.textContent = `[TOOL] Grounded with ${g.governing_authority}
+[SERIES] ${g.soil_series_name} (CEC: ${g.regional_cation_exchange})
+[DRAINAGE] ${g.subsurface_drainage_class}
+[PROTOCOL] ${g.recommended_kvk_protocol}`;
     }
 }
 
@@ -1425,6 +1452,13 @@ function initCopilot() {
             const data = await res.json();
             botDiv.innerHTML = data.reply.replace(/\n/g, '<br>');
             messages.scrollTop = messages.scrollHeight;
+
+            if (data.agent_thoughts && data.agent_thoughts.length > 0) {
+                const stream = document.getElementById('thoughts-stream');
+                if (stream) {
+                    stream.textContent = data.agent_thoughts.join('\n');
+                }
+            }
         } catch (e) {
             botDiv.textContent = 'Unable to reach Gemini Orchestrator service.';
         }

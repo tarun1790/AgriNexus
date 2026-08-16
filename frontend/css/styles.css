@@ -405,6 +405,110 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* REGIONAL GROUNDING CARD */
+.regional-grounding-card {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.65rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.grounding-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.grounding-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.grounding-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--brand-primary);
+}
+
+.grounding-header h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    font-family: var(--font-display);
+}
+
+.grounding-sub {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.confidence-pill {
+    background: var(--brand-pastel);
+    color: var(--brand-primary);
+    border: 1px solid var(--border-medium);
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-sm);
+}
+
+.grounding-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.85rem;
+}
+
+.grounding-cell {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.cell-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.grounding-cell strong {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    margin-top: 0.2rem;
+}
+
+/* AGENT THOUGHTS STREAM BOX */
+.agent-thoughts-box {
+    background: #062316;
+    border-bottom: 1px solid var(--border-medium);
+    padding: 0.65rem 0.95rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.74rem;
+    color: #a7f3d0;
+}
+
+.thoughts-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #34d399;
+    font-size: 0.72rem;
+    margin-bottom: 0.25rem;
+}
+
+.thoughts-stream {
+    max-height: 75px;
+    overflow-y: auto;
+    line-height: 1.4;
+    white-space: pre-line;
+}
+
 /* LEAFLET GIS MAP & POLYGON TOOLBAR */
 .gis-map-card {
     margin-bottom: 1.75rem;
@@ -1681,8 +1785,8 @@ body {
     position: absolute;
     bottom: 4rem;
     right: 0;
-    width: 400px;
-    height: 540px;
+    width: 420px;
+    height: 570px;
     background: #ffffff;
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-lg);
@@ -1924,7 +2028,7 @@ body {
         color: #000000 !important;
         padding: 0 !important;
     }
-    .panel-card, .action-alert-card {
+    .panel-card, .action-alert-card, .regional-grounding-card {
         box-shadow: none !important;
         border: 1px solid #ccc !important;
         page-break-inside: avoid;
@@ -1933,7 +2037,7 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 1080px) {
-    .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row {
+    .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid {
         grid-template-columns: 1fr;
     }
     .federated-nodes-grid, .carbon-valuation-row {

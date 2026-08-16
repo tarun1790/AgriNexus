@@ -153,8 +153,40 @@
                     </div>
                 </div>
 
+                <!-- Regional Agricultural Authority Grounding Card -->
+                <div class="regional-grounding-card" id="regional-grounding-card">
+                    <div class="grounding-header">
+                        <div class="grounding-title-group">
+                            <i data-lucide="award" class="grounding-icon"></i>
+                            <div>
+                                <h4 id="grounding-authority-title">ICAR-NBSS&LUP & Regional Agricultural University Grounded</h4>
+                                <span class="grounding-sub" id="grounding-series-name">Krishna-Godavari Deep Black Vertisol Series (Pellusterts)</span>
+                            </div>
+                        </div>
+                        <span class="confidence-pill" id="grounding-conf-pill">Confidence: 98.4%</span>
+                    </div>
+                    <div class="grounding-grid">
+                        <div class="grounding-cell">
+                            <span class="cell-label">Dominant Mineralogy</span>
+                            <strong id="grounding-mineralogy">Montmorillonite / Smectite Clay</strong>
+                        </div>
+                        <div class="grounding-cell">
+                            <span class="cell-label">Cation Exchange (CEC)</span>
+                            <strong id="grounding-cec">45 - 62 cmol(+)/kg</strong>
+                        </div>
+                        <div class="grounding-cell">
+                            <span class="cell-label">Drainage Class</span>
+                            <strong id="grounding-drainage">Moderately Slow Vertic</strong>
+                        </div>
+                        <div class="grounding-cell">
+                            <span class="cell-label">Official KVK Protocol</span>
+                            <strong id="grounding-protocol" class="text-success">Broad-Bed Furrow (BBF) + ZnSO4 25kg/ha</strong>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Interactive Leaflet Satellite GIS Map with Polygon Drawing Tool -->
-                <div class="panel-card gis-map-card">
+                <div class="panel-card gis-map-card" style="margin-top: 1.5rem;">
                     <div class="card-header">
                         <div class="card-title-group">
                             <h3><i data-lucide="map"></i> Interactive Real-Time GIS Map & Polygon Boundary Drawer</h3>
@@ -766,10 +798,20 @@
                         <i data-lucide="sparkles" class="text-warning"></i>
                         <div>
                             <h4>Gemini Agronomic Copilot</h4>
-                            <span class="copilot-subtitle">3 Autonomous Agents Active</span>
+                            <span class="copilot-subtitle">3 Autonomous Agents • 5 Real Tools Active</span>
                         </div>
                     </div>
                     <button class="close-copilot-btn" id="close-copilot-btn"><i data-lucide="x"></i></button>
+                </div>
+
+                <!-- Live Agent Thought Stream & Tool Invocations Console -->
+                <div class="agent-thoughts-box" id="agent-thoughts-box">
+                    <div class="thoughts-header">
+                        <span class="pulse-dot"></span> <strong>Autonomous Tool Invocations:</strong>
+                    </div>
+                    <div class="thoughts-stream" id="thoughts-stream">
+                        [INIT] Multi-agent orchestrator ready. Awaiting query or GPS input...
+                    </div>
                 </div>
 
                 <div class="copilot-messages" id="copilot-messages">

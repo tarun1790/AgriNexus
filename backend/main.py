@@ -41,6 +41,7 @@ from backend.services.live_weather_service import live_weather_service
 from backend.services.live_soil_service import live_soil_service
 from backend.services.overpass_service import overpass_service
 from backend.services.vra_engine import vra_engine
+from backend.services.regional_soil_knowledge import regional_soil_service
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
@@ -124,8 +125,16 @@ def get_realtime_field_intelligence(
         "soil_health": soil_res,
         "climate_risk": climate_res,
         "advisory": advisory_res,
-        "data_source_mode": "100% Live Real-Time Ingestion (GPS + Met Grid + SoilGrids)"
+        "regional_grounding": regional_soil_service.get_grounded_regional_intel(lat=lat, lon=lon),
+        "data_source_mode": "100% Live Real-Time Ingestion (GPS + Met Grid + SoilGrids + Regional Institute)"
     }
+
+@app.get("/api/v1/realtime/grounded-location")
+def get_grounded_location_intel(lat: float = 16.5062, lon: float = 80.6480):
+    """
+    Returns verified official regional soil survey knowledge & institute grounding.
+    """
+    return regional_soil_service.get_grounded_regional_intel(lat=lat, lon=lon)
 
 # ----------------- LIVE SATELLITE OVERPASS TRACKER -----------------
 @app.get("/api/v1/satellite/overpass")
