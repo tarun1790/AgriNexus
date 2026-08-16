@@ -1,8 +1,8 @@
 /**
  * AgriNexus v2.5 — Production-Grade Agricultural Intelligence System
- * Real-Time Live Data Ingestion, Interactive Field Boundary Polygon Drawer,
- * FAO-56 Penman-Monteith Evapotranspiration Hydrology, Chart.js Timeseries Graphs,
- * Grad-CAM Computer Vision Lesion Heatmaps, and Exportable DPI Action Dossiers.
+ * Real-Time Live Data Ingestion, Immediate Auto-GPS Geolocation Request,
+ * Interactive Field Boundary Polygon Drawer, FAO-56 Penman-Monteith Evapotranspiration,
+ * Dynamic Chart.js Timeseries, Grad-CAM Lesion Heatmaps, and Exportable DPI Dossiers.
  */
 
 const API_BASE = '';
@@ -44,8 +44,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     initDossierExport();
     
     await checkSystemHealth();
-    await fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
+
+    // PROACTIVELY TRIGGER LIVE GPS GEOLOCATION PERMISSION PROMPT ON PAGE LOAD
+    autoRequestUserLocation();
 });
+
+// ----------------- AUTOMATIC GPS LOCATION REQUEST ON LOAD -----------------
+function autoRequestUserLocation() {
+    const hudTag = document.getElementById('live-ingestion-tag');
+    const gpsBtn = document.getElementById('btn-gps-locate');
+
+    if (!navigator.geolocation) {
+        console.warn('Geolocation not supported by browser, using default coordinates.');
+        fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
+        return;
+    }
+
+    if (hudTag) hudTag.textContent = '📍 Requesting browser GPS access...';
+    if (gpsBtn) {
+        gpsBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> <span>Acquiring GPS...</span>';
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            console.log(`[GPS SUCCESS] Detected user coordinates: ${lat}, ${lon}`);
+            await updateActiveCoordinates(lat, lon);
+            if (gpsBtn) {
+                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
+                if (window.lucide) window.lucide.createIcons();
+            }
+        },
+        async (err) => {
+            console.warn(`[GPS PROMPT DISMISSED/DENIED] Code ${err.code}: ${err.message}. Loading default baseline.`);
+            if (gpsBtn) {
+                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
+                if (window.lucide) window.lucide.createIcons();
+            }
+            await fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    );
+}
 
 // ----------------- LEAFLET GIS MAP & POLYGON BOUNDARY DRAWER -----------------
 function initLeafletMap() {
@@ -125,33 +167,13 @@ function initLeafletMap() {
         });
     }
 
-    // GPS Locate Button Handler
+    // Manual GPS Locate Button Handler
     const gpsBtn = document.getElementById('btn-gps-locate');
-    gpsBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser.');
-            return;
-        }
-
-        gpsBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> <span>Acquiring GPS...</span>';
-        if (window.lucide) window.lucide.createIcons();
-
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                await updateActiveCoordinates(lat, lon);
-                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
-                if (window.lucide) window.lucide.createIcons();
-            },
-            (err) => {
-                alert('Could not acquire GPS position. Please check browser permissions or search manually.');
-                gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
-                if (window.lucide) window.lucide.createIcons();
-            },
-            { enableHighAccuracy: true, timeout: 10000 }
-        );
-    });
+    if (gpsBtn) {
+        gpsBtn.addEventListener('click', () => {
+            autoRequestUserLocation();
+        });
+    }
 
     // Location Search Bar Handler
     const searchBtn = document.getElementById('btn-search-location');
@@ -179,10 +201,12 @@ function initLeafletMap() {
         }
     };
 
-    searchBtn.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleSearch();
-    });
+    if (searchBtn) searchBtn.addEventListener('click', handleSearch);
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+    }
 }
 
 function handlePolygonVertexClick(lat, lon) {
@@ -249,6 +273,20 @@ async function updateActiveCoordinates(lat, lon) {
     }
 
     document.getElementById('active-gps-display').textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
+
+    // Reverse geocode place name to display in HUD
+    try {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.display_name) {
+                    const parts = data.display_name.split(',');
+                    const placeName = parts.slice(0, 3).join(', ');
+                    document.getElementById('active-gps-display').textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E (${placeName})`;
+                }
+            }).catch(() => {});
+    } catch (e) {}
+
     await fetchLiveFieldIntelligence(lat, lon, AppState.currentCrop, AppState.currentArea);
 }
 
@@ -256,7 +294,7 @@ async function updateActiveCoordinates(lat, lon) {
 async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
     try {
         const hudTag = document.getElementById('live-ingestion-tag');
-        hudTag.textContent = '⏳ Streaming Live Weather & Soil Data...';
+        if (hudTag) hudTag.textContent = '⏳ Streaming Live Weather & Soil Data...';
 
         const res = await fetch(`${API_BASE}/api/v1/realtime/field-intel?lat=${lat}&lon=${lon}&crop=${crop}&area_acres=${area}`, {
             method: 'POST'
@@ -269,7 +307,7 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         AppState.climateRisk = data.climate_risk;
         AppState.advisoryData = data.advisory;
 
-        hudTag.textContent = '🟢 Live Weather & Soil Streams Active';
+        if (hudTag) hudTag.textContent = '🟢 Live Weather & Soil Streams Active';
 
         // Render all dashboard panels with live data
         renderLiveWeatherDisplay(data.field_profile.weather);
@@ -298,9 +336,12 @@ function renderLiveWeatherDisplay(w) {
 function renderFAO56Hydrology() {
     if (!AppState.climateRisk || !AppState.climateRisk.irrigation_advisory) return;
     const ir = AppState.climateRisk.irrigation_advisory;
-    document.getElementById('fao-et0').textContent = `${ir.fao56_et0_mm_day || 5.4} mm/day`;
-    document.getElementById('fao-etc').textContent = `${ir.fao56_etc_mm_day || 6.2} mm/day`;
-    document.getElementById('fao-vpd').textContent = `${ir.vpd_kpa || 2.1} kPa`;
+    const et0El = document.getElementById('fao-et0');
+    const etcEl = document.getElementById('fao-etc');
+    const vpdEl = document.getElementById('fao-vpd');
+    if (et0El) et0El.textContent = `${ir.fao56_et0_mm_day || 5.4} mm/day`;
+    if (etcEl) etcEl.textContent = `${ir.fao56_etc_mm_day || 6.2} mm/day`;
+    if (vpdEl) vpdEl.textContent = `${ir.vpd_kpa || 2.1} kPa`;
 }
 
 // ----------------- TAB NAVIGATION -----------------
@@ -349,22 +390,29 @@ function initControls() {
     const langSelect = document.getElementById('lang-selector');
     const voiceBtn = document.getElementById('voice-speak-btn');
 
-    farmSelect.addEventListener('change', async (e) => {
-        const val = e.target.value;
-        if (val === 'farm_in_cotton_01') await updateActiveCoordinates(16.5062, 80.6480);
-        else if (val === 'farm_in_rice_02') await updateActiveCoordinates(30.9010, 75.8573);
-        else if (val === 'farm_br_soy_03') await updateActiveCoordinates(-12.5425, -55.7211);
-        else if (val === 'farm_za_maize_04') await updateActiveCoordinates(-27.3833, 26.6167);
-    });
+    if (farmSelect) {
+        farmSelect.addEventListener('change', async (e) => {
+            const val = e.target.value;
+            if (val === 'farm_in_cotton_01') await updateActiveCoordinates(16.5062, 80.6480);
+            else if (val === 'farm_in_rice_02') await updateActiveCoordinates(30.9010, 75.8573);
+            else if (val === 'farm_br_soy_03') await updateActiveCoordinates(-12.5425, -55.7211);
+            else if (val === 'farm_za_maize_04') await updateActiveCoordinates(-27.3833, 26.6167);
+            else if (val === 'realtime_custom_field') autoRequestUserLocation();
+        });
+    }
 
-    langSelect.addEventListener('change', (e) => {
-        AppState.currentLanguage = e.target.value;
-        renderLocalizedAdvisory();
-    });
+    if (langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            AppState.currentLanguage = e.target.value;
+            renderLocalizedAdvisory();
+        });
+    }
 
-    voiceBtn.addEventListener('click', () => {
-        speakCurrentAdvisory();
-    });
+    if (voiceBtn) {
+        voiceBtn.addEventListener('click', () => {
+            speakCurrentAdvisory();
+        });
+    }
 }
 
 // ----------------- SPECTRAL LAYER SWITCHER -----------------
@@ -661,9 +709,6 @@ function renderClimateMeters() {
 
     document.getElementById('drought-risk-val').textContent = `${c.drought_risk_pct}%`;
     document.getElementById('drought-risk-bar').style.width = `${c.drought_risk_pct}%`;
-
-    document.getElementById('disease-risk-val').textContent = `${c.disease_conducive_risk_pct}%`;
-    document.getElementById('disease-risk-bar').style.width = `${c.disease_conducive_risk_pct}%`;
 }
 
 // ----------------- SOIL & REGENERATIVE OPTIMIZER -----------------
@@ -715,49 +760,66 @@ function initSimulator() {
     const runBtn = document.getElementById('run-sim-btn');
     const resetBtn = document.getElementById('reset-sim-btn');
 
-    tempSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        document.getElementById('sim-temp-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)} °C`;
-    });
+    if (tempSlider) {
+        tempSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('sim-temp-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)} °C`;
+        });
+    }
 
-    rainSlider.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value);
-        document.getElementById('sim-rain-display').textContent = `${val >= 0 ? '+' : ''}${val} %`;
-    });
+    if (rainSlider) {
+        rainSlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('sim-rain-display').textContent = `${val >= 0 ? '+' : ''}${val} %`;
+        });
+    }
 
-    heatSlider.addEventListener('input', (e) => {
-        document.getElementById('sim-heatdays-display').textContent = `${e.target.value} Days`;
-    });
+    if (heatSlider) {
+        heatSlider.addEventListener('input', (e) => {
+            document.getElementById('sim-heatdays-display').textContent = `${e.target.value} Days`;
+        });
+    }
 
-    somSlider.addEventListener('input', (e) => {
-        const val = parseFloat(e.target.value);
-        document.getElementById('sim-som-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)} % SOM`;
-    });
+    if (somSlider) {
+        somSlider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('sim-som-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)} % SOM`;
+        });
+    }
 
-    resetBtn.addEventListener('click', () => {
-        tempSlider.value = 0;
-        rainSlider.value = 0;
-        heatSlider.value = 0;
-        somSlider.value = 0;
-        tempSlider.dispatchEvent(new Event('input'));
-        rainSlider.dispatchEvent(new Event('input'));
-        heatSlider.dispatchEvent(new Event('input'));
-        somSlider.dispatchEvent(new Event('input'));
-        executeSimulation();
-    });
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            tempSlider.value = 0;
+            rainSlider.value = 0;
+            heatSlider.value = 0;
+            somSlider.value = 0;
+            tempSlider.dispatchEvent(new Event('input'));
+            rainSlider.dispatchEvent(new Event('input'));
+            heatSlider.dispatchEvent(new Event('input'));
+            somSlider.dispatchEvent(new Event('input'));
+            executeSimulation();
+        });
+    }
 
-    runBtn.addEventListener('click', () => {
-        executeSimulation();
-    });
+    if (runBtn) {
+        runBtn.addEventListener('click', () => {
+            executeSimulation();
+        });
+    }
 
     executeSimulation();
 }
 
 async function executeSimulation() {
-    const deltaT = parseFloat(document.getElementById('sim-temp-slider').value);
-    const deltaR = parseFloat(document.getElementById('sim-rain-slider').value);
-    const extremeDays = parseInt(document.getElementById('sim-heatdays-slider').value);
-    const somDelta = parseFloat(document.getElementById('sim-som-slider').value);
+    const tempSlider = document.getElementById('sim-temp-slider');
+    const rainSlider = document.getElementById('sim-rain-slider');
+    const heatSlider = document.getElementById('sim-heatdays-slider');
+    const somSlider = document.getElementById('sim-som-slider');
+
+    const deltaT = tempSlider ? parseFloat(tempSlider.value) : 2.0;
+    const deltaR = rainSlider ? parseFloat(rainSlider.value) : -20.0;
+    const extremeDays = heatSlider ? parseInt(heatSlider.value) : 5;
+    const somDelta = somSlider ? parseFloat(somSlider.value) : 0.0;
 
     try {
         const res = await fetch(`${API_BASE}/api/v1/climate/simulate`, {
@@ -794,19 +856,20 @@ async function executeSimulation() {
         }
 
         const tableBody = document.querySelector('#alternative-crops-table tbody');
-        tableBody.innerHTML = '';
-
-        sim.alternative_resilient_crops.forEach(c => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${c.crop_name}</strong></td>
-                <td><span class="text-success" style="font-weight:700;">${c.resilience_score} / 10</span></td>
-                <td>${c.water_footprint_liters_per_kg.toLocaleString()} L/kg</td>
-                <td><span class="text-warning">${c.soil_improvement_score} / 10</span></td>
-                <td>${c.recommended_reason}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
+        if (tableBody) {
+            tableBody.innerHTML = '';
+            sim.alternative_resilient_crops.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${c.crop_name}</strong></td>
+                    <td><span class="text-success" style="font-weight:700;">${c.resilience_score} / 10</span></td>
+                    <td>${c.water_footprint_liters_per_kg.toLocaleString()} L/kg</td>
+                    <td><span class="text-warning">${c.soil_improvement_score} / 10</span></td>
+                    <td>${c.recommended_reason}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
 
     } catch (e) {
         console.error('Error running climate simulation:', e);
@@ -820,37 +883,39 @@ function initDiseaseScanner() {
     const cameraBtn = document.getElementById('btn-camera-snap');
     const sampleButtons = document.querySelectorAll('.btn-sample');
 
-    dropzone.addEventListener('click', () => fileInput.click());
+    if (dropzone && fileInput) {
+        dropzone.addEventListener('click', () => fileInput.click());
 
-    if (cameraBtn) {
-        cameraBtn.addEventListener('click', () => {
-            fileInput.setAttribute('capture', 'environment');
-            fileInput.click();
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', () => {
+                fileInput.setAttribute('capture', 'environment');
+                fileInput.click();
+            });
+        }
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--brand-primary)';
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'var(--border-medium)';
+        });
+
+        dropzone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'var(--border-medium)';
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                await uploadAndDiagnose(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            if (e.target.files && e.target.files[0]) {
+                await uploadAndDiagnose(e.target.files[0]);
+            }
         });
     }
-
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = 'var(--brand-primary)';
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.style.borderColor = 'var(--border-medium)';
-    });
-
-    dropzone.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = 'var(--border-medium)';
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            await uploadAndDiagnose(e.dataTransfer.files[0]);
-        }
-    });
-
-    fileInput.addEventListener('change', async (e) => {
-        if (e.target.files && e.target.files[0]) {
-            await uploadAndDiagnose(e.target.files[0]);
-        }
-    });
 
     sampleButtons.forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -945,7 +1010,6 @@ function renderSyntheticGradCAM(sampleType) {
     canvas.height = 200;
     const ctx = canvas.getContext('2d');
 
-    // Draw synthetic leaf background
     ctx.fillStyle = '#1e3a2b';
     ctx.fillRect(0, 0, 320, 200);
 
@@ -982,6 +1046,7 @@ function renderDiagnosisResult(d) {
 
     const fillList = (id, items) => {
         const el = document.getElementById(id);
+        if (!el) return;
         el.innerHTML = '';
         items.forEach(i => {
             const li = document.createElement('li');
@@ -998,23 +1063,25 @@ function renderDiagnosisResult(d) {
 // ----------------- FEDERATED DPI NETWORK -----------------
 function initFederatedNetwork() {
     const triggerBtn = document.getElementById('trigger-fedavg-btn');
-    triggerBtn.addEventListener('click', async () => {
-        triggerBtn.disabled = true;
-        triggerBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Aggregating Node Weights (FedAvg)...';
-        if (window.lucide) window.lucide.createIcons();
-
-        try {
-            const res = await fetch(`${API_BASE}/api/v1/federated/aggregate`, { method: 'POST' });
-            const data = await res.json();
-            renderFederatedRound(data);
-        } catch (e) {
-            console.error('Error executing federated round:', e);
-        } finally {
-            triggerBtn.disabled = false;
-            triggerBtn.innerHTML = '<i data-lucide="refresh-cw"></i> Trigger Federated Aggregation (FedAvg)';
+    if (triggerBtn) {
+        triggerBtn.addEventListener('click', async () => {
+            triggerBtn.disabled = true;
+            triggerBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Aggregating Node Weights (FedAvg)...';
             if (window.lucide) window.lucide.createIcons();
-        }
-    });
+
+            try {
+                const res = await fetch(`${API_BASE}/api/v1/federated/aggregate`, { method: 'POST' });
+                const data = await res.json();
+                renderFederatedRound(data);
+            } catch (e) {
+                console.error('Error executing federated round:', e);
+            } finally {
+                triggerBtn.disabled = false;
+                triggerBtn.innerHTML = '<i data-lucide="refresh-cw"></i> Trigger Federated Aggregation (FedAvg)';
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    }
 
     loadInitialFederatedNodes();
 }
@@ -1031,6 +1098,7 @@ async function loadInitialFederatedNodes() {
 
 function renderNodesList(nodes) {
     const container = document.getElementById('federated-nodes-grid');
+    if (!container) return;
     container.innerHTML = '';
 
     nodes.forEach(n => {
@@ -1059,20 +1127,26 @@ function renderNodesList(nodes) {
 }
 
 function renderFederatedRound(data) {
-    document.getElementById('fed-round-tag').textContent = `Round #${data.round_number}`;
-    document.getElementById('global-acc-val').textContent = `${data.global_model_accuracy_pct}%`;
-    document.getElementById('global-acc-val').parentElement.querySelector('.fed-stat-sub').textContent = `+${data.accuracy_gain_pct}% global gain`;
+    const roundTag = document.getElementById('fed-round-tag');
+    const accVal = document.getElementById('global-acc-val');
+    if (roundTag) roundTag.textContent = `Round #${data.round_number}`;
+    if (accVal) {
+        accVal.textContent = `${data.global_model_accuracy_pct}%`;
+        accVal.parentElement.querySelector('.fed-stat-sub').textContent = `+${data.accuracy_gain_pct}% global gain`;
+    }
 
     renderNodesList(data.participating_nodes);
 
     const logBox = document.getElementById('fed-log-box');
-    const timestamp = new Date().toISOString();
-    logBox.textContent = `[ROUND ${data.round_number} @ ${timestamp}]
+    if (logBox) {
+        const timestamp = new Date().toISOString();
+        logBox.textContent = `[ROUND ${data.round_number} @ ${timestamp}]
 [ALGORITHM] ${data.aggregation_algorithm}
 [STATUS] ${data.convergence_status}
 [PRIVACY] ${data.privacy_guarantee}
 [DIFF] Global weights aggregated across 4 sovereign nodes without raw record egress.
 \n` + logBox.textContent;
+    }
 }
 
 // ----------------- GEMINI MULTI-AGENT COPILOT & SPEECH MIC -----------------
@@ -1086,13 +1160,17 @@ function initCopilot() {
     const messages = document.getElementById('copilot-messages');
     const chips = document.querySelectorAll('.quick-chip');
 
-    toggleBtn.addEventListener('click', () => {
-        drawer.classList.toggle('hidden');
-    });
+    if (toggleBtn && drawer) {
+        toggleBtn.addEventListener('click', () => {
+            drawer.classList.toggle('hidden');
+        });
+    }
 
-    closeBtn.addEventListener('click', () => {
-        drawer.classList.add('hidden');
-    });
+    if (closeBtn && drawer) {
+        closeBtn.addEventListener('click', () => {
+            drawer.classList.add('hidden');
+        });
+    }
 
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
@@ -1101,14 +1179,16 @@ function initCopilot() {
         });
     });
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (text) {
-            sendCopilotMessage(text);
-            input.value = '';
-        }
-    });
+    if (form && input) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (text) {
+                sendCopilotMessage(text);
+                input.value = '';
+            }
+        });
+    }
 
     // Speech-to-Text Microphone
     if (micBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
@@ -1133,9 +1213,11 @@ function initCopilot() {
 
         recognition.onresult = (e) => {
             const transcript = e.results[0][0].transcript;
-            input.value = transcript;
-            sendCopilotMessage(transcript);
-            input.value = '';
+            if (input) {
+                input.value = transcript;
+                sendCopilotMessage(transcript);
+                input.value = '';
+            }
         };
 
         recognition.onend = () => {
@@ -1150,6 +1232,7 @@ function initCopilot() {
     }
 
     async function sendCopilotMessage(text) {
+        if (!messages) return;
         const uDiv = document.createElement('div');
         uDiv.className = 'msg-user';
         uDiv.textContent = text;
