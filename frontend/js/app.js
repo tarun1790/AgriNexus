@@ -600,8 +600,22 @@ function init3DDigitalTwin() {
 
     const ctx = canvas.getContext('2d');
     let angle = 0;
+    let particles = [];
+
+    // Initialize 60 photosynthetic ambient particles
+    for (let i = 0; i < 60; i++) {
+        particles.push({
+            x: (Math.random() - 0.5) * 500,
+            y: (Math.random() - 0.5) * 300,
+            z: Math.random() * 120,
+            speed: 0.4 + Math.random() * 0.8,
+            radius: 1.2 + Math.random() * 1.8,
+            opacity: 0.3 + Math.random() * 0.6
+        });
+    }
 
     function resizeCanvas() {
+        if (!canvas.parentElement) return;
         canvas.width = canvas.parentElement.clientWidth;
         canvas.height = canvas.parentElement.clientHeight;
     }
@@ -623,59 +637,106 @@ function init3DDigitalTwin() {
         });
     }
 
+    // Interactive mouse rotation drag
+    let isDragging = false;
+    let lastMouseX = 0;
+    canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    canvas.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const dx = e.clientX - lastMouseX;
+            angle += dx * 0.01;
+            lastMouseX = e.clientX;
+        }
+    });
+
     function render3DFrame() {
-        ctx.fillStyle = '#021a10';
+        ctx.fillStyle = '#032014';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const cx = canvas.width / 2;
-        const cy = canvas.height / 2 + 30;
-        const gridW = 16;
-        const gridH = 16;
-        const spacing = 18;
+        const cy = canvas.height / 2 + 25;
+        const gridW = 18;
+        const gridH = 18;
+        const spacing = 19;
 
-        if (AppState.is3DRotating) angle += 0.008;
+        if (AppState.is3DRotating) angle += 0.006;
 
         const cosA = Math.cos(angle);
         const sinA = Math.sin(angle);
-        const pitch = 0.55;
+        const pitch = 0.52;
 
-        // Draw 3D Isometric Grid Mesh
+        // Draw 3D Isometric Elevation Terrain Grid
         for (let x = -gridW / 2; x < gridW / 2; x++) {
             for (let y = -gridH / 2; y < gridH / 2; y++) {
                 const rx = x * cosA - y * sinA;
                 const ry = x * sinA + y * cosA;
 
-                const zElevation = Math.sin(x * 0.4 + angle) * Math.cos(y * 0.4) * 22;
+                const zElevation = (Math.sin(x * 0.35 + angle * 1.2) * Math.cos(y * 0.35) + Math.sin((x + y) * 0.2)) * 26;
                 const isoX = cx + (rx - ry) * spacing;
                 const isoY = cy + (rx + ry) * spacing * pitch - zElevation;
 
                 const nextRx = (x + 1) * cosA - y * sinA;
                 const nextRy = (x + 1) * sinA + y * cosA;
-                const nextZElev = Math.sin((x + 1) * 0.4 + angle) * Math.cos(y * 0.4) * 22;
+                const nextZElev = (Math.sin((x + 1) * 0.35 + angle * 1.2) * Math.cos(y * 0.35) + Math.sin((x + 1 + y) * 0.2)) * 26;
                 const nextIsoX = cx + (nextRx - nextRy) * spacing;
                 const nextIsoY = cy + (nextRx + nextRy) * spacing * pitch - nextZElev;
 
-                ctx.strokeStyle = AppState.is3DWireframe ? 'rgba(52, 211, 153, 0.4)' : '#059669';
-                ctx.lineWidth = 1.2;
+                ctx.strokeStyle = AppState.is3DWireframe ? 'rgba(52, 211, 153, 0.4)' : 'rgba(5, 150, 105, 0.65)';
+                ctx.lineWidth = 1.3;
                 ctx.beginPath();
                 ctx.moveTo(isoX, isoY);
                 ctx.lineTo(nextIsoX, nextIsoY);
                 ctx.stroke();
 
-                // Draw Canopy height nodes
+                // Draw Canopy height nodes & solar ray illumination
                 if (!AppState.is3DWireframe) {
-                    ctx.fillStyle = zElevation > 5 ? '#34d399' : '#047857';
+                    const isHigh = zElevation > 10;
+                    ctx.fillStyle = isHigh ? '#34d399' : '#059669';
                     ctx.beginPath();
-                    ctx.arc(isoX, isoY, Math.max(1.5, (zElevation + 25) * 0.12), 0, Math.PI * 2);
+                    ctx.arc(isoX, isoY, Math.max(1.8, (zElevation + 30) * 0.12), 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
         }
 
+        // Draw Floating Photosynthetic Particles
+        particles.forEach(p => {
+            p.z += p.speed;
+            if (p.z > 140) p.z = 0;
+
+            const px = cx + p.x * cosA - p.y * sinA;
+            const py = cy + (p.x * sinA + p.y * cosA) * pitch - p.z;
+
+            ctx.fillStyle = `rgba(110, 231, 183, ${p.opacity * (1 - p.z / 140)})`;
+            ctx.beginPath();
+            ctx.arc(px, py, p.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
         AppState.anim3DId = requestAnimationFrame(render3DFrame);
     }
 
     render3DFrame();
+
+    // Horizontal rail navigation buttons
+    const shcPrev = document.getElementById('btn-shc-prev');
+    const shcNext = document.getElementById('btn-shc-next');
+    const shcGrid = document.getElementById('shc-12-grid');
+
+    if (shcPrev && shcGrid) {
+        shcPrev.addEventListener('click', () => {
+            shcGrid.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+    }
+    if (shcNext && shcGrid) {
+        shcNext.addEventListener('click', () => {
+            shcGrid.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+    }
 }
 
 // ----------------- SYSTEM & CONTROLS -----------------

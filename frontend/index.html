@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Leaflet GIS Map Library -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -21,7 +21,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Custom Design System Styles (White & Green) -->
+    <!-- Custom Design System Styles (White & Emerald Green) -->
     <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body>
@@ -78,6 +78,24 @@
                 </div>
             </div>
         </header>
+
+        <!-- LIVE APMC MANDI & SATELLITE MARQUEE TICKER TAPE -->
+        <div class="marquee-ticker-strip">
+            <span class="marquee-label"><i data-lucide="trending-up" style="width:14px;height:14px;"></i> LIVE MANDI TICKER</span>
+            <div class="marquee-track" id="live-marquee-track">
+                <span class="marquee-item">🌾 Guntur Cotton: <strong>₹7,650/Q</strong> <span class="delta-up">(+2.4% vs MSP)</span></span>
+                <span class="marquee-item">🌶️ Guntur Teja Chilli: <strong>₹16,800/Q</strong> <span class="delta-up">(+4.1%)</span></span>
+                <span class="marquee-item">🌾 Warangal Cotton: <strong>₹7,520/Q</strong> <span class="delta-up">(+1.8% vs MSP)</span></span>
+                <span class="marquee-item">🌾 Khanna PR-126 Paddy: <strong>₹2,320/Q</strong> <span class="delta-up">(MSP Guarded)</span></span>
+                <span class="marquee-item">🛰️ Next Sentinel-2B Pass: <strong>In 18h 22m (10m MSI)</strong></span>
+                <span class="marquee-item">🪙 Verified Carbon Value: <strong>₹11,623 ($139.20)</strong></span>
+                <!-- Loop duplicates for seamless continuous scroll -->
+                <span class="marquee-item">🌾 Guntur Cotton: <strong>₹7,650/Q</strong> <span class="delta-up">(+2.4% vs MSP)</span></span>
+                <span class="marquee-item">🌶️ Guntur Teja Chilli: <strong>₹16,800/Q</strong> <span class="delta-up">(+4.1%)</span></span>
+                <span class="marquee-item">🌾 Warangal Cotton: <strong>₹7,520/Q</strong> <span class="delta-up">(+1.8% vs MSP)</span></span>
+                <span class="marquee-item">🌾 Khanna PR-126 Paddy: <strong>₹2,320/Q</strong> <span class="delta-up">(MSP Guarded)</span></span>
+            </div>
+        </div>
 
         <!-- LIVE GEOSPATIAL SEARCH BAR & SATELLITE ORBIT TICKER -->
         <div class="location-search-strip">
@@ -189,7 +207,7 @@
                 </div>
 
                 <!-- Interactive Leaflet Satellite GIS Map with Polygon Drawing Tool -->
-                <div class="panel-card gis-map-card" style="margin-top: 1.5rem;">
+                <div class="panel-card gis-map-card" style="margin-top: 1.75rem;">
                     <div class="card-header">
                         <div class="card-title-group">
                             <h3><i data-lucide="map"></i> Interactive Real-Time GIS Map & Polygon Boundary Drawer</h3>
@@ -201,7 +219,7 @@
                         </div>
                     </div>
                     <div id="gis-leaflet-map" class="gis-map-canvas"></div>
-                    <span class="map-hint" style="margin-top: 0.5rem;"><i data-lucide="info"></i> Click "Draw Field Polygon", click points on the map to outline your field perimeter, then double-click to finish.</span>
+                    <span class="map-hint" style="margin-top: 0.75rem;"><i data-lucide="info"></i> Click "Draw Field Polygon", click points on the map to outline your field perimeter, then double-click to finish.</span>
                 </div>
 
                 <div class="dashboard-grid" style="margin-top: 1.75rem;">
@@ -340,32 +358,38 @@
 
             <!-- TAB 2: 🇮🇳 BHARAT AGDATA HUB & MANDI INTELLIGENCE -->
             <section id="tab-bharat" class="tab-panel" role="tabpanel">
-                <!-- 12-Parameter Soil Health Card Grid -->
-                <div class="panel-card" style="margin-bottom: 1.75rem;">
-                    <div class="card-header">
+                <!-- 12-Parameter Soil Health Card Rail & Grid -->
+                <div class="rail-container panel-card">
+                    <div class="rail-header">
                         <div>
                             <h3><i data-lucide="clipboard-check"></i> Government of India — National Soil Health Card (12-Parameter Matrix)</h3>
                             <span class="card-subtitle" id="shc-sub-text">Ministry of Agriculture & Farmers Welfare • ICAR Soil Fertility Norms</span>
                         </div>
-                        <span class="soil-score-badge" id="shc-id-badge">SHC ID: SHC-IN-749281</span>
+                        <div style="display:flex; align-items:center; gap:0.6rem;">
+                            <span class="soil-score-badge" id="shc-id-badge">SHC ID: SHC-IN-749281</span>
+                            <div class="rail-nav-buttons">
+                                <button class="btn-rail-nav" id="btn-shc-prev"><i data-lucide="chevron-left"></i></button>
+                                <button class="btn-rail-nav" id="btn-shc-next"><i data-lucide="chevron-right"></i></button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="shc-12-grid" id="shc-12-grid">
                         <!-- Populated dynamically with 12 parameters -->
                     </div>
 
-                    <div class="shc-recommendation-box" id="shc-recommendation-box" style="margin-top: 1.25rem;">
+                    <div class="shc-recommendation-box" id="shc-recommendation-box" style="margin-top: 1.35rem;">
                         <strong>ICAR Soil Recommendation:</strong> Apply 25 kg/ha Zinc Sulphate + 10 kg/ha Borax at basal land preparation. Incorporate 5 tonnes/ha Farm Yard Manure (FYM).
                     </div>
                 </div>
 
-                <div class="dashboard-grid">
+                <div class="dashboard-grid" style="margin-top: 1.75rem;">
                     <!-- Real-Time APMC Mandi Prices with CACP MSP Benchmark -->
                     <div class="panel-card">
                         <div class="card-header">
                             <div>
                                 <h3><i data-lucide="trending-up"></i> Live APMC Mandi Prices & CACP MSP Benchmark</h3>
-                                <span class="card-subtitle">Agmarknet & e-NAM Real-Time Ingestion</span>
+                                <span class="card-subtitle">Agmarknet & e-NAM Real-Time Ingestion (Sorted by GPS Distance)</span>
                             </div>
                             <span class="card-tag">Live Commodities</span>
                         </div>
@@ -387,7 +411,7 @@
 
                         <div class="damu-bulletin-box" id="damu-bulletin-box">
                             <h4 id="damu-headline">Active vegetative stage monitoring under elevated daytime temperatures.</h4>
-                            <p id="damu-summary" style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 0.4rem;">Partly cloudy sky with light scattered convective showers (5-12 mm) likely.</p>
+                            <p id="damu-summary" style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 0.4rem;">Partly cloudy sky with light scattered convective showers (5-12 mm) likely.</p>
                         </div>
 
                         <!-- PM Schemes & Direct Subsidy Calculator -->
@@ -407,7 +431,7 @@
                     <div class="card-header">
                         <div>
                             <h3><i data-lucide="box"></i> 3D Geospatial Canopy & Root-Zone Hydrology Visualizer</h3>
-                            <span class="card-subtitle">Real-Time Topographic Elevation Mesh • Solar Zenith Lighting • Root-Zone Percolation</span>
+                            <span class="card-subtitle">Real-Time Topographic Elevation Mesh • Particle Solar Flux • Root-Zone Percolation</span>
                         </div>
                         <div class="view-controls-3d">
                             <button class="btn btn-secondary btn-sm" id="btn-3d-rotate"><i data-lucide="rotate-3d"></i> Auto Rotate</button>
@@ -421,6 +445,7 @@
                             <div class="hud-3d-pill">🌱 Canopy Height Model: <strong>68 cm</strong></div>
                             <div class="hud-3d-pill">☀️ Solar Irradiance Angle: <strong>54.2°</strong></div>
                             <div class="hud-3d-pill">💧 Subsoil Percolation: <strong>1.8 mm/hr</strong></div>
+                            <div class="hud-3d-pill">✨ Photosynthetic Flux: <strong>1,420 µmol/m²/s</strong></div>
                         </div>
                     </div>
                 </div>
