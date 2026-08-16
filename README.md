@@ -153,5 +153,14 @@ POST /api/v1/federated/aggregate     # Execute FedAvg decentralized round
 
 ---
 
+## 👥 Contributors & Core Team
+
+| Contributor | GitHub Profile | Role |
+| :--- | :--- | :--- |
+| **Tarun Jampani** | [@tarun1790](https://github.com/tarun1790) | Lead Architect & Full-Stack AI Engineer |
+| **Varun Teja** | [@varunteja75](https://github.com/varunteja75) | Core Contributor & Agronomic Intelligence Systems |
+
+---
+
 ## 📄 License
 This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
