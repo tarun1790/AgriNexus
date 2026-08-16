@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriNexus v3.0 — AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
-    <meta name="description" content="Next-Gen Agricultural Intelligence: Live GPS, Sentinel-2 & Micro-UAV Drone Thermal Imaging, 3D Canopy Digital Twin, VRA Fertilizer Prescription, and BRICS Carbon MRV Ledger.">
+    <meta name="description" content="Next-Gen Agricultural Intelligence: Live GPS, Sentinel-2 & Micro-UAV Drone Thermal Imaging, 3D Canopy Digital Twin, VRA Fertilizer Prescription, Bharat AgData Hub, and BRICS Carbon MRV Ledger.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,6 +108,9 @@
             <div class="nav-tabs" role="tablist">
                 <button class="nav-tab active" data-tab="tab-advisory" id="tab-btn-advisory" role="tab">
                     <i data-lucide="sparkles"></i> Field Digital Twin & Advisory
+                </button>
+                <button class="nav-tab" data-tab="tab-bharat" id="tab-btn-bharat" role="tab">
+                    <i data-lucide="badge-check"></i> 🇮🇳 Bharat AgData Hub & Mandis
                 </button>
                 <button class="nav-tab" data-tab="tab-3d" id="tab-btn-3d" role="tab">
                     <i data-lucide="box"></i> 3D Canopy & Terrain Twin
@@ -335,7 +338,70 @@
                 </div>
             </section>
 
-            <!-- TAB 2: 3D CANOPY & TERRAIN DIGITAL TWIN -->
+            <!-- TAB 2: 🇮🇳 BHARAT AGDATA HUB & MANDI INTELLIGENCE -->
+            <section id="tab-bharat" class="tab-panel" role="tabpanel">
+                <!-- 12-Parameter Soil Health Card Grid -->
+                <div class="panel-card" style="margin-bottom: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="clipboard-check"></i> Government of India — National Soil Health Card (12-Parameter Matrix)</h3>
+                            <span class="card-subtitle" id="shc-sub-text">Ministry of Agriculture & Farmers Welfare • ICAR Soil Fertility Norms</span>
+                        </div>
+                        <span class="soil-score-badge" id="shc-id-badge">SHC ID: SHC-IN-749281</span>
+                    </div>
+
+                    <div class="shc-12-grid" id="shc-12-grid">
+                        <!-- Populated dynamically with 12 parameters -->
+                    </div>
+
+                    <div class="shc-recommendation-box" id="shc-recommendation-box" style="margin-top: 1.25rem;">
+                        <strong>ICAR Soil Recommendation:</strong> Apply 25 kg/ha Zinc Sulphate + 10 kg/ha Borax at basal land preparation. Incorporate 5 tonnes/ha Farm Yard Manure (FYM).
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Real-Time APMC Mandi Prices with CACP MSP Benchmark -->
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <div>
+                                <h3><i data-lucide="trending-up"></i> Live APMC Mandi Prices & CACP MSP Benchmark</h3>
+                                <span class="card-subtitle">Agmarknet & e-NAM Real-Time Ingestion</span>
+                            </div>
+                            <span class="card-tag">Live Commodities</span>
+                        </div>
+
+                        <div class="mandi-list" id="mandi-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- IMD Agromet GKMS & PM Scheme Subsidies -->
+                    <div class="panel-card">
+                        <div class="card-header">
+                            <div>
+                                <h3><i data-lucide="cloud-sun"></i> IMD Gramin Krishi Mausam Sewa (DAMU Bulletin)</h3>
+                                <span class="card-subtitle" id="damu-date-badge">District Agro-Meteorological Unit</span>
+                            </div>
+                            <span class="pulse-badge"><span class="pulse-dot"></span> IMD Active</span>
+                        </div>
+
+                        <div class="damu-bulletin-box" id="damu-bulletin-box">
+                            <h4 id="damu-headline">Active vegetative stage monitoring under elevated daytime temperatures.</h4>
+                            <p id="damu-summary" style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 0.4rem;">Partly cloudy sky with light scattered convective showers (5-12 mm) likely.</p>
+                        </div>
+
+                        <!-- PM Schemes & Direct Subsidy Calculator -->
+                        <div style="margin-top: 1.5rem;">
+                            <h4><i data-lucide="landmark"></i> PM Farmer Welfare & Subsidy Calculator</h4>
+                            <div class="pm-schemes-grid" id="pm-schemes-grid" style="margin-top: 0.75rem;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: 3D CANOPY & TERRAIN DIGITAL TWIN -->
             <section id="tab-3d" class="tab-panel" role="tabpanel">
                 <div class="panel-card">
                     <div class="card-header">
@@ -360,7 +426,7 @@
                 </div>
             </section>
 
-            <!-- TAB 3: PRECISION VRA FERTILIZER PRESCRIPTION -->
+            <!-- TAB 4: PRECISION VRA FERTILIZER PRESCRIPTION -->
             <section id="tab-vra" class="tab-panel" role="tabpanel">
                 <div class="panel-card">
                     <div class="card-header">
@@ -396,7 +462,7 @@
                 </div>
             </section>
 
-            <!-- TAB 4: SOIL & BRICS CARBON MRV LEDGER -->
+            <!-- TAB 5: SOIL & BRICS CARBON MRV LEDGER -->
             <section id="tab-soil" class="tab-panel" role="tabpanel">
                 <div class="soil-grid">
                     <div class="panel-card">
@@ -490,7 +556,7 @@
                 </div>
             </section>
 
-            <!-- TAB 5: "WHAT-IF" CLIMATE SCENARIO SIMULATOR -->
+            <!-- TAB 6: "WHAT-IF" CLIMATE SCENARIO SIMULATOR -->
             <section id="tab-simulator" class="tab-panel" role="tabpanel">
                 <div class="simulator-layout">
                     <!-- Controls Column -->
@@ -602,7 +668,7 @@
                 </div>
             </section>
 
-            <!-- TAB 6: AI CROP DISEASE DIAGNOSTICS -->
+            <!-- TAB 7: AI CROP DISEASE DIAGNOSTICS -->
             <section id="tab-disease" class="tab-panel" role="tabpanel">
                 <div class="disease-layout">
                     <div class="panel-card disease-upload-card">
@@ -689,7 +755,7 @@
                 </div>
             </section>
 
-            <!-- TAB 7: FEDERATED DPI NETWORK -->
+            <!-- TAB 8: FEDERATED DPI NETWORK -->
             <section id="tab-federated" class="tab-panel" role="tabpanel">
                 <div class="federated-layout">
                     <div class="panel-card">
@@ -744,7 +810,7 @@
                 </div>
             </section>
 
-            <!-- TAB 8: OPEN INTEROPERABILITY DPI APIS -->
+            <!-- TAB 9: OPEN INTEROPERABILITY DPI APIS -->
             <section id="tab-api" class="tab-panel" role="tabpanel">
                 <div class="panel-card">
                     <div class="card-header">
@@ -760,6 +826,16 @@
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/realtime/field-intel</code>
                             <span class="endpoint-desc">Ingest live meteorological and SoilGrids data for any GPS coordinate</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/india/mandi-prices</code>
+                            <span class="endpoint-desc">Live Agmarknet / e-NAM APMC Mandi prices with CACP MSP benchmarks</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/india/soil-health-card</code>
+                            <span class="endpoint-desc">National Soil Health Card 12-parameter diagnostic scorecard</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method get">GET</span>
@@ -779,7 +855,7 @@
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/copilot/chat</code>
-                            <span class="endpoint-desc">Gemini Multi-Agent Autonomous Agronomic Orchestrator Copilot</span>
+                            <span class="endpoint-desc">Autonomous Multi-Agent Agronomic Orchestrator Copilot</span>
                         </div>
                     </div>
                 </div>
@@ -789,7 +865,7 @@
         <!-- FLOATING GEMINI MULTI-AGENT COPILOT DRAWER -->
         <div class="copilot-floating-widget" id="copilot-widget">
             <button class="copilot-toggle-btn" id="copilot-toggle-btn">
-                <i data-lucide="bot"></i> <span>Ask Gemini Agronomic Copilot</span>
+                <i data-lucide="bot"></i> <span>Ask Agronomic Copilot</span>
             </button>
 
             <div class="copilot-drawer hidden" id="copilot-drawer">
@@ -797,7 +873,7 @@
                     <div class="copilot-brand">
                         <i data-lucide="sparkles" class="text-warning"></i>
                         <div>
-                            <h4>Gemini Agronomic Copilot</h4>
+                            <h4>Agronomic AI Copilot</h4>
                             <span class="copilot-subtitle">3 Autonomous Agents • 5 Real Tools Active</span>
                         </div>
                     </div>
@@ -816,7 +892,7 @@
 
                 <div class="copilot-messages" id="copilot-messages">
                     <div class="msg-bot">
-                        👋 Hello! I am your <strong>AgriNexus Copilot</strong>, powered by Google Gemini and 3 specialized agronomic sub-agents (Satellite Scout, Soil Microbiome, and Hydrology Forecaster). Ask me anything about your field!
+                        👋 Hello! I am your <strong>AgriNexus Copilot</strong>, powered by autonomous multi-agent reasoning and 3 specialized agronomic sub-agents (Satellite Scout, Soil Microbiome, and Hydrology Forecaster). Ask me anything about your field!
                     </div>
                 </div>
 
@@ -831,9 +907,9 @@
                 </div>
 
                 <div class="copilot-quick-prompts">
+                    <button class="quick-chip" data-prompt="What is the live APMC mandi price and CACP MSP for Cotton?">🌾 Mandi & MSP Price?</button>
+                    <button class="quick-chip" data-prompt="Show my 12-parameter Soil Health Card deficiencies">📋 12-Param Soil Health?</button>
                     <button class="quick-chip" data-prompt="Generate precision VRA fertilizer recommendations for my field">🎯 Precision VRA Map?</button>
-                    <button class="quick-chip" data-prompt="How much water should I apply if temperature hits 40°C tomorrow?">🌡️ Water if 40°C?</button>
-                    <button class="quick-chip" data-prompt="What is my soil carbon credit value on the BRICS ledger?">🪙 Carbon Credit Value?</button>
                 </div>
 
                 <form class="copilot-input-bar" id="copilot-form">

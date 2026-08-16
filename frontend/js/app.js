@@ -313,14 +313,120 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         renderSatelliteTrajectoryChart();
         renderSoilRadarChart(data.field_profile.soil);
 
-        // Fetch Satellite Overpass, VRA, and Carbon MRV
+        // Fetch Satellite Overpass, VRA, Carbon MRV, and Bharat Indian AgData Hub
         fetchSatelliteOverpass(lat, lon);
         fetchVRAPrescription(crop, area, data.satellite.mean_ndvi);
         fetchCarbonMRV(area);
+        fetchIndianAgData(lat, lon, crop, area, data.field_profile.soil.organic_carbon, data.field_profile.soil.ph);
 
     } catch (err) {
         console.error('Error fetching live field intelligence:', err);
     }
+}
+
+async function fetchIndianAgData(lat, lon, crop, area, oc, ph) {
+    try {
+        const [shcRes, mandiRes, damuRes, schemeRes] = await Promise.all([
+            fetch(`${API_BASE}/api/v1/india/soil-health-card?lat=${lat}&lon=${lon}&oc=${oc}&ph=${ph}`),
+            fetch(`${API_BASE}/api/v1/india/mandi-prices?crop=${crop}`),
+            fetch(`${API_BASE}/api/v1/india/agromet-bulletin?district=Guntur`),
+            fetch(`${API_BASE}/api/v1/india/schemes?area_acres=${area}&crop=${crop}`)
+        ]);
+
+        const shc = await shcRes.json();
+        const mandis = await mandiRes.json();
+        const damu = await damuRes.json();
+        const schemes = await schemeRes.json();
+
+        renderSoilHealthCard(shc);
+        renderMandiPrices(mandis);
+        renderDAMUBulletin(damu);
+        renderPMSchemes(schemes);
+    } catch (e) {
+        console.warn('Indian AgData Hub deferred:', e);
+    }
+}
+
+function renderSoilHealthCard(shc) {
+    const idBadge = document.getElementById('shc-id-badge');
+    const subText = document.getElementById('shc-sub-text');
+    const recBox = document.getElementById('shc-recommendation-box');
+    const grid = document.getElementById('shc-12-grid');
+
+    if (idBadge) idBadge.textContent = `SHC ID: ${shc.shc_sample_id}`;
+    if (subText) subText.textContent = `${shc.agro_ecological_sub_region}`;
+    if (recBox) recBox.innerHTML = `<strong>ICAR Soil Recommendation:</strong> ${shc.official_recommendation}`;
+
+    if (grid) {
+        grid.innerHTML = '';
+        shc.parameters.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'shc-param-card';
+            card.innerHTML = `
+                <span class="param-category-tag">${p.category}</span>
+                <span class="param-name">${p.name}</span>
+                <span class="param-val">${p.value}</span>
+                <span class="param-benchmark">Norm: ${p.benchmark}</span>
+                <span class="param-status-tag ${p.color}">${p.status}</span>
+            `;
+            grid.appendChild(card);
+        });
+    }
+}
+
+function renderMandiPrices(mandis) {
+    const list = document.getElementById('mandi-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    mandis.forEach(m => {
+        const item = document.createElement('div');
+        item.className = 'mandi-item';
+        item.innerHTML = `
+            <div class="mandi-title-group">
+                <h5>${m.mandi_name}</h5>
+                <span class="mandi-sub">${m.commodity} • Arrival: ${m.arrival_tonnes} T</span>
+                <div style="margin-top: 0.25rem;">
+                    <span class="msp-tag">CACP MSP: ₹${m.msp_benchmark}/Q</span>
+                    <span style="font-size: 0.72rem; color: var(--brand-primary); font-weight: 700; margin-left: 0.35rem;">${m.price_trend}</span>
+                </div>
+            </div>
+            <div class="mandi-rate-box">
+                <div class="mandi-modal-rate">₹${m.modal_price.toLocaleString()}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">Range: ₹${m.min_price} - ₹${m.max_price}</div>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function renderDAMUBulletin(damu) {
+    const hl = document.getElementById('damu-headline');
+    const sm = document.getElementById('damu-summary');
+    const db = document.getElementById('damu-date-badge');
+
+    if (hl) hl.textContent = damu.agro_advisory_headline;
+    if (sm) sm.textContent = `${damu.damu_weather_summary} — ${damu.issuing_authority}`;
+    if (db) db.textContent = `${damu.district} District (${damu.bulletin_date})`;
+}
+
+function renderPMSchemes(s) {
+    const grid = document.getElementById('pm-schemes-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    s.eligible_schemes.forEach(sc => {
+        const card = document.createElement('div');
+        card.className = 'pm-scheme-card';
+        card.innerHTML = `
+            <div>
+                <h5>${sc.scheme_name}</h5>
+                <p>${sc.disbursement_frequency || sc.coverage || sc.support_details || 'Govt Direct Assistance'}</p>
+            </div>
+            <span class="msp-tag">${sc.eligibility_status}</span>
+        `;
+        grid.appendChild(card);
+    });
 }
 
 function renderRegionalGrounding(g) {

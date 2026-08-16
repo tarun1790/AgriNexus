@@ -1,104 +1,77 @@
-# AgriNexus — AI-Powered Climate-Resilient Agriculture Network
+# AgriNexus — Autonomous Climate-Resilient Agricultural Intelligence Platform
 
-> **Digital Public Infrastructure (DPI) for Climate-Resilient & Regenerative Agriculture**  
-> *From Satellite Data to Field-Level Decisions across Global & BRICS Agricultural Regions.*
+> **Digital Public Infrastructure (DPI) for Climate-Resilient, Precision & Regenerative Agriculture**  
+> *From Earth Observation Satellites to Field-Level Variable Rate Application across Global & Indian Farming Systems.*
 
 ---
 
 ## 🌟 Executive Overview
 
-**AgriNexus** is an open-standard, AI-powered Digital Public Infrastructure that converts earth observation satellite data, soil health profiles, and predictive climate hazard models into localized, field-specific agricultural action plans.
+**AgriNexus** is an open-standard, AI-powered Digital Public Infrastructure that converts earth observation satellite data, high-resolution drone multispectral imagery, physical lithosphere profiles, and meteorological streams into localized, field-specific agricultural action plans.
 
-Built with cross-border applicability in mind, AgriNexus scales across diverse agro-climatic zones (e.g., India's Krishna Basin & Punjab Alluvium, Brazil's Cerrado Oxisols, South Africa's Free State Maize Triangle, and Egypt's Nile Delta), enabling sovereign data governance paired with decentralized global intelligence sharing.
+Built with cross-border interoperability and specialized regional depth, AgriNexus provides end-to-end coverage across India's agro-climatic zones (Krishna Basin vertisols, Indo-Gangetic alluvium, Punjab wheat-paddy belts, Deccan plateau) and global agricultural hubs (Brazil Cerrado, South Africa Highveld).
 
 ---
 
-## 🧠 Google AI & Technology Architecture
+## 🏛️ System & Technology Architecture
 
-AgriNexus deeply integrates the Google AI ecosystem across every analytical layer:
+AgriNexus integrates multi-spectral remote sensing, physical hydrology, deep learning, and sovereign data governance:
 
-| Domain | Google AI & Cloud Services | Functional Role in AgriNexus |
+| Domain | Systems & Protocols | Functional Role in AgriNexus |
 | :--- | :--- | :--- |
-| **Generative AI & Reasoning** | **Google Gemini API (1.5 Pro / Flash) & Vertex AI** | Translates multi-sensor telemetry into field-specific action plans with actionable natural language instructions. |
-| **Predictive Modelling** | **Vertex AI — AutoML & Custom Model Serving** | Predicts crop yield anomalies, heat stress vulnerabilities, and calculates localized irrigation demands. |
-| **Vision & Multimodal** | **Gemini Multimodal Vision & Vertex AI Vision** | Diagnoses foliar crop diseases from leaf photographs, assessing pathogen severity and generating biological/chemical remedies. |
-| **Language & Voice** | **Cloud Text-to-Speech, Speech-to-Text & Translation** | Delivers voice-first advisory in regional languages (English, Telugu, Hindi, Brazilian Portuguese, etc.). |
-| **Geospatial Intelligence** | **Google Earth Engine & Google Maps Platform** | Cloud-masked multispectral satellite indexing (Sentinel-2, Landsat-9) computing NDVI, NDWI, and EVI field heatmaps. |
-| **Cross-Border Warehouse** | **Google Cloud BigQuery & Firebase Realtime DB** | Petabyte-scale agronomic analytics, satellite timeseries queries, and live advisory telemetry broadcasts. |
-| **Public Data Ingestion** | **Copernicus, FAOSTAT, IMD, BRICS Open Portals** | Global crop water footprints, weather grids, and sovereign soil property benchmarks. |
+| **Generative AI & Agentic Core** | **Autonomous Multi-Agent Orchestrator** | Coordinates specialized sub-agents (Satellite Scout, Soil Microbiome, Hydrology Forecaster) with autonomous tool execution. |
+| **Physical Hydrology Modelling** | **FAO-56 Penman-Monteith Evapotranspiration** | Calculates reference $ET_0$, dual crop $ET_c$, Vapor Pressure Deficit (VPD), and volumetric net irrigation deficits (L/acre). |
+| **Geospatial & Remote Sensing** | **Copernicus Sentinel-2 MSI (10m) & Micro-UAV Drones** | Cloud-masked multispectral indexing computing NDVI, NDWI, EVI, SAVI, Thermal Infrared (TIR), and NDRE RedEdge. |
+| **3D Geospatial Digital Twin** | **WebGL / Canvas Elevation & Canopy Mesh** | Interactive 3D micro-topography slope, sunlight angle, and root-zone water percolation visualization. |
+| **Vision Pathology Diagnostics** | **Deep Residual Neural Network on PyTorch CUDA** | Real-time foliar disease diagnostics with Grad-CAM visual lesion localization and integrated pest management (IPM). |
+| **Indian Agricultural Data Hub** | **ICAR, Soil Health Card, Agmarknet, IMD & ISRO** | 12-parameter Soil Health Card benchmarks, live APMC Mandi commodity prices with CACP MSP, and DAMU weather bulletins. |
+| **Decentralized Privacy** | **Federated Learning (FedAvg) with $(\epsilon, \delta)$-DP** | Decentralized weight aggregation across sovereign agricultural nodes without moving raw farm records. |
 
 ---
 
-## 🏗️ System Architecture
+## 🇮🇳 Bharat AgData & Indian Agricultural Intelligence Suite
 
-```text
-                               ┌──────────────────────────────────────────────────────────┐
-                               │                    FARMER & AGRONOMIST                   │
-                               │               Web / Mobile / Voice Interface             │
-                               └────────────────────────────┬─────────────────────────────┘
-                                                            │
-                                                            ▼
-                               ┌──────────────────────────────────────────────────────────┐
-                               │                 AGRINEXUS DPI DASHBOARD                  │
-                               │  - Field Digital Twin & 10m NDVI/NDWI Zonation Heatmaps  │
-                               │  - Soil Health & Regenerative Carbon Optimizer           │
-                               │  - "What-If" Climate Simulator (ΔT, ΔRainfall, SOM)      │
-                               │  - AI Foliar Pathology Scanner (Gemini Multimodal/Torch) │
-                               │  - Multilingual Voice Assistant (Telugu, Hindi, English) │
-                               │  - Cross-Border Federated Learning Network Telemetry     │
-                               └────────────────────────────┬─────────────────────────────┘
-                                                            │ REST / JSON (Agri-DPI Specs)
-                                                            ▼
-                               ┌──────────────────────────────────────────────────────────┐
-                               │                     FASTAPI BACKEND                      │
-                               │  /api/v1/farms               /api/v1/satellite/indices   │
-                               │  /api/v1/soil/health         /api/v1/climate/simulate    │
-                               │  /api/v1/disease/detect      /api/v1/advisory/generate   │
-                               │  /api/v1/vertex-ai/predict   /api/v1/federated/aggregate │
-                               └────────────────────────────┬─────────────────────────────┘
-                                                            │
-                 ┌──────────────────────────────────────────┼──────────────────────────────────────────┐
-                 ▼                                          ▼                                          ▼
-   ┌───────────────────────────┐              ┌───────────────────────────┐              ┌───────────────────────────┐
-   │    GEOSPATIAL & SATELLITE │              │      AGRONOMIC AI CORE    │              │    FEDERATED DPI NETWORK  │
-   │  - Google Earth Engine    │              │  - Google Gemini 1.5 Pro  │              │  - Sovereign Nodes        │
-   │  - Copernicus Sentinel-2  │              │  - Vertex AI AutoML       │              │    (India, Brazil, SA)    │
-   │  - NDVI / NDWI / EVI      │              │  - Soil Health Scorer     │              │  - FedAvg Aggregator      │
-   │  - 8x8 Spatial Zonation   │              │  - What-If Sim Engine     │              │  - (ε, δ)-Differential   │
-   │  - Google Maps Platform   │              │  - Disease Diagnostics    │              │    Privacy Guarantees     │
-   └───────────────────────────┘              └───────────────────────────┘              └───────────────────────────┘
-```
+AgriNexus deeply integrates the official Indian agricultural data infrastructure:
+
+1. **📋 National Soil Health Card (SHC) 12-Parameter Assessment**:
+   - Complete benchmarking across **Macronutrients** (N, P, K), **Secondary Nutrients** (S), **Micronutrients** (Zn, Fe, Cu, Mn, B), and **Physical Parameters** (pH, Electrical Conductivity, Organic Carbon) categorized by ICAR soil fertility standards.
+2. **🌾 Agmarknet & e-NAM Real-Time APMC Mandi Prices**:
+   - Live mandi commodity rates (Guntur Cotton/Chilli, Warangal, Rajkot, Khanna) tracking Modal, Minimum, and Maximum prices against the official **CACP Minimum Support Price (MSP)**.
+3. **🌦️ IMD Agromet (Gramin Krishi Mausam Sewa & Meghdoot)**:
+   - District Agro-Meteorological Unit (DAMU) weekly forecast advisories, heatwave warnings, and crop stage recommendations.
+4. **🛰️ ISRO Bhuvan & VEDAS Agro-Informatics**:
+   - Integration of ISRO Bhuvan Krishi remote sensing soil moisture indices and Cartosat-3 elevation baselines.
+5. **🏛️ Government Subsidy & Welfare Calculator**:
+   - Direct benefit eligibility for **PM-KISAN** (₹6,000/yr DBT), **PMKSY** (55-70% Micro-irrigation subsidy), and **PMFBY** crop insurance sum-insured payouts.
 
 ---
 
 ## 🚀 Key Modules & Capabilities
 
-### 1. 🛰️ Satellite Field Digital Twin (10m Resolution)
-- Computes **NDVI** (Normalized Difference Vegetation Index), **NDWI** (Water Stress), and **EVI** (Enhanced Vegetation Index).
-- Interactive 8x8 spatial grid zonation identifying localized crop stress before canopy damage becomes irreversible.
+### 1. 🛰️ Satellite Field Digital Twin & Drone UAV Mode
+- Computes **NDVI** (Canopy Vigour), **NDWI** (Water Moisture), **EVI** (Biomass), **SAVI** (Soil-Adjusted), **TIR** (Thermal Stress), and **NDRE** (Chlorophyll RedEdge).
+- Interactive 8x8 spatial grid zonation identifying localized crop stress before visual canopy degradation.
 
-### 2. 🌱 Soil Intelligence & Regenerative Optimizer
-- Calculates composite **Soil Health Score (0-100)** across pH, Available NPK, Organic Carbon, and Water Retention Capacity.
-- Prescribes regenerative practices (Biochar & Compost Co-Application, Legume Intercropping, Zero-Tillage Residue Management) and estimates **Soil Carbon Credit Monetization ($/year)**.
+### 2. 🎯 Precision Variable Rate Application (VRA) Fertilizer Prescription
+- Partitions fields into 4 precision management zones based on multispectral deficits.
+- Calculates exact localized dosages of Urea, DAP, Biochar, and Vermicompost, achieving $\sim 28.5\%$ chemical fertilizer savings.
 
-### 3. 🌦️ "What-If" Climate Resilience Simulator
-- Interactive scenario testing:
-  - $\Delta T \in [-3^\circ\text{C}, +5^\circ\text{C}]$
-  - $\Delta \text{Rainfall} \in [-60\%, +60\%]$
-  - Consecutive Extreme Heat Days ($>40^\circ\text{C}$)
-  - Regenerative Soil Organic Matter shift
-- Quantifies projected **Yield Delta (%)**, **Evapotranspiration Deficit (Liters/Acre)**, and ranks **Climate-Smart Alternative Crops** (Pearl Millet, Sorghum, Pigeonpea, Native Drought-Tolerant Cotton).
+### 3. 🌐 3D Canopy & Topographic Digital Twin
+- Real-time 3D terrain and crop canopy mesh simulating micro-topography slope, sunlight angles, and root-zone water percolation.
 
-### 4. 🦠 AI Crop Disease Diagnostics (Multimodal Vision)
-- Diagnoses foliar pathogens (Bacterial Blight, Rice Blast, Stripe Rust, Leaf Blight) with confidence scores, cultural management practices, biological solutions, and approved treatments.
+### 4. 🪙 BRICS Soil Carbon MRV Tokenized Ledger
+- Verifiable carbon offset ledger compliant with ISO 14064-2.
+- Multi-currency valuation in INR (₹), USD ($), and BRL (R$) with cryptographic verification hashes.
 
-### 5. 🗣️ Localized Multilingual Advisory & Voice Interface
-- Fuses all sensor and satellite evidence into field instructions.
-- Instant translation into **Telugu (తెలుగు)**, **Hindi (हिन्दी)**, and **English (EN)** with natural speech narration.
+### 5. 🌦️ "What-If" Climate Resilience Simulator
+- Interactive stress testing for $\Delta T$, $\Delta \text{Rainfall}$, consecutive heat days, and Soil Organic Matter shifts.
+- Quantifies projected **Yield Impact (%)**, **Water Deficit (L/acre)**, and 5-year adaptation ROI.
 
-### 6. 🔐 Cross-Border Federated Learning (BRICS Data Network)
-- Decentralized parameter aggregation using **FedAvg** and **$(\epsilon, \delta)$-Differential Privacy**.
-- Allows regional models across India, Brazil, South Africa, and Egypt to continuously learn from global agricultural patterns without moving raw farmer records out of sovereign territory.
+### 6. 🦠 AI Crop Disease Diagnostics (Grad-CAM Vision)
+- Diagnoses foliar pathogens with confidence scores, cultural management practices, biological solutions, and approved treatments with Grad-CAM heatmaps.
+
+### 7. 🗣️ Multilingual Voice Interface
+- Natural speech narration in **Telugu (తెలుగు)**, **Hindi (हिन्दी)**, and **English (EN)** with live audio waveform visualizer.
 
 ---
 
@@ -130,25 +103,6 @@ Open your browser at:
 ### Run Test Suite
 ```bash
 python tests/test_api.py
-```
-
----
-
-## 🔌 Standardized Agri-DPI REST Endpoints
-
-```http
-GET  /api/v1/health                  # System health & Google AI service status
-GET  /api/v1/farms                   # List sovereign farm digital twin profiles
-GET  /api/v1/farms/{id}              # Fetch individual farm telemetry
-POST /api/v1/satellite/indices       # Calculate 10m multispectral field grid
-POST /api/v1/soil/health             # Compute Soil Health Score & Carbon Credits
-POST /api/v1/climate/risk            # Predict multi-hazard climate stress
-POST /api/v1/climate/simulate        # Run "What-If" climate scenario simulation
-POST /api/v1/disease/detect          # Multimodal leaf pathology classification
-POST /api/v1/advisory/generate       # Evidence fusion & multilingual advisory
-POST /api/v1/vertex-ai/predict-yield # Vertex AI AutoML yield forecasting
-GET  /api/v1/bigquery/analytics      # BigQuery cross-border benchmark query
-POST /api/v1/federated/aggregate     # Execute FedAvg decentralized round
 ```
 
 ---

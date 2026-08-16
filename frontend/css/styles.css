@@ -405,6 +405,154 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* 🇮🇳 BHARAT AGDATA HUB STYLING */
+.shc-12-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.85rem;
+}
+
+.shc-param-card {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.95rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.param-category-tag {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.param-name {
+    font-weight: 800;
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    margin: 0.15rem 0;
+}
+
+.param-val {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.param-benchmark {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+
+.param-status-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    margin-top: 0.2rem;
+}
+
+.shc-recommendation-box {
+    background: var(--brand-pastel);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.15rem;
+    font-size: 0.86rem;
+    color: var(--brand-dark);
+    line-height: 1.55;
+}
+
+.mandi-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mandi-item {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mandi-title-group h5 {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.mandi-sub {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.mandi-rate-box {
+    text-align: right;
+}
+
+.mandi-modal-rate {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.msp-tag {
+    background: var(--brand-pastel);
+    color: var(--brand-primary);
+    border: 1px solid var(--border-medium);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
+.damu-bulletin-box {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.15rem;
+}
+
+.damu-bulletin-box h4 {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.pm-schemes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.pm-scheme-card {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pm-scheme-card h5 {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
+.pm-scheme-card p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
 /* REGIONAL GROUNDING CARD */
 .regional-grounding-card {
     background: #ffffff;
@@ -2037,7 +2185,7 @@ body {
 
 /* RESPONSIVE */
 @media (max-width: 1080px) {
-    .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid {
+    .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {
         grid-template-columns: 1fr;
     }
     .federated-nodes-grid, .carbon-valuation-row {

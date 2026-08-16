@@ -42,6 +42,7 @@ from backend.services.live_soil_service import live_soil_service
 from backend.services.overpass_service import overpass_service
 from backend.services.vra_engine import vra_engine
 from backend.services.regional_soil_knowledge import regional_soil_service
+from backend.services.indian_agri_data_service import indian_agri_service
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
@@ -170,6 +171,42 @@ def get_carbon_mrv_ledger(area_acres: float = 2.4, oc_gain: float = 0.45):
             {"date": "2026-06-12", "activity": "Legume Rhizobia Nitrogen Fixation", "tco2e": round(tons_c * 0.25, 2), "status": "VERIFIED"}
         ]
     }
+
+# ----------------- 🇮🇳 BHARAT AGDATA & MANDI INTELLIGENCE -----------------
+@app.get("/api/v1/india/mandi-prices")
+def get_indian_mandi_prices(crop: str = "Cotton"):
+    """
+    Live APMC Mandi commodity rates (Agmarknet / e-NAM) with CACP MSP benchmarks.
+    """
+    return indian_agri_service.get_live_mandi_prices(crop=crop)
+
+@app.get("/api/v1/india/soil-health-card")
+def get_soil_health_card(lat: float = 16.5062, lon: float = 80.6480, oc: float = 0.52, ph: float = 6.4):
+    """
+    National Soil Health Card (SHC) 12-parameter diagnostic scorecard.
+    """
+    return indian_agri_service.get_soil_health_card_12_params(lat=lat, lon=lon, oc=oc, ph=ph)
+
+@app.get("/api/v1/india/agromet-bulletin")
+def get_imd_agromet_bulletin(district: str = "Guntur"):
+    """
+    IMD Gramin Krishi Mausam Sewa (GKMS) DAMU weekly advisory bulletin.
+    """
+    return indian_agri_service.get_imd_agromet_bulletin(district=district)
+
+@app.get("/api/v1/india/isro-bhuvan")
+def get_isro_bhuvan_telemetry(lat: float = 16.5062, lon: float = 80.6480):
+    """
+    ISRO Bhuvan Krishi & VEDAS remote sensing agro-informatics indicators.
+    """
+    return indian_agri_service.get_isro_bhuvan_agro_telemetry(lat=lat, lon=lon)
+
+@app.get("/api/v1/india/schemes")
+def get_pm_welfare_schemes(area_acres: float = 2.4, crop: str = "Cotton"):
+    """
+    Government of India welfare, subsidy, and insurance benefit calculator (PM-KISAN, PMKSY, PMFBY).
+    """
+    return indian_agri_service.get_pm_schemes_eligibility(area_acres=area_acres, crop=crop)
 
 # ----------------- FARMS & DIGITAL TWINS -----------------
 @app.get("/api/v1/farms", response_model=List[FarmProfile])
