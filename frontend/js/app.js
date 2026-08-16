@@ -1169,10 +1169,19 @@ function initSimulator() {
     const runBtn = document.getElementById('run-sim-btn');
     const resetBtn = document.getElementById('reset-sim-btn');
 
+    let simDebounceTimer = null;
+    function triggerReactiveSimulation() {
+        clearTimeout(simDebounceTimer);
+        simDebounceTimer = setTimeout(() => {
+            executeSimulation();
+        }, 120);
+    }
+
     if (tempSlider) {
         tempSlider.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             document.getElementById('sim-temp-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)} °C`;
+            triggerReactiveSimulation();
         });
     }
 
@@ -1180,12 +1189,14 @@ function initSimulator() {
         rainSlider.addEventListener('input', (e) => {
             const val = parseInt(e.target.value);
             document.getElementById('sim-rain-display').textContent = `${val >= 0 ? '+' : ''}${val} %`;
+            triggerReactiveSimulation();
         });
     }
 
     if (heatSlider) {
         heatSlider.addEventListener('input', (e) => {
             document.getElementById('sim-heatdays-display').textContent = `${e.target.value} Days`;
+            triggerReactiveSimulation();
         });
     }
 
@@ -1193,6 +1204,7 @@ function initSimulator() {
         somSlider.addEventListener('input', (e) => {
             const val = parseFloat(e.target.value);
             document.getElementById('sim-som-display').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(2)} % SOM`;
+            triggerReactiveSimulation();
         });
     }
 
@@ -1206,7 +1218,6 @@ function initSimulator() {
             rainSlider.dispatchEvent(new Event('input'));
             heatSlider.dispatchEvent(new Event('input'));
             somSlider.dispatchEvent(new Event('input'));
-            executeSimulation();
         });
     }
 
