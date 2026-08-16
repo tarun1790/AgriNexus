@@ -434,6 +434,9 @@
                             <span class="card-subtitle">Real-Time Topographic Elevation Mesh • Particle Solar Flux • Root-Zone Percolation</span>
                         </div>
                         <div class="view-controls-3d">
+                            <button class="btn btn-secondary btn-sm active" id="btn-3d-layer-all"><i data-lucide="layers"></i> All Strata</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-3d-layer-canopy"><i data-lucide="leaf"></i> Canopy</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-3d-layer-roots"><i data-lucide="git-branch"></i> Root-Zone</button>
                             <button class="btn btn-secondary btn-sm" id="btn-3d-rotate"><i data-lucide="rotate-3d"></i> Auto Rotate</button>
                             <button class="btn btn-secondary btn-sm" id="btn-3d-wireframe"><i data-lucide="grid"></i> Mesh View</button>
                         </div>
@@ -442,10 +445,12 @@
                     <div class="canvas-3d-wrapper">
                         <canvas id="canvas-3d-twin" class="canvas-3d"></canvas>
                         <div class="hud-3d-overlay">
-                            <div class="hud-3d-pill">🌱 Canopy Height Model: <strong>68 cm</strong></div>
-                            <div class="hud-3d-pill">☀️ Solar Irradiance Angle: <strong>54.2°</strong></div>
-                            <div class="hud-3d-pill">💧 Subsoil Percolation: <strong>1.8 mm/hr</strong></div>
-                            <div class="hud-3d-pill">✨ Photosynthetic Flux: <strong>1,420 µmol/m²/s</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-crop">🌾 Active Crop: <strong>Cotton (Stage: Flowering)</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-chm">🌱 Canopy Height (CHM): <strong>68 cm</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-solar">☀️ Solar Angle: <strong>54.2° (19.5 MJ/m²)</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-percolation">💧 FAO-56 Percolation: <strong>1.8 mm/hr</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-flux">✨ Photosynthetic Flux: <strong>1,420 µmol/m²/s</strong></div>
+                            <div class="hud-3d-pill" id="hud-3d-moisture">🪵 Root-Zone Moisture: <strong>26.0% (Depth: 0–60 cm)</strong></div>
                         </div>
                     </div>
                 </div>

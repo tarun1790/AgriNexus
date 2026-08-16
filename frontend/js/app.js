@@ -661,30 +661,40 @@ function init3DDigitalTwin() {
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    let angle = 0.4;
+    let angle = 0.45;
     let particles = [];
     let waterDrops = [];
+    AppState.active3DLayer = 'all';
+
+    const CROP_SPECS = {
+        'Cotton': { heightCm: 68, stalkHeightPx: 24, foliageR: 3.8, rootDepthPx: 28, rootColor: '#f59e0b', stage: 'Vegetative / Square Formation' },
+        'Chilli': { heightCm: 46, stalkHeightPx: 18, foliageR: 3.2, rootDepthPx: 22, rootColor: '#d97706', stage: 'Early Flowering' },
+        'Rice': { heightCm: 88, stalkHeightPx: 32, foliageR: 4.5, rootDepthPx: 18, rootColor: '#fbbf24', stage: 'Tillering / Panicle' },
+        'Wheat': { heightCm: 75, stalkHeightPx: 28, foliageR: 3.5, rootDepthPx: 26, rootColor: '#fcd34d', stage: 'Crown Root Initiation' },
+        'Maize': { heightCm: 195, stalkHeightPx: 48, foliageR: 5.5, rootDepthPx: 38, rootColor: '#f59e0b', stage: 'Silking & Tasseling' },
+        'Soybean': { heightCm: 62, stalkHeightPx: 22, foliageR: 3.6, rootDepthPx: 25, rootColor: '#d97706', stage: 'Pod Development' }
+    };
 
     // Initialize 80 photosynthetic photons
     for (let i = 0; i < 80; i++) {
         particles.push({
-            x: (Math.random() - 0.5) * 560,
-            y: (Math.random() - 0.5) * 380,
+            x: (Math.random() - 0.5) * 580,
+            y: (Math.random() - 0.5) * 400,
             z: Math.random() * 160,
-            speed: 0.5 + Math.random() * 0.9,
-            radius: 1.5 + Math.random() * 2.2,
+            speed: 0.6 + Math.random() * 0.9,
+            radius: 1.6 + Math.random() * 2.2,
             opacity: 0.4 + Math.random() * 0.6
         });
     }
 
-    // Initialize 30 subsoil percolation droplets
-    for (let i = 0; i < 30; i++) {
+    // Initialize 35 subsoil percolation droplets
+    for (let i = 0; i < 35; i++) {
         waterDrops.push({
-            x: (Math.random() - 0.5) * 480,
-            y: (Math.random() - 0.5) * 320,
-            z: Math.random() * -100,
-            speed: 0.6 + Math.random() * 0.8,
-            length: 4 + Math.random() * 6
+            x: (Math.random() - 0.5) * 500,
+            y: (Math.random() - 0.5) * 340,
+            z: Math.random() * -120,
+            speed: 0.7 + Math.random() * 0.9,
+            length: 5 + Math.random() * 8
         });
     }
 
@@ -698,6 +708,35 @@ function init3DDigitalTwin() {
     window.resize3DCanvas = resizeCanvas;
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    // Layer filter controls
+    const layerAll = document.getElementById('btn-3d-layer-all');
+    const layerCanopy = document.getElementById('btn-3d-layer-canopy');
+    const layerRoots = document.getElementById('btn-3d-layer-roots');
+
+    function setActiveLayerBtn(activeBtn) {
+        [layerAll, layerCanopy, layerRoots].forEach(b => { if (b) b.classList.remove('active'); });
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    if (layerAll) {
+        layerAll.addEventListener('click', () => {
+            AppState.active3DLayer = 'all';
+            setActiveLayerBtn(layerAll);
+        });
+    }
+    if (layerCanopy) {
+        layerCanopy.addEventListener('click', () => {
+            AppState.active3DLayer = 'canopy';
+            setActiveLayerBtn(layerCanopy);
+        });
+    }
+    if (layerRoots) {
+        layerRoots.addEventListener('click', () => {
+            AppState.active3DLayer = 'roots';
+            setActiveLayerBtn(layerRoots);
+        });
+    }
 
     const rotateBtn = document.getElementById('btn-3d-rotate');
     const wireBtn = document.getElementById('btn-3d-wireframe');
@@ -760,17 +799,19 @@ function init3DDigitalTwin() {
         ctx.clearRect(0, 0, cw, ch);
 
         // Deep rich geospatial cockpit backdrop
-        const grad = ctx.createRadialGradient(cw / 2, ch / 2, 40, cw / 2, ch / 2, cw * 0.7);
+        const grad = ctx.createRadialGradient(cw / 2, ch / 2, 40, cw / 2, ch / 2, cw * 0.75);
         grad.addColorStop(0, '#063a23');
         grad.addColorStop(0.5, '#021e12');
         grad.addColorStop(1, '#011009');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, cw, ch);
 
+        const crop = AppState.currentCrop || 'Cotton';
+        const cropSpec = CROP_SPECS[crop] || CROP_SPECS['Cotton'];
         const cx = cw / 2;
-        const cy = ch / 2 + 35;
-        const gridW = 20;
-        const gridH = 20;
+        const cy = ch / 2 + 25;
+        const gridW = 18;
+        const gridH = 18;
         const spacing = Math.max(18, Math.min(26, cw / 40));
 
         if (AppState.is3DRotating) angle += 0.005;
@@ -779,19 +820,86 @@ function init3DDigitalTwin() {
         const sinA = Math.sin(angle);
         const pitch = 0.50;
 
-        // 1. Draw 3D Isometric Elevation Terrain Grid
+        // 1. Draw Volumetric Solar Vector & Sunlight Rays
+        const sunX = cx + Math.cos(angle + 1.2) * (spacing * 12);
+        const sunY = 70;
+        const sunGrad = ctx.createRadialGradient(sunX, sunY, 5, sunX, sunY, 45);
+        sunGrad.addColorStop(0, 'rgba(253, 224, 71, 0.95)');
+        sunGrad.addColorStop(0.4, 'rgba(234, 179, 8, 0.45)');
+        sunGrad.addColorStop(1, 'rgba(234, 179, 8, 0)');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(sunX, sunY, 45, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 2. Draw 3D Geological Horizon Subsoil Walls (0 to -100cm depth cross-section)
+        if (AppState.active3DLayer !== 'canopy') {
+            const edgeX1 = -gridW / 2;
+            const edgeY1 = gridH / 2 - 1;
+            const edgeX2 = gridW / 2 - 1;
+            const edgeY2 = gridH / 2 - 1;
+
+            const rx1 = edgeX1 * cosA - edgeY1 * sinA;
+            const ry1 = edgeX1 * sinA + edgeY1 * cosA;
+            const isoX1 = cx + (rx1 - ry1) * spacing;
+            const isoY1 = cy + (rx1 + ry1) * spacing * pitch;
+
+            const rx2 = edgeX2 * cosA - edgeY2 * sinA;
+            const ry2 = edgeX2 * sinA + edgeY2 * cosA;
+            const isoX2 = cx + (rx2 - ry2) * spacing;
+            const isoY2 = cy + (rx2 + ry2) * spacing * pitch;
+
+            // Soil Horizon A Wall (0 to -30cm Topsoil)
+            ctx.fillStyle = 'rgba(20, 83, 45, 0.55)';
+            ctx.beginPath();
+            ctx.moveTo(isoX1, isoY1);
+            ctx.lineTo(isoX2, isoY2);
+            ctx.lineTo(isoX2, isoY2 + 35);
+            ctx.lineTo(isoX1, isoY1 + 35);
+            ctx.closePath();
+            ctx.fill();
+
+            // Soil Horizon B Wall (-30 to -60cm Root Zone)
+            ctx.fillStyle = 'rgba(15, 60, 32, 0.65)';
+            ctx.beginPath();
+            ctx.moveTo(isoX1, isoY1 + 35);
+            ctx.lineTo(isoX2, isoY2 + 35);
+            ctx.lineTo(isoX2, isoY2 + 70);
+            ctx.lineTo(isoX1, isoY1 + 70);
+            ctx.closePath();
+            ctx.fill();
+
+            // Soil Horizon C Wall (-60 to -100cm Deep Subsoil)
+            ctx.fillStyle = 'rgba(8, 40, 22, 0.75)';
+            ctx.beginPath();
+            ctx.moveTo(isoX1, isoY1 + 70);
+            ctx.lineTo(isoX2, isoY2 + 70);
+            ctx.lineTo(isoX2, isoY2 + 105);
+            ctx.lineTo(isoX1, isoY1 + 105);
+            ctx.closePath();
+            ctx.fill();
+
+            // Horizon Stratum Depth Labels
+            ctx.fillStyle = 'rgba(167, 243, 208, 0.8)';
+            ctx.font = '9px Space Grotesk, sans-serif';
+            ctx.fillText('Horizon A: Topsoil (0–30 cm)', isoX1 - 130, isoY1 + 20);
+            ctx.fillText('Horizon B: Root-Zone (30–60 cm)', isoX1 - 145, isoY1 + 55);
+            ctx.fillText('Horizon C: Deep Lithosphere (60–100 cm)', isoX1 - 170, isoY1 + 90);
+        }
+
+        // 3. Draw 3D Isometric Elevation Terrain Grid
         for (let x = -gridW / 2; x < gridW / 2; x++) {
             for (let y = -gridH / 2; y < gridH / 2; y++) {
                 const rx = x * cosA - y * sinA;
                 const ry = x * sinA + y * cosA;
 
-                const zElevation = (Math.sin(x * 0.3 + angle * 0.8) * Math.cos(y * 0.3) + Math.sin((x + y) * 0.18)) * 28;
+                const zElevation = (Math.sin(x * 0.35 + angle * 0.8) * Math.cos(y * 0.35) + Math.sin((x + y) * 0.18)) * 24;
                 const isoX = cx + (rx - ry) * spacing;
                 const isoY = cy + (rx + ry) * spacing * pitch - zElevation;
 
                 const nextRx = (x + 1) * cosA - y * sinA;
                 const nextRy = (x + 1) * sinA + y * cosA;
-                const nextZElev = (Math.sin((x + 1) * 0.3 + angle * 0.8) * Math.cos(y * 0.3) + Math.sin((x + 1 + y) * 0.18)) * 28;
+                const nextZElev = (Math.sin((x + 1) * 0.35 + angle * 0.8) * Math.cos(y * 0.35) + Math.sin((x + 1 + y) * 0.18)) * 24;
                 const nextIsoX = cx + (nextRx - nextRy) * spacing;
                 const nextIsoY = cy + (nextRx + nextRy) * spacing * pitch - nextZElev;
 
@@ -806,7 +914,7 @@ function init3DDigitalTwin() {
                 // Cross grid connecting line
                 const crossRx = x * cosA - (y + 1) * sinA;
                 const crossRy = x * sinA + (y + 1) * cosA;
-                const crossZElev = (Math.sin(x * 0.3 + angle * 0.8) * Math.cos((y + 1) * 0.3) + Math.sin((x + y + 1) * 0.18)) * 28;
+                const crossZElev = (Math.sin(x * 0.35 + angle * 0.8) * Math.cos((y + 1) * 0.35) + Math.sin((x + y + 1) * 0.18)) * 24;
                 const crossIsoX = cx + (crossRx - crossRy) * spacing;
                 const crossIsoY = cy + (crossRx + crossRy) * spacing * pitch - crossZElev;
 
@@ -815,72 +923,98 @@ function init3DDigitalTwin() {
                 ctx.lineTo(crossIsoX, crossIsoY);
                 ctx.stroke();
 
-                if (!AppState.is3DWireframe) {
-                    // Stalk & Canopy Foliage Node
-                    const isCanopyHigh = zElevation > 6;
-                    ctx.fillStyle = isCanopyHigh ? '#34d399' : '#10b981';
-                    ctx.beginPath();
-                    ctx.arc(isoX, isoY, Math.max(2.2, (zElevation + 32) * 0.14), 0, Math.PI * 2);
-                    ctx.fill();
+                // 4. Draw Crop Stalks, Foliage & Taproots
+                if (!AppState.is3DWireframe && (x + y) % 2 === 0) {
+                    const isCanopyHigh = zElevation > 4;
 
-                    // Vertical Plant Stalk
-                    if ((x + y) % 3 === 0) {
-                        ctx.strokeStyle = 'rgba(52, 211, 153, 0.8)';
-                        ctx.lineWidth = 1.6;
+                    // CANOPY LAYER
+                    if (AppState.active3DLayer !== 'roots') {
+                        // Vertical Stalk
+                        ctx.strokeStyle = 'rgba(52, 211, 153, 0.85)';
+                        ctx.lineWidth = 1.8;
                         ctx.beginPath();
                         ctx.moveTo(isoX, isoY);
-                        ctx.lineTo(isoX, isoY - 18);
+                        ctx.lineTo(isoX, isoY - cropSpec.stalkHeightPx);
                         ctx.stroke();
 
-                        // Leaf bulb
-                        ctx.fillStyle = '#6ee7b7';
+                        // Foliage Bulb
+                        ctx.fillStyle = isCanopyHigh ? '#34d399' : '#10b981';
                         ctx.beginPath();
-                        ctx.arc(isoX, isoY - 19, 3.2, 0, Math.PI * 2);
+                        ctx.arc(isoX, isoY - cropSpec.stalkHeightPx, cropSpec.foliageR, 0, Math.PI * 2);
                         ctx.fill();
 
-                        // Downward Root Taproot
-                        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
-                        ctx.lineWidth = 1.2;
+                        // Solar highlight on top of foliage
+                        ctx.fillStyle = '#a7f3d0';
+                        ctx.beginPath();
+                        ctx.arc(isoX - 1, isoY - cropSpec.stalkHeightPx - 1, cropSpec.foliageR * 0.4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // ROOT-ZONE LAYER
+                    if (AppState.active3DLayer !== 'canopy') {
+                        // Downward Taproot
+                        ctx.strokeStyle = cropSpec.rootColor;
+                        ctx.lineWidth = 1.3;
                         ctx.beginPath();
                         ctx.moveTo(isoX, isoY);
-                        ctx.lineTo(isoX + (Math.sin(x) * 4), isoY + 22);
+                        ctx.lineTo(isoX + Math.sin(x * 0.5) * 5, isoY + cropSpec.rootDepthPx);
+                        ctx.stroke();
+
+                        // Lateral feeder roots
+                        ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+                        ctx.lineWidth = 0.9;
+                        ctx.beginPath();
+                        ctx.moveTo(isoX, isoY + (cropSpec.rootDepthPx * 0.5));
+                        ctx.lineTo(isoX - 6, isoY + (cropSpec.rootDepthPx * 0.7));
+                        ctx.moveTo(isoX, isoY + (cropSpec.rootDepthPx * 0.6));
+                        ctx.lineTo(isoX + 6, isoY + (cropSpec.rootDepthPx * 0.8));
                         ctx.stroke();
                     }
                 }
             }
         }
 
-        // 2. Draw Rising Photosynthetic Photons (Upward Transpiration / CO2 Fixation)
-        particles.forEach(p => {
-            p.z += p.speed;
-            if (p.z > 160) p.z = 0;
+        // 5. Draw Rising Photosynthetic Photons (Transpiration & Carbon Fixation)
+        if (AppState.active3DLayer !== 'roots') {
+            particles.forEach(p => {
+                p.z += p.speed;
+                if (p.z > 160) p.z = 0;
 
-            const px = cx + p.x * cosA - p.y * sinA;
-            const py = cy + (p.x * sinA + p.y * cosA) * pitch - p.z;
+                const px = cx + p.x * cosA - p.y * sinA;
+                const py = cy + (p.x * sinA + p.y * cosA) * pitch - p.z;
 
-            ctx.fillStyle = `rgba(110, 231, 183, ${p.opacity * (1 - p.z / 160)})`;
-            ctx.beginPath();
-            ctx.arc(px, py, p.radius, 0, Math.PI * 2);
-            ctx.fill();
-        });
+                ctx.fillStyle = `rgba(110, 231, 183, ${p.opacity * (1 - p.z / 160)})`;
+                ctx.beginPath();
+                ctx.arc(px, py, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
 
-        // 3. Draw Subsoil Water Percolation Droplets
-        waterDrops.forEach(w => {
-            w.z -= w.speed;
-            if (w.z < -100) w.z = 0;
+        // 6. Draw Subsoil Water Percolation Droplets (FAO-56 Infiltration)
+        if (AppState.active3DLayer !== 'canopy') {
+            waterDrops.forEach(w => {
+                w.z -= w.speed;
+                if (w.z < -120) w.z = 0;
 
-            const wx = cx + w.x * cosA - w.y * sinA;
-            const wy = cy + (w.x * sinA + w.y * cosA) * pitch - w.z;
+                const wx = cx + w.x * cosA - w.y * sinA;
+                const wy = cy + (w.x * sinA + w.y * cosA) * pitch - w.z;
 
-            ctx.strokeStyle = 'rgba(96, 165, 250, 0.65)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            ctx.moveTo(wx, wy);
-            ctx.lineTo(wx, wy + w.length);
-            ctx.stroke();
-        });
+                ctx.strokeStyle = 'rgba(96, 165, 250, 0.65)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(wx, wy);
+                ctx.lineTo(wx, wy + w.length);
+                ctx.stroke();
+            });
+        }
 
-        // 4. Compass Orientation Indicator
+        // 7. Dynamic HUD Telemetry Label Updates
+        const cropHud = document.getElementById('hud-3d-crop');
+        const chmHud = document.getElementById('hud-3d-chm');
+        if (cropHud) cropHud.innerHTML = `🌾 Active Crop: <strong>${crop} (${cropSpec.stage})</strong>`;
+        if (chmHud) chmHud.innerHTML = `🌱 Canopy Height (CHM): <strong>${cropSpec.heightCm} cm</strong>`;
+
+        // 8. Compass Orientation Indicator
         ctx.save();
         ctx.translate(50, 50);
         ctx.rotate(angle);
