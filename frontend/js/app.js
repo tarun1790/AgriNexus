@@ -692,8 +692,8 @@ function init3DDigitalTwin() {
         if (!canvas) return;
         const parentW = canvas.parentElement ? canvas.parentElement.clientWidth : 0;
         const parentH = canvas.parentElement ? canvas.parentElement.clientHeight : 0;
-        canvas.width = (parentW > 50) ? parentW : (window.innerWidth > 900 ? 980 : window.innerWidth - 60);
-        canvas.height = (parentH > 50) ? parentH : 560;
+        canvas.width = (parentW > 100) ? parentW : (window.innerWidth > 900 ? 1080 : window.innerWidth - 40);
+        canvas.height = (parentH > 100) ? parentH : 560;
     }
     window.resize3DCanvas = resizeCanvas;
     resizeCanvas();
@@ -749,23 +749,29 @@ function init3DDigitalTwin() {
     }, { passive: true });
 
     function render3DFrame() {
-        if (canvas.width <= 0 || canvas.height <= 0) {
-            resizeCanvas();
+        const cw = (canvas.parentElement && canvas.parentElement.clientWidth > 100) ? canvas.parentElement.clientWidth : (canvas.width > 100 ? canvas.width : 1080);
+        const ch = (canvas.parentElement && canvas.parentElement.clientHeight > 100) ? canvas.parentElement.clientHeight : (canvas.height > 100 ? canvas.height : 560);
+        
+        if (canvas.width !== cw || canvas.height !== ch) {
+            canvas.width = cw;
+            canvas.height = ch;
         }
 
-        // Deep rich geospatial cockpit backdrop
-        const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 50, canvas.width / 2, canvas.height / 2, canvas.width * 0.6);
-        grad.addColorStop(0, '#042817');
-        grad.addColorStop(0.6, '#02180e');
-        grad.addColorStop(1, '#010f09');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, cw, ch);
 
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2 + 30;
+        // Deep rich geospatial cockpit backdrop
+        const grad = ctx.createRadialGradient(cw / 2, ch / 2, 40, cw / 2, ch / 2, cw * 0.7);
+        grad.addColorStop(0, '#063a23');
+        grad.addColorStop(0.5, '#021e12');
+        grad.addColorStop(1, '#011009');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, ch);
+
+        const cx = cw / 2;
+        const cy = ch / 2 + 35;
         const gridW = 20;
         const gridH = 20;
-        const spacing = Math.min(22, canvas.width / 42);
+        const spacing = Math.max(18, Math.min(26, cw / 40));
 
         if (AppState.is3DRotating) angle += 0.005;
 
