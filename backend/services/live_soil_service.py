@@ -1,6 +1,9 @@
 import requests
+import logging
 from typing import Dict, Any
 from backend.models.schemas import SoilData
+
+logger = logging.getLogger(__name__)
 
 class LiveSoilGridsService:
     """
@@ -59,7 +62,7 @@ class LiveSoilGridsService:
                     bulk_density=bd_val
                 )
         except Exception as e:
-            print("Live SoilGrids query fallback used:", e)
+            logger.warning(f"Live SoilGrids fallback engaged: {e}")
 
         # Regional geological proxy based on lat/lon
         if 8.0 <= lat <= 35.0 and 68.0 <= lon <= 89.0:

@@ -1,6 +1,9 @@
 import requests
+import logging
 from typing import Dict, Any
 from backend.models.schemas import WeatherData
+
+logger = logging.getLogger(__name__)
 
 class LiveMeteorologicalService:
     """
@@ -40,7 +43,7 @@ class LiveMeteorologicalService:
                     solar_radiation_mj=float(solar_mj)
                 )
         except Exception as e:
-            print("Live weather API query fallback used:", e)
+            logger.warning(f"Live weather fallback engaged: {e}")
 
         # Dynamic fallback based on latitude
         is_tropical = abs(lat) < 23.5
