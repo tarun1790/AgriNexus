@@ -52,6 +52,20 @@ app = FastAPI(
     description="Live Real-Time Cross-Border Agronomic Intelligence DPI powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech), Live Meteorological Ingestion, VRA Precision Maps, Satellite Overpass Tracker, and Federated Learning."
 )
 
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
