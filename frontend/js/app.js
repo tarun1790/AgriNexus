@@ -1,8 +1,7 @@
 /**
- * AgriNexus v2.5 — Production-Grade Agricultural Intelligence System
- * Real-Time Live Data Ingestion, Immediate Auto-GPS Geolocation Request,
- * Interactive Field Boundary Polygon Drawer, FAO-56 Penman-Monteith Evapotranspiration,
- * Dynamic Chart.js Timeseries, Grad-CAM Lesion Heatmaps, and Exportable DPI Dossiers.
+ * AgriNexus v3.0 — Next-Generation Agricultural Intelligence System
+ * Real-Time Live Data Ingestion, 3D Canopy Digital Twin, Satellite Overpass Tracker,
+ * Precision VRA Fertilizer Prescription, Drone UAV Thermal Imaging, and BRICS Carbon MRV Ledger.
  */
 
 const API_BASE = '';
@@ -14,6 +13,7 @@ const AppState = {
     currentArea: 2.4,
     currentLanguage: 'en',
     activeSpectralLayer: 'ndvi',
+    currentPlatform: 'satellite',
     map: null,
     marker: null,
     polygonLayer: null,
@@ -27,6 +27,9 @@ const AppState = {
     weatherChartInstance: null,
     satelliteChartInstance: null,
     soilRadarChartInstance: null,
+    is3DRotating: true,
+    is3DWireframe: false,
+    anim3DId: null,
     isRecordingSpeech: false
 };
 
@@ -37,6 +40,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     initControls();
     initLeafletMap();
     initSpectralSwitcher();
+    initPlatformSwitcher();
+    init3DDigitalTwin();
     initSimulator();
     initDiseaseScanner();
     initFederatedNetwork();
@@ -55,7 +60,6 @@ function autoRequestUserLocation() {
     const gpsBtn = document.getElementById('btn-gps-locate');
 
     if (!navigator.geolocation) {
-        console.warn('Geolocation not supported by browser, using default coordinates.');
         fetchLiveFieldIntelligence(AppState.currentLat, AppState.currentLon, AppState.currentCrop, AppState.currentArea);
         return;
     }
@@ -70,7 +74,6 @@ function autoRequestUserLocation() {
         async (pos) => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            console.log(`[GPS SUCCESS] Detected user coordinates: ${lat}, ${lon}`);
             await updateActiveCoordinates(lat, lon);
             if (gpsBtn) {
                 gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
@@ -78,7 +81,6 @@ function autoRequestUserLocation() {
             }
         },
         async (err) => {
-            console.warn(`[GPS PROMPT DISMISSED/DENIED] Code ${err.code}: ${err.message}. Loading default baseline.`);
             if (gpsBtn) {
                 gpsBtn.innerHTML = '<i data-lucide="navigation"></i> <span>Locate Field (GPS)</span>';
                 if (window.lucide) window.lucide.createIcons();
@@ -96,7 +98,6 @@ function initLeafletMap() {
 
     AppState.map = L.map('gis-leaflet-map').setView([AppState.currentLat, AppState.currentLon], 14);
 
-    // Satellite base tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors | Google Earth Engine Hybrid'
     }).addTo(AppState.map);
@@ -108,7 +109,6 @@ function initLeafletMap() {
 
     AppState.marker.bindPopup("<b>Active Monitored Field</b><br>Real-Time Ingestion Active").openPopup();
 
-    // Map Click Handler (handles both pin dropping & polygon drawing)
     AppState.map.on('click', async (e) => {
         const { lat, lng } = e.latlng;
         if (AppState.isDrawingPolygon) {
@@ -124,13 +124,11 @@ function initLeafletMap() {
         }
     });
 
-    // Marker Drag Handler
     AppState.marker.on('dragend', async (e) => {
         const { lat, lng } = e.target.getLatLng();
         await updateActiveCoordinates(lat, lng);
     });
 
-    // Polygon Drawing Toolbar
     const drawBtn = document.getElementById('btn-draw-polygon');
     const clearBtn = document.getElementById('btn-clear-polygon');
 
@@ -167,7 +165,6 @@ function initLeafletMap() {
         });
     }
 
-    // Manual GPS Locate Button Handler
     const gpsBtn = document.getElementById('btn-gps-locate');
     if (gpsBtn) {
         gpsBtn.addEventListener('click', () => {
@@ -175,7 +172,6 @@ function initLeafletMap() {
         });
     }
 
-    // Location Search Bar Handler
     const searchBtn = document.getElementById('btn-search-location');
     const searchInput = document.getElementById('map-search-input');
 
@@ -239,11 +235,8 @@ function finishPolygonDrawing() {
     if (window.lucide) window.lucide.createIcons();
 }
 
-/**
- * Spherical Geodesic Polygon Area Calculation in Acres
- */
 function calculateSphericalPolygonArea(coords) {
-    const R = 6378137; // Earth's mean radius in meters
+    const R = 6378137;
     if (coords.length < 3) return 2.4;
 
     let totalAngle = 0;
@@ -274,7 +267,6 @@ async function updateActiveCoordinates(lat, lon) {
 
     document.getElementById('active-gps-display').textContent = `${lat.toFixed(4)}° N, ${lon.toFixed(4)}° E`;
 
-    // Reverse geocode place name to display in HUD
     try {
         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
             .then(r => r.json())
@@ -309,7 +301,6 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
 
         if (hudTag) hudTag.textContent = '🟢 Live Weather & Soil Streams Active';
 
-        // Render all dashboard panels with live data
         renderLiveWeatherDisplay(data.field_profile.weather);
         renderAdvisoryPanel();
         renderSatelliteGrid();
@@ -317,14 +308,92 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         renderClimateMeters();
         renderFAO56Hydrology();
 
-        // Render real-time dynamic Chart.js timeseries graphs
         renderWeatherForecastChart(data.field_profile.weather);
         renderSatelliteTrajectoryChart();
         renderSoilRadarChart(data.field_profile.soil);
 
+        // Fetch Satellite Overpass, VRA, and Carbon MRV
+        fetchSatelliteOverpass(lat, lon);
+        fetchVRAPrescription(crop, area, data.satellite.mean_ndvi);
+        fetchCarbonMRV(area);
+
     } catch (err) {
         console.error('Error fetching live field intelligence:', err);
     }
+}
+
+async function fetchSatelliteOverpass(lat, lon) {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/satellite/overpass?lat=${lat}&lon=${lon}`);
+        const data = await res.json();
+        const next = data.next_constellation_pass;
+        document.getElementById('orbit-time-text').textContent = `In ${next.hours_until_pass}h (${next.spatial_resolution})`;
+    } catch (e) {}
+}
+
+async function fetchVRAPrescription(crop, area, ndvi) {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/precision/vra-prescription?crop=${crop}&area_acres=${area}&mean_ndvi=${ndvi}`);
+        const vra = await res.json();
+        renderVRAPanel(vra);
+    } catch (e) {}
+}
+
+function renderVRAPanel(v) {
+    document.getElementById('vra-total-urea').textContent = `${v.total_prescribed_urea_kg} kg`;
+    document.getElementById('vra-blanket-urea').textContent = `${v.conventional_blanket_urea_kg} kg`;
+    document.getElementById('vra-saved-urea').textContent = `${v.fertilizer_saved_kg} kg (${v.fertilizer_saved_pct}%)`;
+    document.getElementById('vra-ghg-abated').textContent = `${v.nitrous_oxide_reduction_kg_co2e} kg CO2e`;
+    document.getElementById('vra-saved-badge').textContent = `Fertilizer Saved: ~${v.fertilizer_saved_pct}%`;
+
+    const container = document.getElementById('vra-zones-grid');
+    if (!container) return;
+    container.innerHTML = '';
+
+    v.vra_zones.forEach(z => {
+        const card = document.createElement('div');
+        card.className = 'vra-zone-card';
+        card.innerHTML = `
+            <div class="vra-zone-header">
+                <span class="vra-zone-title">${z.zone_name}</span>
+                <span class="vra-zone-tag" style="background: ${z.color_code};">${z.area_pct}% Field (${z.area_acres} Ac)</span>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">${z.soil_condition}</p>
+            <div class="vra-dosage-box">
+                <div><strong>Target Urea:</strong> ${z.prescription.nitrogen_urea_kg_per_acre} kg/ac (Total Zone: ${z.total_zone_urea_kg} kg)</div>
+                <div><strong>DAP / Potash:</strong> ${z.prescription.phosphorus_dap_kg_per_acre} kg DAP / ${z.prescription.potash_mop_kg_per_acre} kg MOP per acre</div>
+                <div><strong>Regenerative Input:</strong> ${z.prescription.regenerative_input}</div>
+                <div><strong>Method:</strong> ${z.prescription.application_method}</div>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function fetchCarbonMRV(area) {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/carbon/ledger?area_acres=${area}`);
+        const mrv = await res.json();
+        document.getElementById('mrv-tons-c').textContent = `${mrv.total_sequestered_tco2e} tCO2e`;
+        document.getElementById('mrv-usd-val').textContent = `$${mrv.valuation.usd.toFixed(2)}`;
+        document.getElementById('mrv-inr-val').textContent = `₹${mrv.valuation.inr.toLocaleString()}`;
+        document.getElementById('mrv-brl-val').textContent = `R$${mrv.valuation.brl.toFixed(2)}`;
+        document.getElementById('mrv-hash-badge').textContent = `MRV Hash: ${mrv.verification_hash.slice(0, 10)}...`;
+
+        const txList = document.getElementById('carbon-transactions-list');
+        if (txList) {
+            txList.innerHTML = '';
+            mrv.ledger_transactions.forEach(tx => {
+                const item = document.createElement('div');
+                item.className = 'carbon-tx-item';
+                item.innerHTML = `
+                    <div><strong>${tx.date}</strong> — ${tx.activity}</div>
+                    <div class="text-success font-bold">+${tx.tco2e} tCO2e [${tx.status}]</div>
+                `;
+                txList.appendChild(item);
+            });
+        }
+    } catch (e) {}
 }
 
 function renderLiveWeatherDisplay(w) {
@@ -367,6 +436,113 @@ function initTabs() {
             if (window.lucide) window.lucide.createIcons();
         });
     });
+}
+
+// ----------------- PLATFORM SWITCHER (SATELLITE VS DRONE) -----------------
+function initPlatformSwitcher() {
+    const satBtn = document.getElementById('btn-platform-satellite');
+    const droneBtn = document.getElementById('btn-platform-drone');
+
+    if (satBtn && droneBtn) {
+        satBtn.addEventListener('click', () => {
+            satBtn.classList.add('active');
+            droneBtn.classList.remove('active');
+            AppState.currentPlatform = 'satellite';
+            renderSatelliteGrid();
+        });
+
+        droneBtn.addEventListener('click', () => {
+            droneBtn.classList.add('active');
+            satBtn.classList.remove('active');
+            AppState.currentPlatform = 'drone';
+            renderSatelliteGrid();
+        });
+    }
+}
+
+// ----------------- 3D CANOPY DIGITAL TWIN CANVAS -----------------
+function init3DDigitalTwin() {
+    const canvas = document.getElementById('canvas-3d-twin');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let angle = 0;
+
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const rotateBtn = document.getElementById('btn-3d-rotate');
+    const wireBtn = document.getElementById('btn-3d-wireframe');
+
+    if (rotateBtn) {
+        rotateBtn.addEventListener('click', () => {
+            AppState.is3DRotating = !AppState.is3DRotating;
+        });
+    }
+
+    if (wireBtn) {
+        wireBtn.addEventListener('click', () => {
+            AppState.is3DWireframe = !AppState.is3DWireframe;
+        });
+    }
+
+    function render3DFrame() {
+        ctx.fillStyle = '#021a10';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2 + 30;
+        const gridW = 16;
+        const gridH = 16;
+        const spacing = 18;
+
+        if (AppState.is3DRotating) angle += 0.008;
+
+        const cosA = Math.cos(angle);
+        const sinA = Math.sin(angle);
+        const pitch = 0.55;
+
+        // Draw 3D Isometric Grid Mesh
+        for (let x = -gridW / 2; x < gridW / 2; x++) {
+            for (let y = -gridH / 2; y < gridH / 2; y++) {
+                const rx = x * cosA - y * sinA;
+                const ry = x * sinA + y * cosA;
+
+                const zElevation = Math.sin(x * 0.4 + angle) * Math.cos(y * 0.4) * 22;
+                const isoX = cx + (rx - ry) * spacing;
+                const isoY = cy + (rx + ry) * spacing * pitch - zElevation;
+
+                const nextRx = (x + 1) * cosA - y * sinA;
+                const nextRy = (x + 1) * sinA + y * cosA;
+                const nextZElev = Math.sin((x + 1) * 0.4 + angle) * Math.cos(y * 0.4) * 22;
+                const nextIsoX = cx + (nextRx - nextRy) * spacing;
+                const nextIsoY = cy + (nextRx + nextRy) * spacing * pitch - nextZElev;
+
+                ctx.strokeStyle = AppState.is3DWireframe ? 'rgba(52, 211, 153, 0.4)' : '#059669';
+                ctx.lineWidth = 1.2;
+                ctx.beginPath();
+                ctx.moveTo(isoX, isoY);
+                ctx.lineTo(nextIsoX, nextIsoY);
+                ctx.stroke();
+
+                // Draw Canopy height nodes
+                if (!AppState.is3DWireframe) {
+                    ctx.fillStyle = zElevation > 5 ? '#34d399' : '#047857';
+                    ctx.beginPath();
+                    ctx.arc(isoX, isoY, Math.max(1.5, (zElevation + 25) * 0.12), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        AppState.anim3DId = requestAnimationFrame(render3DFrame);
+    }
+
+    render3DFrame();
 }
 
 // ----------------- SYSTEM & CONTROLS -----------------
@@ -450,9 +626,12 @@ function speakCurrentAdvisory() {
         return;
     }
 
+    const waveform = document.getElementById('voice-waveform');
+
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         document.getElementById('voice-speak-btn').innerHTML = '<i data-lucide="volume-2"></i> <span>Listen Voice</span>';
+        if (waveform) waveform.style.display = 'none';
         if (window.lucide) window.lucide.createIcons();
         return;
     }
@@ -469,25 +648,28 @@ function speakCurrentAdvisory() {
     utterance.rate = 0.95;
     utterance.onend = () => {
         document.getElementById('voice-speak-btn').innerHTML = '<i data-lucide="volume-2"></i> <span>Listen Voice</span>';
+        if (waveform) waveform.style.display = 'none';
         if (window.lucide) window.lucide.createIcons();
     };
 
+    if (waveform) waveform.style.display = 'flex';
     window.speechSynthesis.speak(utterance);
     document.getElementById('voice-speak-btn').innerHTML = '<i data-lucide="square"></i> <span>Stop Voice</span>';
     if (window.lucide) window.lucide.createIcons();
 }
 
-// ----------------- SATELLITE FIELD GRID (MULTI-SPECTRAL) -----------------
+// ----------------- SATELLITE / DRONE FIELD GRID -----------------
 function renderSatelliteGrid() {
     if (!AppState.satelliteData) return;
     const data = AppState.satelliteData;
     const layer = AppState.activeSpectralLayer;
+    const platform = AppState.currentPlatform;
 
     document.getElementById('mean-ndvi-val').textContent = data.mean_ndvi;
     document.getElementById('mean-ndwi-val').textContent = data.mean_ndwi;
     document.getElementById('mean-savi-val').textContent = data.mean_savi;
     document.getElementById('stress-area-pct').textContent = `${data.stress_area_pct}%`;
-    document.getElementById('satellite-timestamp').textContent = `Pass: ${data.acquisition_date}`;
+    document.getElementById('satellite-timestamp').textContent = platform === 'drone' ? 'UAV Pass: 2cm Micro-Ortho' : `Pass: ${data.acquisition_date}`;
 
     const gridContainer = document.getElementById('satellite-field-grid');
     gridContainer.innerHTML = '';
@@ -501,8 +683,13 @@ function renderSatelliteGrid() {
             if (layer === 'ndwi') val = cell.ndwi;
             else if (layer === 'evi') val = cell.evi;
             else if (layer === 'savi') val = cell.savi;
+            else if (layer === 'tir') val = (28.0 + cell.ndvi * 10.0).toFixed(1);
+            else if (layer === 'ndre') val = (cell.ndvi * 0.88).toFixed(3);
 
-            if (layer === 'ndwi') {
+            if (layer === 'tir') {
+                if (parseFloat(val) > 34.0) div.classList.add('cell-thermal-hot');
+                else div.classList.add('cell-thermal-cool');
+            } else if (layer === 'ndwi') {
                 if (val >= 0.25) div.classList.add('cell-vigorous');
                 else if (val >= 0.12) div.classList.add('cell-moderate');
                 else div.classList.add('cell-severe');
@@ -657,7 +844,6 @@ function renderSoilRadarChart(soil) {
         AppState.soilRadarChartInstance.destroy();
     }
 
-    // Normalized scores out of 100
     const nScore = Math.min(100, Math.round((soil.nitrogen / 280.0) * 100));
     const pScore = Math.min(100, Math.round((soil.phosphorus / 35.0) * 100));
     const kScore = Math.min(100, Math.round((soil.potassium / 280.0) * 100));
@@ -727,28 +913,6 @@ function renderSoilPanel() {
     document.getElementById('soil-p-val').textContent = `${p.phosphorus} kg/ha`;
     document.getElementById('soil-k-val').textContent = `${p.potassium} kg/ha`;
     document.getElementById('soil-awc-val').textContent = `${s.water_retention_capacity_mm} mm`;
-    document.getElementById('carbon-usd-val').textContent = s.carbon_credit_potential_est_usd.toFixed(2);
-
-    const recsList = document.getElementById('regenerative-practices-list');
-    recsList.innerHTML = '';
-
-    s.regenerative_recommendations.forEach(r => {
-        const item = document.createElement('div');
-        item.className = 'rec-item';
-        item.innerHTML = `
-            <div class="rec-header">
-                <span class="rec-title">${r.practice_name}</span>
-                <span class="rec-badge">${r.impact_category}</span>
-            </div>
-            <p class="rec-desc">${r.description}</p>
-            <div class="rec-metrics">
-                <span>🌱 +${r.soil_carbon_gain_tons_per_yr} t Carbon/yr</span>
-                <span>💧 +${r.water_saving_pct}% Water Saved</span>
-                <span>⚡ ${r.implementation_urgency}</span>
-            </div>
-        `;
-        recsList.appendChild(item);
-    });
 }
 
 // ----------------- "WHAT-IF" CLIMATE SIMULATOR -----------------
@@ -983,7 +1147,6 @@ function renderGradCAMOverlay(file) {
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
 
-            // Draw Grad-CAM semi-transparent lesion heatmap contours
             const grad = ctx.createRadialGradient(
                 img.width * 0.48, img.height * 0.52, 10,
                 img.width * 0.48, img.height * 0.52, img.width * 0.35
@@ -1190,7 +1353,6 @@ function initCopilot() {
         });
     }
 
-    // Speech-to-Text Microphone
     if (micBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
         const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRec();

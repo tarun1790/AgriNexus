@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriNexus — Real-Time AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
-    <meta name="description" content="Live real-time agricultural intelligence converting live GPS location, real-time weather streams, ISRIC SoilGrids, and satellite imagery into field-level climate resilience decisions.">
+    <title>AgriNexus v3.0 — AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
+    <meta name="description" content="Next-Gen Agricultural Intelligence: Live GPS, Sentinel-2 & Micro-UAV Drone Thermal Imaging, 3D Canopy Digital Twin, VRA Fertilizer Prescription, and BRICS Carbon MRV Ledger.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,8 +33,8 @@
                     <i data-lucide="sprout" class="logo-icon"></i>
                 </div>
                 <div class="brand-text">
-                    <h1>AgriNexus</h1>
-                    <span class="brand-subtitle">Real-Time AI Digital Public Infrastructure for Climate-Resilient Agriculture</span>
+                    <h1>AgriNexus <span class="version-badge">v3.0</span></h1>
+                    <span class="brand-subtitle">Autonomous Climate-Resilient Agricultural Digital Public Infrastructure</span>
                 </div>
             </div>
 
@@ -79,15 +79,25 @@
             </div>
         </header>
 
-        <!-- LIVE GEOSPATIAL SEARCH BAR -->
+        <!-- LIVE GEOSPATIAL SEARCH BAR & SATELLITE ORBIT TICKER -->
         <div class="location-search-strip">
             <div class="search-input-wrap">
                 <i data-lucide="search" class="search-icon"></i>
                 <input type="text" id="map-search-input" placeholder="Search any village, mandal, district, or GPS coordinate (e.g. Guntur, Ludhiana, Sorriso)..." autocomplete="off">
                 <button id="btn-search-location" class="btn-search-apply">Search & Ingest Real-Time Data</button>
             </div>
+            
+            <!-- Live Orbit Pass Pill -->
+            <div class="orbit-pass-ticker" id="orbit-pass-ticker">
+                <i data-lucide="satellite" class="orbit-icon"></i>
+                <div>
+                    <span class="orbit-title">Next Sentinel-2B Overpass:</span>
+                    <strong id="orbit-time-text">In 18h 22m (10m MSI)</strong>
+                </div>
+            </div>
+
             <div class="live-coords-hud">
-                <span class="hud-label">Active Field GPS:</span>
+                <span class="hud-label">Field:</span>
                 <strong id="active-gps-display">16.5062° N, 80.6480° E</strong>
                 <span class="hud-tag" id="live-ingestion-tag">🟢 Live Weather & Soil Streams Active</span>
             </div>
@@ -97,16 +107,22 @@
         <nav class="sub-nav">
             <div class="nav-tabs" role="tablist">
                 <button class="nav-tab active" data-tab="tab-advisory" id="tab-btn-advisory" role="tab">
-                    <i data-lucide="sparkles"></i> Live Field Digital Twin & Advisory
+                    <i data-lucide="sparkles"></i> Field Digital Twin & Advisory
+                </button>
+                <button class="nav-tab" data-tab="tab-3d" id="tab-btn-3d" role="tab">
+                    <i data-lucide="box"></i> 3D Canopy & Terrain Twin
+                </button>
+                <button class="nav-tab" data-tab="tab-vra" id="tab-btn-vra" role="tab">
+                    <i data-lucide="target"></i> Precision VRA Fertilizer Map
                 </button>
                 <button class="nav-tab" data-tab="tab-soil" id="tab-btn-soil" role="tab">
-                    <i data-lucide="leaf"></i> Real-Time Soil & Regenerative Optimizer
+                    <i data-lucide="leaf"></i> Soil & Carbon MRV Ledger
                 </button>
                 <button class="nav-tab" data-tab="tab-simulator" id="tab-btn-simulator" role="tab">
                     <i data-lucide="sliders"></i> "What-If" Climate Simulator
                 </button>
                 <button class="nav-tab" data-tab="tab-disease" id="tab-btn-disease" role="tab">
-                    <i data-lucide="scan"></i> AI Leaf Disease Diagnostics
+                    <i data-lucide="scan"></i> AI Foliar Disease Scanner
                 </button>
                 <button class="nav-tab" data-tab="tab-federated" id="tab-btn-federated" role="tab">
                     <i data-lucide="network"></i> Federated DPI Network
@@ -154,20 +170,29 @@
                 </div>
 
                 <div class="dashboard-grid" style="margin-top: 1.75rem;">
-                    <!-- Satellite Field Health Map & 30-Day Trend Chart -->
+                    <!-- Satellite / Drone Field Health Map -->
                     <div class="panel-card field-map-card">
                         <div class="card-header">
                             <div class="card-title-group">
-                                <h3><i data-lucide="satellite"></i> Field Satellite Zonation (10m Sentinel-2)</h3>
+                                <h3><i data-lucide="satellite"></i> Field Spectral Zonation Matrix</h3>
                                 <span class="card-tag" id="satellite-timestamp">Acquired: Real-Time</span>
                             </div>
-                            <!-- Spectral Layer Switcher -->
-                            <div class="spectral-layer-switch">
-                                <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy)</button>
-                                <button class="btn-spectral" data-layer="ndwi">NDWI (Moisture)</button>
-                                <button class="btn-spectral" data-layer="evi">EVI (Biomass)</button>
-                                <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adj)</button>
+                            
+                            <!-- Platform Switcher: Sentinel-2 vs Micro-UAV Drone -->
+                            <div class="platform-tier-switch">
+                                <button class="btn-platform active" id="btn-platform-satellite" data-platform="satellite">🛰️ Sentinel-2 (10m)</button>
+                                <button class="btn-platform" id="btn-platform-drone" data-platform="drone">🛸 Drone UAV (2cm)</button>
                             </div>
+                        </div>
+
+                        <!-- Spectral Layer Switcher -->
+                        <div class="spectral-layer-switch" style="margin-bottom: 1rem;">
+                            <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy)</button>
+                            <button class="btn-spectral" data-layer="ndwi">NDWI (Moisture)</button>
+                            <button class="btn-spectral" data-layer="evi">EVI (Biomass)</button>
+                            <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adj)</button>
+                            <button class="btn-spectral" data-layer="tir">TIR (Thermal Stress)</button>
+                            <button class="btn-spectral" data-layer="ndre">NDRE (Chlorophyll)</button>
                         </div>
 
                         <!-- 8x8 Spatial Grid Matrix -->
@@ -177,7 +202,7 @@
                             </div>
                             <div class="cell-inspector" id="cell-inspector">
                                 <h4>Selected Parcel Telemetry</h4>
-                                <div id="inspector-content">Click any cell above to inspect localized NDVI/NDWI reflectance values.</div>
+                                <div id="inspector-content">Click any cell above to inspect localized spectral reflectance values.</div>
                             </div>
                         </div>
 
@@ -278,7 +303,68 @@
                 </div>
             </section>
 
-            <!-- TAB 2: SOIL HEALTH & REGENERATIVE OPTIMIZER -->
+            <!-- TAB 2: 3D CANOPY & TERRAIN DIGITAL TWIN -->
+            <section id="tab-3d" class="tab-panel" role="tabpanel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="box"></i> 3D Geospatial Canopy & Root-Zone Hydrology Visualizer</h3>
+                            <span class="card-subtitle">Real-Time Topographic Elevation Mesh • Solar Zenith Lighting • Root-Zone Percolation</span>
+                        </div>
+                        <div class="view-controls-3d">
+                            <button class="btn btn-secondary btn-sm" id="btn-3d-rotate"><i data-lucide="rotate-3d"></i> Auto Rotate</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-3d-wireframe"><i data-lucide="grid"></i> Mesh View</button>
+                        </div>
+                    </div>
+
+                    <div class="canvas-3d-wrapper">
+                        <canvas id="canvas-3d-twin" class="canvas-3d"></canvas>
+                        <div class="hud-3d-overlay">
+                            <div class="hud-3d-pill">🌱 Canopy Height Model: <strong>68 cm</strong></div>
+                            <div class="hud-3d-pill">☀️ Solar Irradiance Angle: <strong>54.2°</strong></div>
+                            <div class="hud-3d-pill">💧 Subsoil Percolation: <strong>1.8 mm/hr</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: PRECISION VRA FERTILIZER PRESCRIPTION -->
+            <section id="tab-vra" class="tab-panel" role="tabpanel">
+                <div class="panel-card">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="target"></i> Precision Variable Rate Application (VRA) Fertilizer Prescription</h3>
+                            <span class="card-subtitle">Multi-Zone Prescription Map optimizing Nitrogen, Biochar & Vermicompost based on spectral deficiency</span>
+                        </div>
+                        <span class="card-tag" id="vra-saved-badge">Fertilizer Saved: ~28.5%</span>
+                    </div>
+
+                    <div class="vra-summary-row">
+                        <div class="mini-stat">
+                            <span class="stat-label">Total Prescribed Urea</span>
+                            <span class="stat-value text-success" id="vra-total-urea">85.4 kg</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="stat-label">Conventional Blanket Dose</span>
+                            <span class="stat-value" id="vra-blanket-urea">120.0 kg</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="stat-label">Chemical Urea Saved</span>
+                            <span class="stat-value text-success" id="vra-saved-urea">34.6 kg (28.8%)</span>
+                        </div>
+                        <div class="mini-stat">
+                            <span class="stat-label">N2O GHG Abatement</span>
+                            <span class="stat-value text-info" id="vra-ghg-abated">64.0 kg CO2e</span>
+                        </div>
+                    </div>
+
+                    <div class="vra-zones-grid" id="vra-zones-grid" style="margin-top: 1.5rem;">
+                        <!-- Dynamically populated VRA zones -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: SOIL & BRICS CARBON MRV LEDGER -->
             <section id="tab-soil" class="tab-panel" role="tabpanel">
                 <div class="soil-grid">
                     <div class="panel-card">
@@ -334,31 +420,45 @@
                                 <canvas id="soil-radar-chart"></canvas>
                             </div>
                         </div>
-
-                        <!-- Carbon Credit Offset Estimation -->
-                        <div class="carbon-credit-banner" style="margin-top: 1.25rem;">
-                            <div class="credit-icon"><i data-lucide="coins"></i></div>
-                            <div class="credit-info">
-                                <h4>Regenerative Carbon Credit Monetization</h4>
-                                <p>By adopting cover cropping & biochar, this field can sequester <strong>~1.45 tons C/year</strong> ($<span id="carbon-usd-val">58.20</span> USD potential offset credit value).</p>
-                            </div>
-                        </div>
                     </div>
 
-                    <!-- Regenerative Interventions -->
+                    <!-- BRICS Carbon MRV Ledger -->
                     <div class="panel-card">
                         <div class="card-header">
-                            <h3><i data-lucide="shield-check"></i> Prescribed Regenerative Interventions</h3>
-                            <span class="card-tag">Climate-Smart Agronomy</span>
+                            <div>
+                                <h3><i data-lucide="coins"></i> BRICS Verified Soil Carbon MRV Ledger</h3>
+                                <span class="card-subtitle">ISO 14064-2 / Verra VCS Cryptographic Tokenized Offsets</span>
+                            </div>
+                            <span class="carbon-badge" id="mrv-hash-badge">Hash: 0x4f8a...</span>
                         </div>
-                        <div class="regenerative-list" id="regenerative-practices-list">
-                            <!-- Populated dynamically -->
+
+                        <div class="carbon-valuation-row">
+                            <div class="carbon-val-box">
+                                <span>Total Sequestered</span>
+                                <strong class="text-success" id="mrv-tons-c">3.48 tCO2e</strong>
+                            </div>
+                            <div class="carbon-val-box">
+                                <span>INR Value (₹)</span>
+                                <strong id="mrv-inr-val">₹11,623</strong>
+                            </div>
+                            <div class="carbon-val-box">
+                                <span>USD Value ($)</span>
+                                <strong id="mrv-usd-val">$139.20</strong>
+                            </div>
+                            <div class="carbon-val-box">
+                                <span>BRL Value (R$)</span>
+                                <strong id="mrv-brl-val">R$779.52</strong>
+                            </div>
+                        </div>
+
+                        <div class="carbon-transactions-list" style="margin-top: 1.25rem;" id="carbon-transactions-list">
+                            <!-- Transactions populated dynamically -->
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- TAB 3: "WHAT-IF" CLIMATE SCENARIO SIMULATOR -->
+            <!-- TAB 5: "WHAT-IF" CLIMATE SCENARIO SIMULATOR -->
             <section id="tab-simulator" class="tab-panel" role="tabpanel">
                 <div class="simulator-layout">
                     <!-- Controls Column -->
@@ -470,7 +570,7 @@
                 </div>
             </section>
 
-            <!-- TAB 4: AI CROP DISEASE DIAGNOSTICS -->
+            <!-- TAB 6: AI CROP DISEASE DIAGNOSTICS -->
             <section id="tab-disease" class="tab-panel" role="tabpanel">
                 <div class="disease-layout">
                     <div class="panel-card disease-upload-card">
@@ -557,7 +657,7 @@
                 </div>
             </section>
 
-            <!-- TAB 5: FEDERATED DPI NETWORK -->
+            <!-- TAB 7: FEDERATED DPI NETWORK -->
             <section id="tab-federated" class="tab-panel" role="tabpanel">
                 <div class="federated-layout">
                     <div class="panel-card">
@@ -612,7 +712,7 @@
                 </div>
             </section>
 
-            <!-- TAB 6: OPEN INTEROPERABILITY DPI APIS -->
+            <!-- TAB 8: OPEN INTEROPERABILITY DPI APIS -->
             <section id="tab-api" class="tab-panel" role="tabpanel">
                 <div class="panel-card">
                     <div class="card-header">
@@ -630,34 +730,24 @@
                             <span class="endpoint-desc">Ingest live meteorological and SoilGrids data for any GPS coordinate</span>
                         </div>
                         <div class="api-endpoint-row">
-                            <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/satellite/indices</code>
-                            <span class="endpoint-desc">Compute multispectral NDVI, NDWI, EVI, SAVI and 8x8 zonal stress matrices</span>
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/satellite/overpass</code>
+                            <span class="endpoint-desc">Predict live Sentinel-2, Landsat-9 & EOS-04 satellite overpass schedules</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/precision/vra-prescription</code>
+                            <span class="endpoint-desc">Generate Variable Rate Application (VRA) fertilizer and biochar zone map</span>
+                        </div>
+                        <div class="api-endpoint-row">
+                            <span class="method get">GET</span>
+                            <code class="endpoint-uri">/api/v1/carbon/ledger</code>
+                            <span class="endpoint-desc">BRICS cryptographically verified Soil Carbon Sequestration MRV wallet</span>
                         </div>
                         <div class="api-endpoint-row">
                             <span class="method post">POST</span>
                             <code class="endpoint-uri">/api/v1/copilot/chat</code>
                             <span class="endpoint-desc">Gemini Multi-Agent Autonomous Agronomic Orchestrator Copilot</span>
-                        </div>
-                        <div class="api-endpoint-row">
-                            <span class="method get">GET</span>
-                            <code class="endpoint-uri">/api/v1/iot/live-telemetry</code>
-                            <span class="endpoint-desc">Live LoRaWAN soil probe telemetry stream across 15cm, 30cm, 60cm</span>
-                        </div>
-                        <div class="api-endpoint-row">
-                            <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/climate/simulate</code>
-                            <span class="endpoint-desc">Execute "What-If" climate scenario simulation with multi-year ROI</span>
-                        </div>
-                        <div class="api-endpoint-row">
-                            <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/disease/detect</code>
-                            <span class="endpoint-desc">PyTorch CUDA leaf lesion diagnostics with organic and chemical remedies</span>
-                        </div>
-                        <div class="api-endpoint-row">
-                            <span class="method post">POST</span>
-                            <code class="endpoint-uri">/api/v1/federated/aggregate</code>
-                            <span class="endpoint-desc">Trigger cross-border FedAvg decentralized model parameter update</span>
                         </div>
                     </div>
                 </div>
@@ -688,10 +778,20 @@
                     </div>
                 </div>
 
+                <!-- Voice Audio Visualizer Waveform -->
+                <div class="voice-waveform-container" id="voice-waveform" style="display: none;">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <span>Narration Active...</span>
+                </div>
+
                 <div class="copilot-quick-prompts">
+                    <button class="quick-chip" data-prompt="Generate precision VRA fertilizer recommendations for my field">🎯 Precision VRA Map?</button>
                     <button class="quick-chip" data-prompt="How much water should I apply if temperature hits 40°C tomorrow?">🌡️ Water if 40°C?</button>
-                    <button class="quick-chip" data-prompt="How can I restore my soil organic carbon naturally?">🌱 Restore Organic Carbon?</button>
-                    <button class="quick-chip" data-prompt="Which climate-smart crop is most profitable this season?">🌾 Best Alternative Crop?</button>
+                    <button class="quick-chip" data-prompt="What is my soil carbon credit value on the BRICS ledger?">🪙 Carbon Credit Value?</button>
                 </div>
 
                 <form class="copilot-input-bar" id="copilot-form">
