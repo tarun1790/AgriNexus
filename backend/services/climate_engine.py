@@ -1,3 +1,4 @@
+import math
 from typing import List, Dict, Any, Optional
 from backend.models.schemas import (
     WeatherData,
@@ -10,10 +11,47 @@ from backend.models.schemas import (
 
 class ClimateIntelligenceEngine:
     """
-    Predictive Multi-Hazard Climate Risk & 'What-If' Climate Scenario Simulator.
-    Simulates physiological crop yield impacts, evapotranspiration changes,
-    multi-year ROI forecasts, and ranks climate-resilient alternative crop pathways.
+    Predictive Multi-Hazard Climate Risk & FAO-56 Penman-Monteith Physical Hydrology Engine.
+    Implements standard FAO Irrigation and Drainage Paper 56 for reference evapotranspiration (ET0)
+    and crop water demand (ETc = Kc * ET0).
     """
+
+    def calculate_fao56_penman_monteith(self, weather: WeatherData, crop: str = "Cotton", stage_kc: float = 1.15) -> Dict[str, float]:
+        """
+        FAO-56 Penman-Monteith equation for reference evapotranspiration (ET0 in mm/day):
+        ET0 = [0.408 * Delta * (Rn - G) + gamma * (900 / (T + 273)) * u2 * (es - ea)] / [Delta + gamma * (1 + 0.34 * u2)]
+        """
+        t = weather.temperature_celsius
+        rh = weather.humidity_percentage
+        u2 = max(0.5, weather.wind_speed_kmh / 3.6)  # wind speed at 2m in m/s
+        solar_mj = weather.solar_radiation_mj        # MJ/m2/day
+
+        # Net radiation proxy Rn (MJ/m2/day) & Soil heat flux G (approx 0 for daily)
+        rn = max(2.0, solar_mj * 0.77 - 2.5)
+        g = 0.0
+
+        # Saturation vapor pressure es (kPa)
+        es = 0.6108 * math.exp((17.27 * t) / (t + 237.3))
+        # Actual vapor pressure ea (kPa)
+        ea = es * (rh / 100.0)
+
+        # Slope of saturation vapor pressure curve Delta (kPa/°C)
+        delta = (4098.0 * es) / math.pow(t + 237.3, 2)
+
+        # Psychrometric constant gamma (kPa/°C) at sea level ~ 0.067
+        gamma = 0.067
+
+        numerator = (0.408 * delta * (rn - g)) + (gamma * (900.0 / (t + 273.0)) * u2 * (es - ea))
+        denominator = delta + (gamma * (1.0 + 0.34 * u2))
+
+        et0 = max(1.0, numerator / denominator)
+        etc = et0 * stage_kc  # Crop evapotranspiration in mm/day
+
+        return {
+            "et0_mm_per_day": round(et0, 2),
+            "etc_crop_mm_per_day": round(etc, 2),
+            "vpd_kpa": round(es - ea, 2)
+        }
 
     def assess_climate_risk(self, weather: WeatherData, soil: SoilData, crop: str = "Cotton") -> ClimateRiskAssessment:
         t = weather.temperature_celsius
@@ -27,9 +65,14 @@ class ClimateIntelligenceEngine:
         else:
             heat_stress = max(10.0, t * 0.8)
 
+        # Physical water deficit via FAO-56
+        fao_hydro = self.calculate_fao56_penman_monteith(weather=weather, crop=crop)
+        daily_etc_mm = fao_hydro["etc_crop_mm_per_day"]
+
+        # Soil available moisture deficit
         moisture_deficit = max(0.0, 35.0 - soil.moisture_percentage)
         rain_deficit = max(0.0, 50.0 - weather.rain_probability_pct)
-        drought_risk = min(98.0, (moisture_deficit * 1.5) + (rain_deficit * 0.6) + (weather.solar_radiation_mj * 0.5))
+        drought_risk = min(98.0, (moisture_deficit * 1.5) + (rain_deficit * 0.6) + (fao_hydro["vpd_kpa"] * 12.0))
 
         flood_risk = min(95.0, (weather.rainfall_forecast_mm * 1.8) + (weather.rain_probability_pct * 0.3) if weather.rainfall_forecast_mm > 25 else (weather.rainfall_forecast_mm * 0.5))
 
@@ -48,11 +91,21 @@ class ClimateIntelligenceEngine:
         else:
             overall_tier = "LOW"
 
-        irrigation_needed = drought_risk > 45 or soil.moisture_percentage < 25.0
-        est_liters_acre = int(max(0, (30.0 - soil.moisture_percentage) * 850)) if irrigation_needed else 0
+        # Volumetric irrigation demand calculation (1 mm depth over 1 acre = 4,046.86 Liters)
+        # 3-day accumulated deficit accounting for effective precipitation
+        effective_rain_mm = max(0.0, weather.rainfall_forecast_mm * 0.7)
+        accum_etc_3day_mm = daily_etc_mm * 3.0
+        net_irrigation_depth_mm = max(0.0, accum_etc_3day_mm - effective_rain_mm)
+
+        irrigation_needed = drought_risk > 45 or soil.moisture_percentage < 25.0 or net_irrigation_depth_mm > 5.0
+        est_liters_acre = int(round(net_irrigation_depth_mm * 4046.86)) if irrigation_needed else 0
+        est_liters_acre = max(est_liters_acre, 12000) if irrigation_needed else 0
 
         irrigation_advisory = {
             "needed": irrigation_needed,
+            "fao56_et0_mm_day": fao_hydro["et0_mm_per_day"],
+            "fao56_etc_mm_day": fao_hydro["etc_crop_mm_per_day"],
+            "vpd_kpa": fao_hydro["vpd_kpa"],
             "urgency_window_hours": "18-24 hours" if drought_risk > 60 else "48-72 hours",
             "recommended_volume_liters_per_acre": est_liters_acre,
             "irrigation_method": "Drip / Alternate Furrow Irrigation (saves 35% water vs. flood)",
@@ -64,7 +117,7 @@ class ClimateIntelligenceEngine:
             alerts.append({
                 "hazard": "Extreme Heat Stress",
                 "severity": "HIGH",
-                "message": f"Temperature {t}°C exceeds vegetative threshold. Canopy wilting likely without protective foliar kaolin spray or evening micro-irrigation."
+                "message": f"Temperature {t}°C exceeds vegetative threshold. High VPD ({fao_hydro['vpd_kpa']} kPa) accelerates canopy transpiration."
             })
         if drought_risk >= 60:
             alerts.append({
@@ -76,7 +129,7 @@ class ClimateIntelligenceEngine:
             alerts.append({
                 "hazard": "Fungal Germination Warning",
                 "severity": "MODERATE",
-                "message": f"Relative humidity ({rh}%) combined with temperature ({t}°C) accelerates fungal spore propagation. Inspect lower leaf canopy for early leaf spot/blight."
+                "message": f"Relative humidity ({rh}%) combined with temperature ({t}°C) accelerates fungal spore propagation. Inspect lower leaf canopy."
             })
 
         return ClimateRiskAssessment(
@@ -178,7 +231,6 @@ class ClimateIntelligenceEngine:
             )
         ]
 
-        # Multi-Year Financial & Carbon ROI projection
         net_profit_delta_usd_per_acre = round((params["profit_base"] * (total_yield_delta / 100.0)), 2)
         regenerative_benefit_5yr_usd = round((58.20 * sim_years) + (params["profit_base"] * 0.12 * sim_years), 2)
         water_saved_5yr_m3 = round((water_deficit_liters_acre * 0.35 * sim_years) / 1000.0, 1)
