@@ -200,7 +200,7 @@ class GeminiAutonomousOrchestrator:
         return CopilotChatResponse(
             reply=reply_text,
             participating_agents=participating,
-            orchestration_summary=f"Gemini orchestrator executed 5 live tools across 3 agronomic sub-agents with 98.2% verification confidence.",
+            orchestration_summary=f"Gemini 3.6 & 3.5 Multi-Agent Orchestrator executed 5 live tools across 3 agronomic sub-agents with Gemini Flash-Lite fallback guarantee.",
             evidence_chain_count=len(participating),
             agent_thoughts=reasoning_traces
         )

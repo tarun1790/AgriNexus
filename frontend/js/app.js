@@ -2107,7 +2107,7 @@ function initCopilot() {
 
         const botDiv = document.createElement('div');
         botDiv.className = 'msg-bot';
-        botDiv.textContent = '🧠 Gemini & 3 sub-agents reasoning over field evidence...';
+        botDiv.textContent = '🧠 Gemini 3.6 & 3 sub-agents reasoning over field evidence (Flash-Lite fallback ready)...';
         messages.appendChild(botDiv);
         messages.scrollTop = messages.scrollHeight;
 

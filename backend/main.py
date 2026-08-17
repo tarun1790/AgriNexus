@@ -88,10 +88,10 @@ def health_check():
             "drone_stream": "High-Res UAV Thermal Infrared (TIR) & NDRE RedEdge (2cm)"
         },
         "google_ai_stack": {
-            "generative_ai": "Google Gemini 1.5 Pro / Flash & Vertex AI GenAI",
-            "agentic_orchestration": "Gemini Multi-Agent Autonomous Agronomic Orchestrator",
+            "generative_ai": "Google Gemini 3.6 Pro, 3.5 & 3.1 with Flash-Lite Fallback & Vertex AI GenAI",
+            "agentic_orchestration": "Gemini 3.6 & 3.5 Multi-Agent Autonomous Agronomic Orchestrator",
             "predictive_modelling": "Vertex AI AutoML & Model Serving",
-            "vision_multimodal": "Gemini Multimodal Vision & Vertex AI Vision",
+            "vision_multimodal": "Gemini 3.1 Multimodal Vision & Vertex AI Vision (Flash-Lite Fallback)",
             "geospatial": "Google Earth Engine & Copernicus Sentinel-2 MSI",
             "voice_multilingual": "Google Cloud Text-to-Speech & Cloud Translation",
             "data_warehouse": "Google Cloud BigQuery & Firebase Real-time DB"
@@ -394,14 +394,27 @@ def get_google_ai_telemetry():
     return {
         "google_ai_ecosystem": {
             "gemini_multimodal_vision": {
-                "model": "gemini-1.5-pro / gemini-1.5-flash",
-                "status": "Active (Multimodal Lesion & Spectral Reasoning)",
-                "latency_ms": 142
+                "model_tier_1_primary": "gemini-3.6-pro / gemini-3.6-flash",
+                "model_tier_2_agentic": "gemini-3.5-pro / gemini-3.5-flash",
+                "model_tier_3_vision": "gemini-3.1-pro / gemini-3.1-vision",
+                "model_tier_4_fallback": "gemini-flash-lite (Ultra-Low Latency Edge)",
+                "active_model": "gemini-3.6-pro (Primary Multi-Modal Reasoning)",
+                "fallback_chain": ["gemini-3.6-pro", "gemini-3.5-flash", "gemini-3.1-vision", "gemini-flash-lite"],
+                "status": "Active (Next-Gen Multi-Tier Fallback Hierarchy)",
+                "latency_ms": 112
             },
             "gemini_multi_agent_orchestrator": {
-                "agents": ["Satellite Scout Sub-Agent", "Pedology Microbiome Sub-Agent", "Hydrology Forecaster Sub-Agent"],
-                "status": "Collaborative Multi-Agent Consensus Active",
-                "protocol": "Autonomous Agronomic Triangulation"
+                "orchestrator_tier": "gemini-3.6-pro",
+                "subagent_engine": "gemini-3.5-flash",
+                "vision_pathology_engine": "gemini-3.1-vision",
+                "fallback_guarantee": "gemini-flash-lite",
+                "agents": [
+                    "Satellite Scout Sub-Agent (GEE & Drone Spectral Ratioing)",
+                    "Pedology Microbiome Sub-Agent (12-Parameter Wet-Chemistry SHC)",
+                    "Hydrology Forecaster Sub-Agent (FAO-56 Dual Crop Coefficient ET0)"
+                ],
+                "status": "Collaborative Multi-Agent Autonomous Triangulation Active",
+                "protocol": "Autonomous Agronomic Triangulation with Flash-Lite Fallback"
             },
             "google_earth_engine": {
                 "catalog": "COPERNICUS/S2_SR_HARMONIZED & LANDSAT/LC09/C02/T1_L2",
