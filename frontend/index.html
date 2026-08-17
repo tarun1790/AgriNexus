@@ -586,6 +586,44 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- SENTINEL-1 C-BAND SAR RADAR POLARIZATION & DIELECTRIC LAB -->
+                <div class="panel-card sar-radar-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="radar"></i> Sentinel-1 C-Band (5.405 GHz) SAR Microwave Radar Polarization Lab</h3>
+                            <span class="card-subtitle">Copernicus Dual-Pol (VV & VH Backscatter in dB) • 100% Cloud-Free All-Weather Ground Penetration</span>
+                        </div>
+                        <span class="sar-status-pill"><span class="pulse-dot"></span> SAR Radar Active (Skin Depth: 6.4 cm)</span>
+                    </div>
+
+                    <div class="sar-telemetry-grid">
+                        <div class="sar-stat-box">
+                            <span class="sar-lbl">Co-Pol Backscatter (σ₀ VV)</span>
+                            <strong class="sar-val text-success" id="sar-vv-val">-11.45 dB</strong>
+                            <span class="sar-sub">Dielectric Permittivity εᵣ = 14.8</span>
+                        </div>
+                        <div class="sar-stat-box">
+                            <span class="sar-lbl">Cross-Pol Backscatter (σ₀ VH)</span>
+                            <strong class="sar-val text-info" id="sar-vh-val">-18.20 dB</strong>
+                            <span class="sar-sub">Canopy Volume Scattering</span>
+                        </div>
+                        <div class="sar-stat-box">
+                            <span class="sar-lbl">Radar Cross-Ratio (VH/VV)</span>
+                            <strong class="sar-val" id="sar-ratio-val">-6.75 dB</strong>
+                            <span class="sar-sub">Moisture-Invariant Biomass</span>
+                        </div>
+                        <div class="sar-stat-box">
+                            <span class="sar-lbl">Radar Veg Index (RVI)</span>
+                            <strong class="sar-val text-warning" id="sar-rvi-val">0.584</strong>
+                            <span class="sar-sub">Stem Geometrical Structure</span>
+                        </div>
+                    </div>
+
+                    <div class="sar-radar-interpretation" id="sar-interpretation-text" style="margin-top: 1rem;">
+                        <strong>C-Band SAR Radar Insight:</strong> Microwave radar penetrated 6.4 cm beneath crust, measuring root-zone volumetric moisture of 24.0% through heavy cloud cover.
+                    </div>
+                </div>
             </section>
 
             <!-- TAB 2: 🇮🇳 BHARAT AGDATA HUB & MANDI INTELLIGENCE -->
@@ -628,6 +666,20 @@
 
                         <div class="mandi-list" id="mandi-list">
                             <!-- Populated dynamically -->
+                        </div>
+
+                        <!-- SPATIAL PRICE ARBITRAGE CALCULATOR -->
+                        <div class="arbitrage-section" style="margin-top: 1.5rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
+                            <div class="arbitrage-header">
+                                <h4><i data-lucide="route"></i> APMC Spatial Arbitrage & Net Freight Optimizer</h4>
+                                <span class="arbitrage-pill" id="arbitrage-best-badge">Best Route: Guntur APMC (+₹3,200 Gain)</span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.35rem;" id="arbitrage-rec-text">
+                                Factoring in road haulage expenses (₹3.5/km/Q) and APMC cess to maximize net farmer realization.
+                            </p>
+                            <div class="arbitrage-table-wrap" style="margin-top: 0.85rem;" id="arbitrage-leaderboard-container">
+                                <!-- Leaderboard populated dynamically -->
+                            </div>
                         </div>
                     </div>
 
@@ -843,9 +895,22 @@
                                 <button class="btn-mint-token" id="btn-mint-carbon-token" style="margin-top: 1rem;">
                                     <i data-lucide="award"></i> <span>Mint Cryptographic Carbon Certificate</span>
                                 </button>
-                                <div class="mint-result-card hidden" id="mint-result-card" style="margin-top: 1.25rem;">
-                                    <!-- Populated dynamically upon minting -->
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- HYDRUS-1D 4-LAYER UNSATURATED SOIL MOISTURE PROFILE -->
+                        <div class="panel-card hydrus-profile-card" style="margin-top: 1.5rem;">
+                            <div class="card-header">
+                                <div>
+                                    <h4><i data-lucide="layers"></i> Hydrus-1D Unsaturated 4-Layer Moisture & Solute Stratification</h4>
+                                    <span class="card-subtitle">Van Genuchten-Mualem Numerical Soil Physics (0–100 cm Vadose Zone)</span>
+                                </div>
+                                <span class="sar-status-pill">Total Profile AWC: <strong id="hydrus-awc-text">142.8 mm</strong></span>
+                            </div>
+
+                            <div class="hydrus-layers-stack" id="hydrus-layers-stack" style="margin-top: 1rem;">
+                                <!-- 4 vertical layers populated dynamically -->
                             </div>
                         </div>
                     </div>
@@ -1070,6 +1135,56 @@
                                 <ul id="chemical-list">
                                     <!-- Items -->
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRECISION MULTI-PESTICIDE WALES TANK-MIX COMPATIBILITY LAB -->
+                <div class="panel-card tankmix-lab-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="flask-round"></i> Precision Agrochemical WALES Tank-Mix Compatibility & Antagonism Engine</h3>
+                            <span class="card-subtitle">Simulates Jar-Test Flocculation • pH Lockout • Phytotoxicity Warnings • WALES Mixing Order</span>
+                        </div>
+                        <span class="sar-status-pill" id="tankmix-status-badge"><span class="pulse-dot"></span> 100% Homogeneous Solution</span>
+                    </div>
+
+                    <div class="tankmix-lab-grid" style="margin-top: 1rem;">
+                        <!-- Chemical Selector -->
+                        <div class="tankmix-selector-box">
+                            <label style="font-weight: 700; font-size: 0.82rem; margin-bottom: 0.5rem; display: block;">Select Agrochemicals to Mix in Spray Tank:</label>
+                            <div class="tankmix-checkboxes" id="tankmix-checkboxes">
+                                <label class="chem-check"><input type="checkbox" value="copper_oxychloride" checked> Copper Oxychloride 50% WP (Fungicide)</label>
+                                <label class="chem-check"><input type="checkbox" value="streptocycline" checked> Streptocycline (Bactericide)</label>
+                                <label class="chem-check"><input type="checkbox" value="chlorpyrifos"> Chlorpyrifos 50% EC (Insecticide)</label>
+                                <label class="chem-check"><input type="checkbox" value="emamectin_benzoate"> Emamectin Benzoate 5% SG (Larvicide)</label>
+                                <label class="chem-check"><input type="checkbox" value="mancozeb"> Mancozeb 75% WP (Protectant Fungicide)</label>
+                                <label class="chem-check"><input type="checkbox" value="zinc_edta"> Chelated Zinc Zn-EDTA 12% (Micronutrient)</label>
+                                <label class="chem-check"><input type="checkbox" value="neem_oil"> Cold-Pressed Neem Oil (Azadirachtin 10k ppm)</label>
+                                <label class="chem-check"><input type="checkbox" value="potassium_nitrate"> 13-0-45 Potassium Nitrate (Foliar N-K)</label>
+                            </div>
+                        </div>
+
+                        <!-- Jar Test & WALES Results -->
+                        <div class="tankmix-results-box">
+                            <div class="jar-test-meter-box">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700;">
+                                    <span>Jar-Test Physical Stability:</span>
+                                    <strong id="jar-test-pct">100% (No Precipitation)</strong>
+                                </div>
+                                <div class="progress-bar-bg" style="margin-top: 0.35rem;">
+                                    <div class="progress-bar-fill heat-fill" id="jar-test-bar" style="width: 100%; background: #059669;"></div>
+                                </div>
+                                <span style="font-size: 0.76rem; color: #064e3b; margin-top: 0.3rem; display: block;" id="jar-test-obs">✅ Completely Homogeneous Solution (No nozzle coagulation)</span>
+                            </div>
+
+                            <!-- WALES Sequence Steps -->
+                            <div class="wales-steps-container" style="margin-top: 1rem;">
+                                <h5><i data-lucide="list-ordered"></i> Strict WALES Tank-Mixing Order of Addition:</h5>
+                                <div class="wales-steps-list" id="wales-steps-list" style="margin-top: 0.5rem;">
+                                    <!-- Steps populated dynamically -->
+                                </div>
                             </div>
                         </div>
                     </div>

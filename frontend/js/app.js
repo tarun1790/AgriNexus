@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     initUAVMissionPlanner();
     renderHyperspectralSpectrogram();
     renderGDDPhenology();
+    initSARRadarLab();
+    initMandiSpatialArbitrage();
+    initHydrusProfile();
+    initWALESTankMixLab();
     
     await checkSystemHealth();
 
@@ -2661,4 +2665,179 @@ async function renderGDDPhenology() {
     } catch (e) {
         console.error('Phenology tracking error:', e);
     }
+}
+
+// ----------------- SENTINEL-1 C-BAND SAR RADAR POLARIZATION LAB -----------------
+async function initSARRadarLab() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/sar/radar-telemetry?lat=${AppState.currentLat}&lon=${AppState.currentLon}&crop=${AppState.currentCrop}&soil_moisture_pct=${AppState.soilData ? AppState.soilData.moisture_percentage : 24.0}`);
+        const data = await res.json();
+        const tel = data.telemetry;
+
+        const vvEl = document.getElementById('sar-vv-val');
+        const vhEl = document.getElementById('sar-vh-val');
+        const ratioEl = document.getElementById('sar-ratio-val');
+        const rviEl = document.getElementById('sar-rvi-val');
+        const interpEl = document.getElementById('sar-interpretation-text');
+
+        if (vvEl) vvEl.textContent = `${tel.sigma0_vv_mean_db} dB`;
+        if (vhEl) vhEl.textContent = `${tel.sigma0_vh_mean_db} dB`;
+        if (ratioEl) ratioEl.textContent = `${tel.vh_vv_cross_polarization_ratio_db} dB`;
+        if (rviEl) rviEl.textContent = `${tel.radar_vegetation_index_rvi}`;
+        if (interpEl) interpEl.innerHTML = `<strong>C-Band SAR Radar Insight:</strong> ${data.biophysical_interpretation}`;
+    } catch (e) {
+        console.error('SAR telemetry error:', e);
+    }
+}
+
+// ----------------- APMC SPATIAL ARBITRAGE OPTIMIZER -----------------
+async function initMandiSpatialArbitrage() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/market/spatial-arbitrage?lat=${AppState.currentLat}&lon=${AppState.currentLon}&crop=${AppState.currentCrop}&harvest_quintals=24.0`);
+        const data = await res.json();
+
+        const bestBadge = document.getElementById('arbitrage-best-badge');
+        const recText = document.getElementById('arbitrage-rec-text');
+        const container = document.getElementById('arbitrage-leaderboard-container');
+
+        if (bestBadge) bestBadge.textContent = `Best Route: ${data.best_destination.mandi_name} (+₹${data.best_destination.arbitrage_profit_gain_inr.toLocaleString()} Gain)`;
+        if (recText) recText.textContent = data.best_destination.recommendation;
+
+        if (container) {
+            let html = `
+                <table class="arbitrage-table">
+                    <thead>
+                        <tr>
+                            <th>Mandi APMC Yard</th>
+                            <th>Distance</th>
+                            <th>Gross Rate</th>
+                            <th>Freight (₹)</th>
+                            <th>Net Rate/Q</th>
+                            <th>Total Realization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            data.mandi_arbitrage_leaderboard.forEach((m, idx) => {
+                const isBest = idx === 0;
+                html += `
+                    <tr style="${isBest ? 'background:#ecfdf5; font-weight:800;' : ''}">
+                        <td>${isBest ? '⭐ ' : ''}${m.mandi_name} (${m.district})</td>
+                        <td>${m.distance_km} km</td>
+                        <td>₹${m.gross_modal_price_per_q.toLocaleString()}</td>
+                        <td>-₹${m.freight_transport_cost_per_q}</td>
+                        <td style="color:#047857;">₹${m.net_realizable_price_per_q.toLocaleString()}</td>
+                        <td style="color:#022c1b; font-weight:800;">₹${m.total_net_realization_inr.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+    } catch (e) {
+        console.error('Spatial arbitrage error:', e);
+    }
+}
+
+// ----------------- HYDRUS-1D 4-LAYER SOIL MOISTURE PROFILE -----------------
+async function initHydrusProfile() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/soil/hydrus-profile?surface_moisture_pct=${AppState.soilData ? AppState.soilData.moisture_percentage : 24.0}`);
+        const data = await res.json();
+
+        const awcEl = document.getElementById('hydrus-awc-text');
+        const stack = document.getElementById('hydrus-layers-stack');
+
+        if (awcEl) awcEl.textContent = `${data.total_profile_water_storage_mm} mm`;
+
+        if (stack) {
+            stack.innerHTML = '';
+            data.layers.forEach((l, idx) => {
+                const div = document.createElement('div');
+                div.className = `hydrus-layer-row stratum-${idx + 1}`;
+                div.innerHTML = `
+                    <div>
+                        <strong>${l.depth_range_cm}</strong><br>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">${l.layer_name}</span>
+                    </div>
+                    <div>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">Moisture (θ)</span><br>
+                        <strong style="color:#059669;">${l.volumetric_moisture_pct}%</strong>
+                    </div>
+                    <div>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">Suction (ψ)</span><br>
+                        <strong>${l.matric_suction_kpa} kPa</strong>
+                    </div>
+                    <div>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">NO₃ Concentration</span><br>
+                        <strong style="color:#047857;">${l.nitrate_concentration_mg_kg} mg/kg</strong>
+                    </div>
+                    <div>
+                        <span style="font-size:0.7rem; color:var(--text-muted);">Aeration Status</span><br>
+                        <span style="font-size:0.72rem; color:#064e3b; font-weight:700;">${l.aeration_status}</span>
+                    </div>
+                `;
+                stack.appendChild(div);
+            });
+        }
+    } catch (e) {
+        console.error('Hydrus profile error:', e);
+    }
+}
+
+// ----------------- WALES TANK-MIX COMPATIBILITY LAB -----------------
+function initWALESTankMixLab() {
+    const checkboxes = document.querySelectorAll('#tankmix-checkboxes input[type="checkbox"]');
+    if (!checkboxes || checkboxes.length === 0) return;
+
+    const runCheck = async () => {
+        const selected = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        if (selected.length === 0) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/tankmix/check-compatibility`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(selected)
+            });
+            const data = await res.json();
+
+            const statusBadge = document.getElementById('tankmix-status-badge');
+            const pctEl = document.getElementById('jar-test-pct');
+            const barEl = document.getElementById('jar-test-bar');
+            const obsEl = document.getElementById('jar-test-obs');
+            const stepsList = document.getElementById('wales-steps-list');
+
+            if (statusBadge) {
+                statusBadge.innerHTML = data.is_physically_compatible 
+                    ? '<span class="pulse-dot"></span> 100% Homogeneous Solution'
+                    : '<span style="color:#ef4444;">⚠️ Chemical Antagonism Detected!</span>';
+            }
+            if (pctEl) pctEl.textContent = `${data.jar_test_stability_rating_pct}% Stability`;
+            if (barEl) {
+                barEl.style.width = `${data.jar_test_stability_rating_pct}%`;
+                barEl.style.background = data.is_physically_compatible ? '#059669' : '#ef4444';
+            }
+            if (obsEl) obsEl.textContent = data.jar_test_observation;
+
+            if (stepsList) {
+                stepsList.innerHTML = '';
+                data.wales_mixing_protocol.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'wales-step-item';
+                    div.innerHTML = `
+                        <div><span class="wales-code-badge">${s.code}</span> <strong>${s.title}</strong></div>
+                        <div style="font-size:0.74rem; color:#064e3b; margin-top:0.2rem;">${s.instruction}</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.15rem;">Items: ${s.items.join(', ')}</div>
+                    `;
+                    stepsList.appendChild(div);
+                });
+            }
+        } catch (e) {
+            console.error('Tank-mix compatibility error:', e);
+        }
+    };
+
+    checkboxes.forEach(cb => cb.addEventListener('change', runCheck));
+    runCheck();
 }

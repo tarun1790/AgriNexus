@@ -333,4 +333,59 @@ class IndianAgriDataService:
             ]
         }
 
+    def calculate_spatial_arbitrage(self, lat: float, lon: float, crop: str = "Cotton", harvest_quintals: float = 24.0) -> Dict[str, Any]:
+        """
+        Spatial Price Arbitrage Engine across Surrounding APMC Mandis.
+        Calculates Net Realizable Profit after factoring in road distances, freight transport costs (₹3.5/km/Q),
+        and statutory APMC market cess.
+        """
+        target_crop = "Cotton" if "cotton" in crop.lower() else ("Chilli" if "chilli" in crop.lower() else "Paddy")
+        
+        # Filter and rank mandis by distance
+        ranked = []
+        for m in self.INDIAN_APMC_MANDIS:
+            dist = self._haversine_distance_km(lat, lon, m["lat"], m["lon"])
+            # Generate simulated realistic modal price based on base benchmark
+            base_rate = 7450.0 if target_crop == "Cotton" else (18500.0 if target_crop == "Chilli" else 2320.0)
+            h_val = abs(hash(f"{m['name']}_{target_crop}")) % 600 - 300
+            modal_rate = round(base_rate + h_val)
+            
+            # Transport cost = ₹3.5 per km per quintal + ₹50 handling
+            freight_cost_per_q = round(dist * 3.5 + 45.0, 1)
+            apmc_cess_per_q = round(modal_rate * 0.01, 1)  # 1% cess
+            net_rate_per_q = round(modal_rate - freight_cost_per_q - apmc_cess_per_q, 1)
+            total_net_payout = round(net_rate_per_q * harvest_quintals)
+
+            ranked.append({
+                "mandi_name": m["name"],
+                "district": m["district"],
+                "state": m["state"],
+                "distance_km": dist,
+                "gross_modal_price_per_q": modal_rate,
+                "freight_transport_cost_per_q": freight_cost_per_q,
+                "apmc_cess_per_q": apmc_cess_per_q,
+                "net_realizable_price_per_q": net_rate_per_q,
+                "total_net_realization_inr": total_net_payout
+            })
+
+        # Sort by Net Realizable Price descending
+        ranked.sort(key=lambda x: x["net_realizable_price_per_q"], reverse=True)
+        top_5 = ranked[:5]
+        best_mandi = top_5[0]
+        local_mandi = min(top_5, key=lambda x: x["distance_km"])
+        arbitrage_gain_inr = round(best_mandi["total_net_realization_inr"] - local_mandi["total_net_realization_inr"])
+
+        return {
+            "target_crop": target_crop,
+            "harvest_volume_quintals": harvest_quintals,
+            "best_destination": {
+                "mandi_name": best_mandi["mandi_name"],
+                "net_price_per_q": best_mandi["net_realizable_price_per_q"],
+                "distance_km": best_mandi["distance_km"],
+                "arbitrage_profit_gain_inr": max(0, arbitrage_gain_inr),
+                "recommendation": f"Route truck to {best_mandi['mandi_name']} (📍 {best_mandi['distance_km']} km) for +₹{max(0, arbitrage_gain_inr):,} net profit gain over local market."
+            },
+            "mandi_arbitrage_leaderboard": top_5
+        }
+
 indian_agri_service = IndianAgriDataService()

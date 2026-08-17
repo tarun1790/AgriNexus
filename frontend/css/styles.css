@@ -2214,6 +2214,181 @@ body {
     font-weight: 700;
 }
 
+/* SENTINEL-1 C-BAND SAR RADAR LAB */
+.sar-radar-card {
+    background: var(--bg-card);
+}
+
+.sar-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.sar-stat-box {
+    background: #022c1b;
+    border: 1px solid #059669;
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sar-lbl {
+    font-size: 0.72rem;
+    color: #a7f3d0;
+    font-weight: 700;
+}
+
+.sar-val {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0.25rem 0;
+}
+
+.sar-sub {
+    font-size: 0.68rem;
+    color: #6ee7b7;
+}
+
+.sar-radar-interpretation {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius-xs);
+    padding: 0.65rem 0.95rem;
+    font-size: 0.82rem;
+    color: #064e3b;
+    line-height: 1.4;
+}
+
+/* MANDI SPATIAL ARBITRAGE */
+.arbitrage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.arbitrage-header h4 {
+    font-family: var(--font-display);
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.arbitrage-pill {
+    background: #022c1b;
+    color: #ffffff;
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-xs);
+    border: 1px solid #059669;
+}
+
+.arbitrage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin-top: 0.5rem;
+}
+
+.arbitrage-table th {
+    background: #022c1b;
+    color: #ffffff;
+    padding: 0.45rem 0.65rem;
+    text-align: left;
+    font-weight: 800;
+}
+
+.arbitrage-table td {
+    padding: 0.45rem 0.65rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+}
+
+.arbitrage-table tr:hover {
+    background: #f0fdf4;
+}
+
+/* HYDRUS-1D 4-LAYER SOIL MOISTURE PROFILE */
+.hydrus-layers-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.hydrus-layer-row {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-left: 5px solid #059669;
+    border-radius: var(--radius-xs);
+    padding: 0.75rem 1rem;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.78rem;
+}
+
+.hydrus-layer-row.stratum-2 { border-left-color: #10b981; }
+.hydrus-layer-row.stratum-3 { border-left-color: #34d399; }
+.hydrus-layer-row.stratum-4 { border-left-color: #064e3b; }
+
+/* WALES TANK-MIX LAB */
+.tankmix-lab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 1.25rem;
+}
+
+.tankmix-selector-box {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.tankmix-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.chem-check {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.wales-step-item {
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid #059669;
+    border-radius: var(--radius-xs);
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.wales-code-badge {
+    background: #022c1b;
+    color: #ffffff;
+    font-weight: 800;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    margin-right: 0.3rem;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1080px) {
     .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {

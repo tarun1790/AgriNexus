@@ -43,6 +43,8 @@ from backend.services.overpass_service import overpass_service
 from backend.services.vra_engine import vra_engine
 from backend.services.regional_soil_knowledge import regional_soil_service
 from backend.services.indian_agri_data_service import indian_agri_service
+from backend.services.sar_radar_service import sar_radar_service
+from backend.services.tankmix_service import tankmix_service
 from backend.services.scientific_agronomy_engine import scientific_engine
 from backend.data.demo_samples import DEMO_FARMS
 
@@ -552,6 +554,50 @@ def get_gdd_phenology_tracker(
 ):
     return climate_engine.calculate_gdd_phenology_tracker(
         crop=crop, mean_temp_c=mean_temp_c, days_since_sowing=days_since_sowing
+    )
+
+# ----------------- SENTINEL-1 C-BAND SAR RADAR POLARIZATION LAB -----------------
+@app.get("/api/v1/sar/radar-telemetry")
+def get_sar_radar_telemetry(
+    lat: float = 16.5062,
+    lon: float = 80.6480,
+    crop: str = "Cotton",
+    soil_moisture_pct: float = 24.0
+):
+    return sar_radar_service.compute_sar_radar_telemetry(
+        lat=lat, lon=lon, crop=crop, soil_moisture_pct=soil_moisture_pct
+    )
+
+# ----------------- PRECISION AGROCHEMICAL WALES TANK-MIX LAB -----------------
+@app.post("/api/v1/tankmix/check-compatibility")
+def check_tankmix_compatibility(
+    chemicals: List[str] = ["copper_oxychloride", "streptocycline"],
+    water_volume_liters: float = 200.0
+):
+    return tankmix_service.evaluate_tankmix(
+        chemical_keys=chemicals, water_volume_liters=water_volume_liters
+    )
+
+# ----------------- HYDRUS-1D 4-LAYER SOIL MOISTURE PROFILE -----------------
+@app.get("/api/v1/soil/hydrus-profile")
+def get_hydrus_soil_profile(
+    surface_moisture_pct: float = 24.0,
+    soil_texture: str = "Clay Loam"
+):
+    return soil_engine.calculate_hydrus_1d_profile(
+        surface_moisture_pct=surface_moisture_pct, soil_texture=soil_texture
+    )
+
+# ----------------- MANDI SPATIAL ARBITRAGE OPTIMIZER -----------------
+@app.get("/api/v1/market/spatial-arbitrage")
+def get_mandi_spatial_arbitrage(
+    lat: float = 16.5062,
+    lon: float = 80.6480,
+    crop: str = "Cotton",
+    harvest_quintals: float = 24.0
+):
+    return indian_agri_service.calculate_spatial_arbitrage(
+        lat=lat, lon=lon, crop=crop, harvest_quintals=harvest_quintals
     )
 
 # ----------------- FEDERATED LEARNING / DPI NETWORK -----------------

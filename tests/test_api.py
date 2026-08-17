@@ -133,7 +133,36 @@ async def run_all_tests():
         assert "accumulated_thermal_gdd" in gdd
         print(f"[PASS] Thermal Time GDD Phenology Engine Passed ({gdd['accumulated_thermal_gdd']} GDD accumulated, Stage: {gdd['active_stage']['name']})")
 
-    print("\n>>> ALL 13 REAL-TIME DEEP-TECH AGRINEXUS TEST SUITES PASSED PERFECTLY! <<<")
+        # 14. Sentinel-1 C-Band SAR Radar Telemetry
+        sar_res = await client.get("/api/v1/sar/radar-telemetry", params={"lat": 16.5062, "lon": 80.6480, "crop": "Cotton"})
+        assert sar_res.status_code == 200
+        sar = sar_res.json()
+        assert "telemetry" in sar
+        print(f"[PASS] Sentinel-1 SAR Radar Polarization Passed (VV: {sar['telemetry']['sigma0_vv_mean_db']} dB, VH: {sar['telemetry']['sigma0_vh_mean_db']} dB, eps_r: {sar['telemetry']['dielectric_permittivity_epsilon_r']})")
+
+        # 15. Precision Agrochemical WALES Tank-Mix Compatibility Lab
+        tm_res = await client.post("/api/v1/tankmix/check-compatibility", json=["copper_oxychloride", "streptocycline"])
+        assert tm_res.status_code == 200
+        tm = tm_res.json()
+        assert "wales_mixing_protocol" in tm
+        assert len(tm["wales_mixing_protocol"]) == 5
+        print(f"[PASS] WALES Tank-Mix Laboratory Passed (Stability: {tm['jar_test_stability_rating_pct']}%, Compatible: {tm['is_physically_compatible']})")
+
+        # 16. Hydrus-1D 4-Layer Unsaturated Soil Moisture Profile
+        hyd_res = await client.get("/api/v1/soil/hydrus-profile", params={"surface_moisture_pct": 24.0})
+        assert hyd_res.status_code == 200
+        hyd = hyd_res.json()
+        assert len(hyd["layers"]) == 4
+        print(f"[PASS] Hydrus-1D 4-Layer Soil Physics Passed (Total AWC: {hyd['total_profile_water_storage_mm']} mm, Model: {hyd['hydraulic_model']})")
+
+        # 17. APMC Mandi Spatial Arbitrage & Net Freight Optimizer
+        arb_res = await client.get("/api/v1/market/spatial-arbitrage", params={"lat": 16.5062, "lon": 80.6480, "crop": "Cotton", "harvest_quintals": 24.0})
+        assert arb_res.status_code == 200
+        arb = arb_res.json()
+        assert len(arb["mandi_arbitrage_leaderboard"]) >= 3
+        print(f"[PASS] Mandi Spatial Arbitrage Passed (Best: {arb['best_destination']['mandi_name']}, Net Rate: INR {arb['best_destination']['net_price_per_q']}/Q)")
+
+    print("\n>>> ALL 17 REAL-TIME ULTRA-ADVANCED AGRINEXUS TEST SUITES PASSED PERFECTLY! <<<")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())
