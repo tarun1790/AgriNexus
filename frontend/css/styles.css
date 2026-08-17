@@ -1846,6 +1846,172 @@ body {
     margin-top: auto;
 }
 
+/* VERNACULAR VOICE AGRONOMIST BUTTON */
+.btn-voice-agronomist {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1.15rem;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.84rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-voice-agronomist:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.5);
+}
+.btn-voice-agronomist.recording {
+    background: #022c1b;
+    border: 1px solid #10b981;
+    animation: pulseGlow 1.2s infinite alternate;
+}
+
+/* ISO-14064 CARBON MINT TERMINAL */
+.carbon-mint-terminal {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 1.45rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.15rem;
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.85rem;
+}
+
+.terminal-header h4 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.terminal-status {
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: var(--brand-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.terminal-inputs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr;
+    gap: 1rem;
+}
+
+.t-input-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.custom-input {
+    width: 100%;
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-xs);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    outline: none;
+}
+.custom-input:focus {
+    border-color: var(--brand-primary);
+}
+
+.btn-mint-token {
+    width: 100%;
+    background: #022c1b;
+    color: #ffffff;
+    border: 1px solid #059669;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.94rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(2, 44, 27, 0.35);
+    transition: all 0.25s ease;
+}
+.btn-mint-token:hover {
+    background: #064e3b;
+    transform: translateY(-2px);
+}
+
+.mint-result-card {
+    background: #ecfdf5;
+    border: 1px solid #6ee7b7;
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
+    animation: slideFadeDown 0.3s ease-out;
+}
+
+/* PRECISION TANK-MIX RECIPE BOX */
+.tankmix-recipe-box {
+    background: #f0fdf4;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius-sm);
+    padding: 1.2rem 1.35rem;
+}
+
+.recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #d1fae5;
+    padding-bottom: 0.55rem;
+}
+
+.recipe-header h5 {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.recipe-cost-badge {
+    background: #047857;
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-xs);
+}
+
+.recipe-body {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
 /* RESPONSIVE */
 @media (max-width: 1080px) {
     .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {

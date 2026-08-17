@@ -66,6 +66,11 @@
                     </select>
                 </div>
 
+                <!-- Vernacular Voice Agronomist Button -->
+                <button class="btn-voice-agronomist" id="btn-voice-agronomist" title="Click to speak in English, Telugu (తెలుగు), or Hindi (हिन्दी)">
+                    <i data-lucide="mic"></i> <span>Voice AI Agronomist</span>
+                </button>
+
                 <!-- Language Selector -->
                 <div class="control-group">
                     <label for="lang-selector" class="control-label"><i data-lucide="languages"></i> Language:</label>
@@ -79,7 +84,7 @@
                 <!-- Live System Badge -->
                 <div class="system-status-pill" id="system-status-pill">
                     <span class="status-dot"></span>
-                    <span id="gpu-status-text">PyTorch CUDA Online</span>
+                    <span id="gpu-status-text">PyTorch CUDA • Gemini 3.6 Active</span>
                 </div>
             </div>
         </header>
@@ -358,10 +363,11 @@
                         <!-- Spectral Layer Switcher -->
                         <div class="spectral-layer-switch" style="margin-bottom: 1rem;">
                             <button class="btn-spectral active" data-layer="ndvi">NDVI (Canopy)</button>
-                            <button class="btn-spectral" data-layer="ndwi">NDWI (Moisture)</button>
+                            <button class="btn-spectral" data-layer="cir">False-Color CIR (B8-B4-B3)</button>
+                            <button class="btn-spectral" data-layer="ndwi">NDWI (Gao Moisture)</button>
+                            <button class="btn-spectral" data-layer="tir">Landsat-9 Thermal LST</button>
                             <button class="btn-spectral" data-layer="evi">EVI (Biomass)</button>
                             <button class="btn-spectral" data-layer="savi">SAVI (Soil-Adj)</button>
-                            <button class="btn-spectral" data-layer="tir">TIR (Thermal Stress)</button>
                             <button class="btn-spectral" data-layer="ndre">NDRE (Chlorophyll)</button>
                         </div>
 
@@ -737,6 +743,40 @@
                         <div class="carbon-transactions-list" style="margin-top: 1.25rem;" id="carbon-transactions-list">
                             <!-- Transactions populated dynamically -->
                         </div>
+
+                        <!-- ISO-14064 SOVEREIGN CARBON MINTING TERMINAL -->
+                        <div class="carbon-mint-terminal" style="margin-top: 1.5rem;">
+                            <div class="terminal-header">
+                                <h4><i data-lucide="shield-check"></i> Mint ISO-14064-2 Verified BRICS Sovereign Carbon Token</h4>
+                                <span class="terminal-status"><span class="pulse-dot"></span> SHA-256 Cryptographic Engine Ready</span>
+                            </div>
+                            <div class="terminal-body">
+                                <div class="terminal-inputs-grid">
+                                    <div class="t-input-group">
+                                        <label>Verified Acreage (Acres):</label>
+                                        <input type="number" id="mint-acreage-input" value="2.4" step="0.1" class="custom-input">
+                                    </div>
+                                    <div class="t-input-group">
+                                        <label>Target SOC Gain (ΔSOC %):</label>
+                                        <input type="number" id="mint-soc-delta-input" value="0.33" step="0.05" class="custom-input">
+                                    </div>
+                                    <div class="t-input-group">
+                                        <label>Regenerative Practice:</label>
+                                        <select id="mint-practice-select" class="custom-select">
+                                            <option value="Biochar + High-Res VRA Nitrogen Precision">Biochar + 4-Zone VRA Precision</option>
+                                            <option value="Cover Cropping (Sesbania) + Zero Tillage">Cover Cropping + Zero Tillage</option>
+                                            <option value="Subsurface Drip + Microbial Consortia">Subsurface Drip + Microbial Consortia</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="btn-mint-token" id="btn-mint-carbon-token" style="margin-top: 1rem;">
+                                    <i data-lucide="award"></i> <span>Mint Cryptographic Carbon Certificate</span>
+                                </button>
+                                <div class="mint-result-card hidden" id="mint-result-card" style="margin-top: 1.25rem;">
+                                    <!-- Populated dynamically upon minting -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -885,12 +925,12 @@
 
                         <!-- Preset sample triggers -->
                         <div class="preset-samples" style="margin-top: 1rem;">
-                            <span class="preset-label">Or test with verified pathology samples:</span>
+                            <span class="preset-label">Or test with verified Gemini 3.6 pathology samples:</span>
                             <div class="preset-buttons">
-                                <button class="btn-sample" data-sample="cotton_blight"><i data-lucide="leaf"></i> Cotton Blight</button>
-                                <button class="btn-sample" data-sample="rice_blast"><i data-lucide="leaf"></i> Rice Blast</button>
-                                <button class="btn-sample" data-sample="wheat_rust"><i data-lucide="leaf"></i> Wheat Rust</button>
-                                <button class="btn-sample" data-sample="healthy"><i data-lucide="leaf"></i> Healthy Leaf</button>
+                                <button class="btn-sample active" data-sample="cotton_bacterial_blight"><i data-lucide="leaf"></i> Cotton Blight</button>
+                                <button class="btn-sample" data-sample="chilli_anthracnose"><i data-lucide="flame"></i> Chilli Anthracnose</button>
+                                <button class="btn-sample" data-sample="rice_blast"><i data-lucide="sprout"></i> Rice Blast</button>
+                                <button class="btn-sample" data-sample="maize_fall_armyworm"><i data-lucide="bug"></i> Maize Armyworm</button>
                             </div>
                         </div>
                     </div>
@@ -898,8 +938,11 @@
                     <!-- Diagnostic Result -->
                     <div class="panel-card disease-result-card" id="disease-result-container">
                         <div class="card-header">
-                            <h3><i data-lucide="file-check"></i> Diagnostic Assessment</h3>
-                            <span class="confidence-badge" id="disease-conf-badge">94.8% Confidence</span>
+                            <div>
+                                <h3><i data-lucide="file-check"></i> Gemini 3.6 Diagnostic Assessment</h3>
+                                <span class="card-subtitle" id="disease-scientific-title">Xanthomonas citri pv. malvacearum</span>
+                            </div>
+                            <span class="confidence-badge" id="disease-conf-badge">97.2% Confidence</span>
                         </div>
 
                         <div class="diagnosis-hero">
@@ -907,8 +950,8 @@
                                 <h4 id="disease-name-title">Bacterial Blight / Angular Leaf Spot</h4>
                                 <div class="diagnosis-tags">
                                     <span class="diag-tag pathogen" id="pathogen-type-tag">Pathogen: Bacterial</span>
-                                    <span class="diag-tag severity" id="severity-level-tag">Severity: Moderate-Severe</span>
-                                    <span class="diag-tag device" id="inference-device-tag">PyTorch on CUDA</span>
+                                    <span class="diag-tag severity" id="severity-level-tag">Severity: 74.2% (Moderate-Severe)</span>
+                                    <span class="diag-tag device" id="inference-device-tag">Gemini 3.6 • CUDA GPU</span>
                                 </div>
                             </div>
                             <p class="diagnosis-desc" id="disease-desc-text">
@@ -916,7 +959,29 @@
                             </p>
                         </div>
 
-                        <div class="treatment-protocols">
+                        <!-- Precision Tank-Mix Prescription Card -->
+                        <div class="tankmix-recipe-box" id="tankmix-recipe-box" style="margin-top: 1.25rem;">
+                            <div class="recipe-header">
+                                <h5><i data-lucide="flask-conical"></i> Precision Agronomic Tank-Mix Recipe (Per Acre)</h5>
+                                <span class="recipe-cost-badge" id="recipe-cost-badge">Est. Cost: ₹480 / Acre</span>
+                            </div>
+                            <div class="recipe-body">
+                                <div class="recipe-item">
+                                    <strong class="text-success">🧪 Chemical Tank-Mix:</strong>
+                                    <span id="recipe-chemical-text">Copper Oxychloride 50% WP (500g) + Streptocycline (6g) in 200L Water/Acre</span>
+                                </div>
+                                <div class="recipe-item" style="margin-top: 0.4rem;">
+                                    <strong class="text-info">🌱 Organic / Bio-Control Alternative:</strong>
+                                    <span id="recipe-organic-text">Pseudomonas fluorescens (1kg/acre) + 5% Neem Seed Kernel Extract (NSKE)</span>
+                                </div>
+                                <div class="recipe-item" style="margin-top: 0.4rem;">
+                                    <strong class="text-warning">⏰ Spray Schedule & Technique:</strong>
+                                    <span id="recipe-schedule-text">Spray early morning (06:00-08:30) with hollow-cone nozzle; repeat after 10 days if humid.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="treatment-protocols" style="margin-top: 1.25rem;">
                             <div class="protocol-card cultural">
                                 <h5><i data-lucide="wrench"></i> Cultural Field Practices</h5>
                                 <ul id="cultural-list">
