@@ -527,6 +527,33 @@ def run_monte_carlo_climate_simulation(
         "engine": "Google Vertex AI Monteith RUE & Saxton-Rawls Soil Biophysics"
     }
 
+# ----------------- UAV AUTONOMOUS FLIGHT & HYPERSPECTRAL SPECTROGRAM -----------------
+@app.get("/api/v1/uav/flight-plan")
+def get_uav_flight_mission(
+    lat: float = 16.5062,
+    lon: float = 80.6480,
+    area_acres: float = 2.4,
+    crop: str = "Cotton",
+    mean_ndvi: float = 0.61
+):
+    return satellite_engine.generate_uav_flight_mission(
+        lat=lat, lon=lon, area_acres=area_acres, crop=crop, mean_ndvi=mean_ndvi
+    )
+
+@app.get("/api/v1/spectrogram/hyperspectral")
+def get_hyperspectral_spectrogram(crop: str = "Cotton", mean_ndvi: float = 0.61):
+    return satellite_engine.generate_hyperspectral_spectrogram(crop=crop, mean_ndvi=mean_ndvi)
+
+@app.get("/api/v1/phenology/gdd-tracker")
+def get_gdd_phenology_tracker(
+    crop: str = "Cotton",
+    mean_temp_c: float = 30.0,
+    days_since_sowing: int = 48
+):
+    return climate_engine.calculate_gdd_phenology_tracker(
+        crop=crop, mean_temp_c=mean_temp_c, days_since_sowing=days_since_sowing
+    )
+
 # ----------------- FEDERATED LEARNING / DPI NETWORK -----------------
 @app.get("/api/v1/federated/nodes", response_model=List[FederatedNodeStatus])
 def get_federated_nodes():

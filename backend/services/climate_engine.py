@@ -255,4 +255,68 @@ class ClimateIntelligenceEngine:
             multi_year_roi_projection=multi_year_roi
         )
 
+    def calculate_gdd_phenology_tracker(self, crop: str, mean_temp_c: float, days_since_sowing: int = 48) -> Dict[str, Any]:
+        """
+        Calculates Growing Degree Days (GDD / Thermal Time) and active phenological stage progression.
+        Formula: GDD_daily = max(0, (Tmax + Tmin)/2 - Tbase)
+        """
+        base_temp_lookup = {"cotton": 15.5, "rice": 10.0, "wheat": 4.5, "maize": 10.0, "chilli": 15.0}
+        total_gdd_required = {"cotton": 2100, "rice": 1850, "wheat": 1450, "maize": 1600, "chilli": 2200}
+        
+        t_base = base_temp_lookup.get(crop.lower(), 12.0)
+        req_gdd = total_gdd_required.get(crop.lower(), 1800)
+
+        daily_gdd = max(0.0, mean_temp_c - t_base)
+        accumulated_gdd = round(daily_gdd * days_since_sowing, 1)
+        gdd_progress_pct = round(min(100.0, (accumulated_gdd / req_gdd) * 100.0), 1)
+
+        # Phenological Stage Milestones
+        if gdd_progress_pct < 25.0:
+            stage = "Vegetative (Leaf & Canopy Expansion)"
+            icon = "🌱"
+            days_to_harvest = 105
+            water_demand = "Moderate (2.8 mm/day)"
+            vital_action = "Maintain weed-free root zone; apply basal NPK and bio-fertilizer."
+        elif gdd_progress_pct < 55.0:
+            stage = "Squaring & Early Flower Bud Initiation"
+            icon = "🌿"
+            days_to_harvest = 75
+            water_demand = "High (4.5 mm/day)"
+            vital_action = "Critical stage for moisture; avoid water stress to prevent bud shedding."
+        elif gdd_progress_pct < 80.0:
+            stage = "Peak Flowering & Boll / Grain Development"
+            icon = "🌸"
+            days_to_harvest = 40
+            water_demand = "Peak (5.8 mm/day)"
+            vital_action = "Foliar spray of 13-0-45 (Potassium Nitrate 1%) + Micronutrients."
+        else:
+            stage = "Boll Maturation & Harvest Readiness"
+            icon = "🌾"
+            days_to_harvest = 12
+            water_demand = "Low (1.5 mm/day)"
+            vital_action = "Cease irrigation 10-14 days prior to picking; prepare clean storage."
+
+        return {
+            "crop": crop,
+            "days_since_sowing": days_since_sowing,
+            "base_temperature_celsius": t_base,
+            "daily_gdd_rate": round(daily_gdd, 1),
+            "accumulated_thermal_gdd": accumulated_gdd,
+            "total_gdd_required": req_gdd,
+            "phenological_progress_pct": gdd_progress_pct,
+            "active_stage": {
+                "name": stage,
+                "icon": icon,
+                "days_to_harvest_estimated": days_to_harvest,
+                "daily_evapotranspiration_demand": water_demand,
+                "critical_agronomic_advisory": vital_action
+            },
+            "phenology_timeline": [
+                {"stage": "Vegetative", "gdd_target": int(req_gdd * 0.25), "completed": gdd_progress_pct >= 25.0},
+                {"stage": "Squaring", "gdd_target": int(req_gdd * 0.55), "completed": gdd_progress_pct >= 55.0},
+                {"stage": "Flowering & Grain Filling", "gdd_target": int(req_gdd * 0.80), "completed": gdd_progress_pct >= 80.0},
+                {"stage": "Physiological Maturity", "gdd_target": req_gdd, "completed": gdd_progress_pct >= 100.0}
+            ]
+        }
+
 climate_engine = ClimateIntelligenceEngine()

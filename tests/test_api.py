@@ -111,7 +111,29 @@ async def run_all_tests():
         assert fed["round_number"] >= 5
         print(f"[PASS] Federated Learning Aggregation Passed (Round #{fed['round_number']}, Global Acc: {fed['global_model_accuracy_pct']}%)")
 
-    print("\n>>> ALL 10 REAL-TIME LIVE AGRINEXUS DPI TEST SUITES PASSED PERFECTLY! <<<")
+        # 11. Autonomous UAV Flight Mission Generator
+        uav_res = await client.get("/api/v1/uav/flight-plan", params={"lat": 16.5062, "lon": 80.6480, "area_acres": 2.4, "crop": "Cotton"})
+        assert uav_res.status_code == 200
+        uav = uav_res.json()
+        assert uav["waypoint_count"] > 0
+        assert "flight_parameters" in uav
+        print(f"[PASS] UAV Precision Spray Mission Passed ({uav['waypoint_count']} Waypoints, {uav['spray_prescription']['flow_rate_liters_per_hectare']} L/ha VRA Payload)")
+
+        # 12. 100-Band Hyperspectral Spectrogram
+        spec_res = await client.get("/api/v1/spectrogram/hyperspectral", params={"crop": "Cotton", "mean_ndvi": 0.61})
+        assert spec_res.status_code == 200
+        spec = spec_res.json()
+        assert spec["bands_sampled"] == 101
+        print(f"[PASS] 100-Band Hyperspectral Spectrogram Passed ({spec['spectral_range_nm']})")
+
+        # 13. Growing Degree Days (GDD) Phenological Tracker
+        gdd_res = await client.get("/api/v1/phenology/gdd-tracker", params={"crop": "Cotton", "mean_temp_c": 30.5, "days_since_sowing": 48})
+        assert gdd_res.status_code == 200
+        gdd = gdd_res.json()
+        assert "accumulated_thermal_gdd" in gdd
+        print(f"[PASS] Thermal Time GDD Phenology Engine Passed ({gdd['accumulated_thermal_gdd']} GDD accumulated, Stage: {gdd['active_stage']['name']})")
+
+    print("\n>>> ALL 13 REAL-TIME DEEP-TECH AGRINEXUS TEST SUITES PASSED PERFECTLY! <<<")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())

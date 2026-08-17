@@ -513,6 +513,77 @@
                                 <canvas id="weather-forecast-chart"></canvas>
                             </div>
                         </div>
+
+                        <!-- CROP PHENOLOGY & GROWING DEGREE DAYS (GDD) TRACKER -->
+                        <div class="phenology-gdd-card" style="margin-top: 1.25rem;">
+                            <div class="phenology-header">
+                                <div>
+                                    <h4><i data-lucide="calendar"></i> Crop Phenology & Thermal Unit (GDD) Accumulator</h4>
+                                    <span class="card-subtitle" id="gdd-subtitle">Growing Degree Days (Tbase=15.5°C) • Stage: Flowering (68%)</span>
+                                </div>
+                                <span class="gdd-days-badge" id="gdd-harvest-days">Harvest in ~40 Days</span>
+                            </div>
+                            <div class="phenology-timeline-bar" id="phenology-timeline-bar" style="margin-top: 0.95rem;">
+                                <div class="pheno-step completed" id="step-veg">
+                                    <span class="step-dot"></span>
+                                    <span class="step-label">🌱 Vegetative</span>
+                                </div>
+                                <div class="pheno-step completed" id="step-sq">
+                                    <span class="step-dot"></span>
+                                    <span class="step-label">🌿 Squaring</span>
+                                </div>
+                                <div class="pheno-step active" id="step-flow">
+                                    <span class="step-dot"></span>
+                                    <span class="step-label">🌸 Flowering</span>
+                                </div>
+                                <div class="pheno-step" id="step-mat">
+                                    <span class="step-dot"></span>
+                                    <span class="step-label">🌾 Maturity</span>
+                                </div>
+                            </div>
+                            <div class="pheno-advisory-pill" id="gdd-advisory-pill" style="margin-top: 0.85rem;">
+                                <strong>Critical Action:</strong> Peak transpirational water demand (5.8 mm/day). Foliar spray of Potassium Nitrate (13-0-45) recommended.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AUTONOMOUS UAV PRECISION SPRAY FLIGHT MISSION PLANNER -->
+                <div class="panel-card uav-mission-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="navigation-2"></i> Autonomous UAV Precision Spray Flight Mission Planner</h3>
+                            <span class="card-subtitle">RTK-GPS Centimeter Waypoints • Variable Rate Application (VRA) Drift-Free Serpentine Trajectory</span>
+                        </div>
+                        <div class="uav-action-buttons">
+                            <button class="btn-uav-launch" id="btn-launch-uav"><i data-lucide="play"></i> <span>Launch Flight Mission</span></button>
+                            <button class="btn-uav-export" id="btn-export-uav"><i data-lucide="download"></i> <span>Export KML / GeoJSON</span></button>
+                        </div>
+                    </div>
+
+                    <div class="uav-planner-layout">
+                        <!-- Live Flight Canvas -->
+                        <div class="uav-canvas-container">
+                            <canvas id="uav-flight-canvas" class="uav-canvas" width="600" height="260"></canvas>
+                            <div class="uav-hud-telemetry">
+                                <span>Altitude: <strong>15.0 m</strong></span>
+                                <span>Speed: <strong>4.5 m/s</strong></span>
+                                <span>Swath: <strong>4.0 m</strong></span>
+                                <span>Payload: <strong id="uav-payload-text">175 L/ha</strong></span>
+                                <span>Battery: <strong id="uav-battery-text">100%</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- 100-Band Hyperspectral Spectrogram -->
+                        <div class="hyperspectral-spectrogram-box">
+                            <div class="spectrogram-header">
+                                <h4><i data-lucide="activity"></i> 100-Band Hyperspectral Spectrogram (400nm–2400nm)</h4>
+                                <span class="spectrogram-tag">Chlorophyll-a & SWIR Water Dips</span>
+                            </div>
+                            <div style="height: 200px;">
+                                <canvas id="hyperspectral-chart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

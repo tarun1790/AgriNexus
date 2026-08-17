@@ -2006,10 +2006,212 @@ body {
     border-radius: var(--radius-xs);
 }
 
-.recipe-body {
-    font-size: 0.84rem;
-    line-height: 1.5;
-    color: var(--text-primary);
+/* CROP PHENOLOGY & GDD ACCUMULATOR */
+.phenology-gdd-card {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.phenology-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.phenology-header h4 {
+    font-family: var(--font-display);
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.gdd-days-badge {
+    background: #022c1b;
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-xs);
+    border: 1px solid #059669;
+}
+
+.phenology-timeline-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    position: relative;
+}
+
+.pheno-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    background: var(--bg-base);
+    border-radius: var(--radius-xs);
+    border: 1px solid var(--border-subtle);
+}
+
+.pheno-step.completed {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+}
+
+.pheno-step.active {
+    background: #022c1b;
+    border-color: #10b981;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.step-label {
+    font-size: 0.74rem;
+    font-weight: 800;
+    margin-top: 0.2rem;
+}
+
+.pheno-step.active .step-label {
+    color: #ffffff;
+}
+
+.pheno-advisory-pill {
+    background: #f0fdf4;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius-xs);
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
+    color: #064e3b;
+    line-height: 1.4;
+}
+
+/* AUTONOMOUS UAV PRECISION SPRAY FLIGHT MISSION PLANNER */
+.uav-mission-card {
+    background: var(--bg-card);
+}
+
+.uav-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.btn-uav-launch {
+    background: linear-gradient(135deg, #022c1b 0%, #059669 100%);
+    color: #ffffff;
+    border: none;
+    padding: 0.6rem 1.15rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(2, 44, 27, 0.3);
+    transition: all 0.2s ease;
+}
+.btn-uav-launch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
+}
+
+.btn-uav-export {
+    background: #ffffff;
+    color: var(--brand-dark);
+    border: 1px solid var(--border-medium);
+    padding: 0.6rem 1.05rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-uav-export:hover {
+    background: var(--bg-base);
+}
+
+.uav-planner-layout {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+}
+
+.uav-canvas-container {
+    position: relative;
+    background: #021a10;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.uav-canvas {
+    width: 100%;
+    height: 240px;
+    display: block;
+}
+
+.uav-hud-telemetry {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    background: rgba(2, 44, 27, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: var(--radius-xs);
+    padding: 0.4rem 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.76rem;
+    color: #d1fae5;
+}
+.uav-hud-telemetry strong {
+    color: #ffffff;
+}
+
+.hyperspectral-spectrogram-box {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 1.15rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.spectrogram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.spectrogram-header h4 {
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.spectrogram-tag {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 700;
 }
 
 /* RESPONSIVE */

@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initVoiceAgronomist();
     initCarbonMinting();
     init60fpsMonteCarloSim();
+    initUAVMissionPlanner();
+    renderHyperspectralSpectrogram();
+    renderGDDPhenology();
     
     await checkSystemHealth();
 
@@ -2371,4 +2374,291 @@ function init60fpsMonteCarloSim() {
     tempSlider.addEventListener('input', runSim);
     rainSlider.addEventListener('input', runSim);
     if (somSlider) somSlider.addEventListener('input', runSim);
+}
+
+// ----------------- AUTONOMOUS UAV MISSION PLANNER & 60 FPS FLIGHT SIMULATOR -----------------
+let uavFlightAnimId = null;
+let uavMissionData = null;
+
+function initUAVMissionPlanner() {
+    const launchBtn = document.getElementById('btn-launch-uav');
+    const exportBtn = document.getElementById('btn-export-uav');
+    const canvas = document.getElementById('uav-flight-canvas');
+    if (!canvas) return;
+
+    fetchUAVFlightPlan();
+
+    if (launchBtn) {
+        launchBtn.addEventListener('click', () => {
+            if (!uavMissionData) return;
+            startUAVFlightSimulation();
+        });
+    }
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            if (!uavMissionData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(uavMissionData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `UAV_Mission_${uavMissionData.mission_id}.geojson`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        });
+    }
+}
+
+async function fetchUAVFlightPlan() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/uav/flight-plan?lat=${AppState.currentLat}&lon=${AppState.currentLon}&area_acres=${AppState.currentArea}&crop=${AppState.currentCrop}&mean_ndvi=${AppState.satelliteData ? AppState.satelliteData.mean_ndvi : 0.61}`);
+        uavMissionData = await res.json();
+        drawUAVStaticFlightPath(uavMissionData);
+    } catch (e) {
+        console.error('Error fetching UAV flight plan:', e);
+    }
+}
+
+function drawUAVStaticFlightPath(mission) {
+    const canvas = document.getElementById('uav-flight-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Clear & draw field boundary
+    ctx.fillStyle = '#021a10';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid matrix backing
+    ctx.strokeStyle = 'rgba(5, 150, 105, 0.15)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 30) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    }
+    for (let y = 0; y < h; y += 30) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Boundary box
+    ctx.strokeStyle = '#059669';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 20, w - 60, h - 50);
+
+    // Draw waypoints & flight lines
+    const wps = mission.waypoints;
+    if (!wps || wps.length === 0) return;
+
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+
+    wps.forEach((wp, idx) => {
+        const px = 40 + (idx % 2 === 0 ? 0 : w - 80);
+        const py = 35 + (Math.floor(idx / 2) * ((h - 80) / Math.max(1, Math.floor(wps.length / 2) - 1)));
+        if (idx === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw waypoint nodes
+    wps.forEach((wp, idx) => {
+        const px = 40 + (idx % 2 === 0 ? 0 : w - 80);
+        const py = 35 + (Math.floor(idx / 2) * ((h - 80) / Math.max(1, Math.floor(wps.length / 2) - 1)));
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    const payloadText = document.getElementById('uav-payload-text');
+    if (payloadText && mission.spray_prescription) {
+        payloadText.textContent = `${mission.spray_prescription.flow_rate_liters_per_hectare} L/ha`;
+    }
+}
+
+function startUAVFlightSimulation() {
+    if (uavFlightAnimId) cancelAnimationFrame(uavFlightAnimId);
+    const canvas = document.getElementById('uav-flight-canvas');
+    if (!canvas || !uavMissionData) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+
+    let progress = 0;
+    const wps = uavMissionData.waypoints;
+    const totalSegments = wps.length - 1;
+
+    const sprayDrops = [];
+
+    const animate = () => {
+        progress += 0.006;
+        if (progress > 1.0) {
+            progress = 1.0;
+            drawUAVStaticFlightPath(uavMissionData);
+            return;
+        }
+
+        drawUAVStaticFlightPath(uavMissionData);
+
+        // Interpolate drone position
+        const currentSegment = Math.min(totalSegments - 1, Math.floor(progress * totalSegments));
+        const segT = (progress * totalSegments) - currentSegment;
+
+        const idx1 = currentSegment;
+        const idx2 = currentSegment + 1;
+
+        const p1x = 40 + (idx1 % 2 === 0 ? 0 : w - 80);
+        const p1y = 35 + (Math.floor(idx1 / 2) * ((h - 80) / Math.max(1, Math.floor(wps.length / 2) - 1)));
+        const p2x = 40 + (idx2 % 2 === 0 ? 0 : w - 80);
+        const p2y = 35 + (Math.floor(idx2 / 2) * ((h - 80) / Math.max(1, Math.floor(wps.length / 2) - 1)));
+
+        const droneX = p1x + (p2x - p1x) * segT;
+        const droneY = p1y + (p2y - p1y) * segT;
+
+        // Spray particles emission
+        for (let i = 0; i < 3; i++) {
+            sprayDrops.push({
+                x: droneX + (Math.random() - 0.5) * 16,
+                y: droneY + 6,
+                r: Math.random() * 2 + 1,
+                alpha: 0.8
+            });
+        }
+
+        // Render spray particles
+        sprayDrops.forEach((d, i) => {
+            ctx.fillStyle = `rgba(52, 211, 153, ${d.alpha})`;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx.fill();
+            d.alpha -= 0.025;
+            d.y += 0.8;
+            if (d.alpha <= 0) sprayDrops.splice(i, 1);
+        });
+
+        // Drone avatar
+        ctx.save();
+        ctx.translate(droneX, droneY);
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 4 Rotors
+        [-7, 7].forEach(rx => {
+            [-7, 7].forEach(ry => {
+                ctx.fillStyle = '#34d399';
+                ctx.beginPath();
+                ctx.arc(rx, ry, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        });
+        ctx.restore();
+
+        // Battery degradation update
+        const batteryText = document.getElementById('uav-battery-text');
+        if (batteryText) {
+            batteryText.textContent = `${Math.round(100 - progress * 14)}%`;
+        }
+
+        uavFlightAnimId = requestAnimationFrame(animate);
+    };
+
+    uavFlightAnimId = requestAnimationFrame(animate);
+}
+
+// ----------------- 100-BAND HYPERSPECTRAL SPECTROGRAM CHART -----------------
+let hyperspectralChartInstance = null;
+
+async function renderHyperspectralSpectrogram() {
+    const ctx = document.getElementById('hyperspectral-chart');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/spectrogram/hyperspectral?crop=${AppState.currentCrop}&mean_ndvi=${AppState.satelliteData ? AppState.satelliteData.mean_ndvi : 0.61}`);
+        const data = await res.json();
+
+        if (hyperspectralChartInstance) {
+            hyperspectralChartInstance.destroy();
+        }
+
+        hyperspectralChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.wavelengths_nm.map(w => `${w}nm`),
+                datasets: [
+                    {
+                        label: 'Healthy Canopy (High Chlorophyll)',
+                        data: data.signatures.healthy_vigorous_canopy,
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Water Stressed (SWIR Absorption Drop)',
+                        data: data.signatures.water_stressed_canopy,
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Pathogen Infected (Red Edge Blue-Shift)',
+                        data: data.signatures.pathogen_infected_canopy,
+                        borderColor: '#ef4444',
+                        borderWidth: 1.5,
+                        borderDash: [3, 3],
+                        pointRadius: 0,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { labels: { boxWidth: 10, font: { size: 9, weight: 700 } } }
+                },
+                scales: {
+                    y: { min: 0.0, max: 0.7, title: { display: true, text: 'Reflectance (ρ)', font: { size: 9 } }, ticks: { font: { size: 8 } } },
+                    x: { ticks: { maxTicksLimit: 8, font: { size: 8 } } }
+                }
+            }
+        });
+    } catch (e) {
+        console.error('Spectrogram error:', e);
+    }
+}
+
+// ----------------- GROWING DEGREE DAYS (GDD) & PHENOLOGY -----------------
+async function renderGDDPhenology() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/phenology/gdd-tracker?crop=${AppState.currentCrop}&mean_temp_c=30.5&days_since_sowing=48`);
+        const data = await res.json();
+
+        const subtitle = document.getElementById('gdd-subtitle');
+        const harvestDays = document.getElementById('gdd-harvest-days');
+        const advisoryPill = document.getElementById('gdd-advisory-pill');
+
+        if (subtitle) {
+            subtitle.textContent = `Thermal Time: ${data.accumulated_thermal_gdd} GDD / ${data.total_gdd_required} GDD (${data.phenological_progress_pct}%) • ${data.active_stage.name}`;
+        }
+        if (harvestDays) {
+            harvestDays.textContent = `Harvest in ~${data.active_stage.days_to_harvest_estimated} Days`;
+        }
+        if (advisoryPill) {
+            advisoryPill.innerHTML = `<strong>Critical Agronomic Action:</strong> ${data.active_stage.critical_agronomic_advisory}`;
+        }
+    } catch (e) {
+        console.error('Phenology tracking error:', e);
+    }
 }

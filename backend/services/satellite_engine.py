@@ -177,4 +177,130 @@ class SatelliteIntelligenceEngine:
             anomaly_notes=anomaly_notes
         )
 
+    def generate_uav_flight_mission(self, lat: float, lon: float, area_acres: float, crop: str, mean_ndvi: float) -> Dict[str, Any]:
+        """
+        Generates autonomous UAV precision spraying serpentine flight path with waypoints,
+        variable rate tank-mix dosing, battery endurance, and GeoJSON flight plan.
+        """
+        # Calculate bounding box offsets for acreage (approx square field)
+        side_m = np.sqrt(area_acres * 4046.86)
+        lat_offset = (side_m / 2.0) / 111320.0
+        lon_offset = (side_m / 2.0) / (111320.0 * np.cos(np.radians(lat)))
+
+        num_passes = max(4, int(side_m / 4.0))  # 4m swath width
+        waypoints = []
+        spray_zones = []
+
+        for i in range(num_passes):
+            fraction = i / (num_passes - 1)
+            y_lat = lat - lat_offset + fraction * (2 * lat_offset)
+            
+            # Serpentine back-and-forth pattern
+            if i % 2 == 0:
+                p1 = {"wp_id": len(waypoints) + 1, "lat": round(y_lat, 6), "lon": round(lon - lon_offset, 6), "alt_m": 15.0, "speed_ms": 4.5, "spray_active": True}
+                p2 = {"wp_id": len(waypoints) + 2, "lat": round(y_lat, 6), "lon": round(lon + lon_offset, 6), "alt_m": 15.0, "speed_ms": 4.5, "spray_active": True}
+            else:
+                p1 = {"wp_id": len(waypoints) + 1, "lat": round(y_lat, 6), "lon": round(lon + lon_offset, 6), "alt_m": 15.0, "speed_ms": 4.5, "spray_active": True}
+                p2 = {"wp_id": len(waypoints) + 2, "lat": round(y_lat, 6), "lon": round(lon - lon_offset, 6), "alt_m": 15.0, "speed_ms": 4.5, "spray_active": True}
+            
+            waypoints.append(p1)
+            waypoints.append(p2)
+
+        # Variable Rate Application per hectare: higher dose in stressed zones
+        base_spray_l_ha = 180.0
+        vra_spray_l_ha = round(base_spray_l_ha * (1.25 if mean_ndvi < 0.55 else 0.85), 1)
+        total_payload_liters = round((vra_spray_l_ha / 2.47) * area_acres, 1)
+        total_flight_dist_m = round(num_passes * side_m, 0)
+        est_flight_time_min = round((total_flight_dist_m / 4.5) / 60.0 + 2.0, 1)
+
+        return {
+            "mission_id": f"UAV-VRA-{int(lat*100)}_{int(lon*100)}",
+            "drone_model": "AgriFly Octocopter 25L Precision Sprayer (RTK-GPS Centimeter Accuracy)",
+            "target_crop": crop,
+            "acreage": area_acres,
+            "flight_parameters": {
+                "flight_altitude_meters": 15.0,
+                "cruise_speed_ms": 4.5,
+                "swath_width_meters": 4.0,
+                "total_flight_distance_meters": total_flight_dist_m,
+                "estimated_flight_time_minutes": est_flight_time_min,
+                "battery_consumption_pct": round(min(90.0, est_flight_time_min * 5.2), 1)
+            },
+            "spray_prescription": {
+                "flow_rate_liters_per_hectare": vra_spray_l_ha,
+                "total_payload_liquid_liters": total_payload_liters,
+                "droplet_vmd_microns": 180,  # Medium droplet prevents drift
+                "tank_mix_formulation": "Microbial Consortia + Micronutrient Chelates (Zn-EDTA + Boron)"
+            },
+            "waypoint_count": len(waypoints),
+            "waypoints": waypoints,
+            "geojson_path": {
+                "type": "LineString",
+                "coordinates": [[wp["lon"], wp["lat"]] for wp in waypoints]
+            }
+        }
+
+    def generate_hyperspectral_spectrogram(self, crop: str, mean_ndvi: float) -> Dict[str, Any]:
+        """
+        Synthesizes high-dimensional 100-band hyperspectral signature curve (400nm - 2400nm)
+        illustrating photosynthetic absorption, Red Edge shift, and cellular water absorption bands.
+        """
+        wavelengths = np.linspace(400, 2400, 101, dtype=int).tolist()
+        healthy_curve = []
+        stressed_curve = []
+        infected_curve = []
+
+        for wl in wavelengths:
+            # Biophysical optical physics model
+            if wl < 500: # Blue
+                h = 0.05 + 0.02 * np.sin(wl/50)
+                s = 0.08 + 0.02 * np.sin(wl/50)
+                inf = 0.11 + 0.03 * np.sin(wl/50)
+            elif wl < 680: # Green peak & Red Chlorophyll-a absorption dip at 680nm
+                h = 0.12 - 0.07 * (1.0 - np.exp(-((wl - 550)**2) / (2 * 35**2)))
+                s = 0.15 - 0.04 * (1.0 - np.exp(-((wl - 550)**2) / (2 * 35**2)))
+                inf = 0.18 - 0.02 * (1.0 - np.exp(-((wl - 550)**2) / (2 * 35**2)))
+            elif wl < 750: # Red Edge steep slope
+                progress = (wl - 680) / 70.0
+                h = 0.05 + progress * 0.42
+                s = 0.11 + progress * 0.28
+                inf = 0.16 + progress * 0.18
+            elif wl < 1300: # NIR plateau (Cellular structure scattering)
+                h = 0.48 + 0.03 * np.cos(wl/100)
+                s = 0.38 + 0.03 * np.cos(wl/100)
+                inf = 0.28 + 0.03 * np.cos(wl/100)
+            elif wl < 1900: # SWIR-1 with Water Absorption trough at 1450nm
+                water_dip_1 = 0.18 * np.exp(-((wl - 1450)**2) / (2 * 50**2))
+                h = 0.28 - water_dip_1
+                s = 0.34 - (water_dip_1 * 0.6) # Less water = higher reflectance
+                inf = 0.36 - (water_dip_1 * 0.4)
+            else: # SWIR-2 with Water Absorption trough at 1940nm
+                water_dip_2 = 0.20 * np.exp(-((wl - 1940)**2) / (2 * 60**2))
+                h = 0.22 - water_dip_2
+                s = 0.27 - (water_dip_2 * 0.6)
+                inf = 0.30 - (water_dip_2 * 0.4)
+
+            healthy_curve.append(round(float(np.clip(h, 0.02, 0.65)), 3))
+            stressed_curve.append(round(float(np.clip(s, 0.03, 0.65)), 3))
+            infected_curve.append(round(float(np.clip(inf, 0.05, 0.65)), 3))
+
+        return {
+            "spectral_range_nm": "400nm (Visible Blue) to 2400nm (Shortwave Infrared)",
+            "bands_sampled": len(wavelengths),
+            "wavelengths_nm": wavelengths,
+            "crop": crop,
+            "signatures": {
+                "healthy_vigorous_canopy": healthy_curve,
+                "water_stressed_canopy": stressed_curve,
+                "pathogen_infected_canopy": infected_curve
+            },
+            "diagnostic_absorption_features": {
+                "chlorophyll_a_trough": "680 nm (Strong absorption in healthy leaves)",
+                "red_edge_inflection_point_reip": "705 nm (Blue-shifted under nitrogen deficiency)",
+                "nir_cellular_scattering_plateau": "750-1100 nm (Internal spongy mesophyll integrity)",
+                "water_absorption_dip_1": "1450 nm (Canopy liquid water content)",
+                "water_absorption_dip_2": "1940 nm (Stomatal transpirational reservoir)"
+            }
+        }
+
 satellite_engine = SatelliteIntelligenceEngine()
