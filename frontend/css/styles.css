@@ -1041,6 +1041,73 @@ body {
     color: var(--text-primary);
 }
 
+/* GOOGLE EARTH ENGINE SPECTRAL STRIP */
+.gee-spectral-strip {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 1.15rem 1.35rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.gee-strip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.85rem;
+}
+
+.gee-title {
+    font-family: var(--font-display);
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.gee-mask-badge {
+    background: var(--brand-pastel);
+    color: var(--brand-primary);
+    border: 1px solid #a7f3d0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-xs);
+}
+
+.gee-bands-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.65rem;
+}
+
+.gee-band-cell {
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xs);
+    padding: 0.6rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.band-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+}
+
+.gee-band-cell strong {
+    font-family: var(--font-display);
+    font-size: 0.94rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+}
+
 .text-success { color: #047857; }
 .text-warning { color: #065f46; }
 .text-danger { color: #064e3b; }

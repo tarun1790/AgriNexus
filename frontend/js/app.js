@@ -399,6 +399,10 @@ async function fetchLiveFieldIntelligence(lat, lon, crop, area) {
         fetchSatelliteOverpass(lat, lon);
         fetchVRAPrescription(crop, area, data.satellite.mean_ndvi);
         fetchCarbonMRV(area);
+        fetchBharatAgData(lat, lon, crop);
+        fetchScientificBiophysics(lat, lon, crop);
+        fetchGEESpectralBands(lat, lon, crop);
+        fetchCarbonMRV(area);
         fetchIndianAgData(lat, lon, crop, area, data.field_profile.soil.organic_carbon, data.field_profile.soil.ph);
         fetchScientificBiophysics(crop, data.satellite.mean_ndvi);
 
@@ -574,6 +578,31 @@ async function fetchSatelliteOverpass(lat, lon) {
         const data = await res.json();
         const next = data.next_constellation_pass;
         document.getElementById('orbit-time-text').textContent = `In ${next.hours_until_pass}h (${next.spatial_resolution})`;
+    } catch (e) {}
+}
+
+async function fetchGEESpectralBands(lat, lon, crop) {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/gee/spectral-bands?lat=${lat}&lon=${lon}&crop=${crop}`);
+        const data = await res.json();
+        if (data && data.surface_reflectance_boa) {
+            const boa = data.surface_reflectance_boa;
+            const b2El = document.getElementById('gee-b2-val');
+            const b3El = document.getElementById('gee-b3-val');
+            const b4El = document.getElementById('gee-b4-val');
+            const b5El = document.getElementById('gee-b5-val');
+            const b8El = document.getElementById('gee-b8-val');
+            const b11El = document.getElementById('gee-b11-val');
+            const lstEl = document.getElementById('gee-lst-val');
+
+            if (b2El) b2El.textContent = boa.B2_BLUE_490nm.toFixed(3);
+            if (b3El) b3El.textContent = boa.B3_GREEN_560nm.toFixed(3);
+            if (b4El) b4El.textContent = boa.B4_RED_665nm.toFixed(3);
+            if (b5El) b5El.textContent = boa.B5_RED_EDGE_705nm.toFixed(3);
+            if (b8El) b8El.textContent = boa.B8_NIR_842nm.toFixed(3);
+            if (b11El) b11El.textContent = boa.B11_SWIR1_1610nm.toFixed(3);
+            if (lstEl && data.thermal_radiometry) lstEl.textContent = `${data.thermal_radiometry.land_surface_temperature_lst_c.toFixed(1)}°C`;
+        }
     } catch (e) {}
 }
 

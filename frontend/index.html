@@ -387,11 +387,49 @@
                             </div>
                             <div class="mini-stat">
                                 <span class="stat-label">Mean SAVI (L=0.5)</span>
-                                <span class="stat-value text-info" id="mean-savi-val">0.52</span>
+                                <span class="stat-value" id="mean-savi-val">0.52</span>
                             </div>
                             <div class="mini-stat">
                                 <span class="stat-label">Stress Anomaly Area</span>
-                                <span class="stat-value text-danger" id="stress-area-pct">31.5%</span>
+                                <span class="stat-value" id="stress-area-pct">31.5%</span>
+                            </div>
+                        </div>
+
+                        <!-- GOOGLE EARTH ENGINE LEVEL-2A SURFACE REFLECTANCE STRIP -->
+                        <div class="gee-spectral-strip" id="gee-spectral-strip" style="margin-top: 1.25rem;">
+                            <div class="gee-strip-header">
+                                <span class="gee-title"><i data-lucide="satellite"></i> Google Earth Engine (COPERNICUS/S2_SR_HARMONIZED)</span>
+                                <span class="gee-mask-badge">Cloud Score+ QA60 Masked</span>
+                            </div>
+                            <div class="gee-bands-grid">
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B2 (Blue)</span>
+                                    <strong id="gee-b2-val">0.045</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B3 (Green)</span>
+                                    <strong id="gee-b3-val">0.085</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B4 (Red)</span>
+                                    <strong id="gee-b4-val">0.055</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B5 (RedEdge)</span>
+                                    <strong id="gee-b5-val">0.145</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B8 (NIR)</span>
+                                    <strong id="gee-b8-val">0.380</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">B11 (SWIR1)</span>
+                                    <strong id="gee-b11-val">0.165</strong>
+                                </div>
+                                <div class="gee-band-cell">
+                                    <span class="band-tag">Landsat LST</span>
+                                    <strong id="gee-lst-val">31.8°C</strong>
+                                </div>
                             </div>
                         </div>
 
