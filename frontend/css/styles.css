@@ -2591,6 +2591,67 @@ body {
     background: #022c1b;
 }
 
+/* DEEP PYTORCH CUDA ANN LAB */
+.deep-ann-card {
+    background: var(--bg-card);
+}
+
+.ann-dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 1.25rem;
+}
+
+.ann-predictions-col {
+    background: var(--bg-base);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.ann-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.ann-loss-equation-box {
+    background: #f0fdf4;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius-xs);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.78rem;
+}
+
+.ann-layers-col {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.ann-layers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 230px;
+    overflow-y: auto;
+}
+
+.ann-layer-row {
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid #059669;
+    border-radius: var(--radius-xs);
+    padding: 0.4rem 0.65rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.76rem;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1080px) {
     .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {

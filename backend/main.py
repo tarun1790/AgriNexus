@@ -50,6 +50,7 @@ from backend.services.sif_fluorescence_service import sif_service
 from backend.services.isobus_export_service import isobus_service
 from backend.services.fertigation_hydraulic_service import fertigation_service
 from backend.services.pest_biofix_service import pest_biofix_service
+from backend.services.neural_network_service import ann_service
 from backend.services.scientific_agronomy_engine import scientific_engine
 from backend.data.demo_samples import DEMO_FARMS
 
@@ -662,6 +663,40 @@ def forecast_pest_biofix_instar(
     return pest_biofix_service.forecast_pest_instar_stage(
         crop=crop, mean_temp_c=mean_temp_c, days_since_biofix=days_since_biofix
     )
+
+# ----------------- PYTORCH CUDA DEEP ARTIFICIAL NEURAL NETWORK (PINN-ANN) -----------------
+@app.get("/api/v1/neural-network/predict")
+def run_neural_network_prediction(
+    ndvi: float = 0.61,
+    evi: float = 0.54,
+    ndwi: float = 0.38,
+    savi: float = 0.52,
+    sar_vv_db: float = -11.4,
+    sar_vh_db: float = -18.8,
+    sif_740: float = 2.14,
+    fv_fm: float = 0.812,
+    soil_ph: float = 6.4,
+    soil_oc_pct: float = 0.68,
+    clay_pct: float = 38.0,
+    sand_pct: float = 26.0,
+    temp_c: float = 30.5,
+    humidity_pct: float = 62.0,
+    radiation_mj: float = 21.5,
+    gdd_accumulated: float = 720.0
+):
+    return ann_service.run_inference(
+        ndvi=ndvi, evi=evi, ndwi=ndwi, savi=savi,
+        sar_vv_db=sar_vv_db, sar_vh_db=sar_vh_db,
+        sif_740=sif_740, fv_fm=fv_fm,
+        soil_ph=soil_ph, soil_oc_pct=soil_oc_pct,
+        clay_pct=clay_pct, sand_pct=sand_pct,
+        temp_c=temp_c, humidity_pct=humidity_pct,
+        radiation_mj=radiation_mj, gdd_accumulated=gdd_accumulated
+    )
+
+@app.get("/api/v1/neural-network/architecture")
+def get_neural_network_architecture():
+    return ann_service.get_model_architecture()
 
 # ----------------- FEDERATED LEARNING / DPI NETWORK -----------------
 @app.get("/api/v1/federated/nodes", response_model=List[FederatedNodeStatus])

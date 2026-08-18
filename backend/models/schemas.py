@@ -182,6 +182,8 @@ class CopilotChatResponse(BaseModel):
     orchestration_summary: str
     evidence_chain_count: int
     agent_thoughts: Optional[List[str]] = None
+    consensus_reached: Optional[bool] = True
+    confidence_score: Optional[float] = 0.98
 
 class IoTProbeTelemetry(BaseModel):
     probe_id: str

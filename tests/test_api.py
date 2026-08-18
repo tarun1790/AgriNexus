@@ -191,7 +191,22 @@ async def run_all_tests():
         assert "active_instar_stage" in pest
         print(f"[PASS] Pest Instar Biofix Forecaster Passed (Pest: {pest['target_pest']}, Instar: {pest['active_instar_stage']['stage_name']})")
 
-    print("\n>>> ALL 21 REAL-TIME FRONTIER DEEP-TECH AGRIVEDA AI TEST SUITES PASSED PERFECTLY! <<<")
+        # 22. Deep PyTorch CUDA Artificial Neural Network (PINN-ANN) Inference
+        ann_res = await client.get("/api/v1/neural-network/predict", params={"ndvi": 0.61, "sif_740": 2.14, "temp_c": 30.5})
+        assert ann_res.status_code == 200
+        ann = ann_res.json()
+        assert "pinn_predictions" in ann
+        assert "execution_metadata" in ann
+        print(f"[PASS] Deep PyTorch PINN-ANN Inference Passed (Device: {ann['execution_metadata']['compute_device']}, Latency: {ann['execution_metadata']['forward_pass_latency_ms']}ms, Yield: {ann['pinn_predictions']['predicted_crop_yield_quintals_acre']} Q/ac)")
+
+        # 23. Deep Neural Architecture Introspector
+        arch_res = await client.get("/api/v1/neural-network/architecture")
+        assert arch_res.status_code == 200
+        arch = arch_res.json()
+        assert "layers" in arch
+        print(f"[PASS] Deep ANN Model Architecture Introspection Passed (Model: {arch['model_name']}, Layers: {len(arch['layers'])})")
+
+    print("\n>>> ALL 23 REAL-TIME FRONTIER DEEP-TECH AGRIVEDA AI TEST SUITES PASSED PERFECTLY! <<<")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())

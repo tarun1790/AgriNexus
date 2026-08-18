@@ -1120,6 +1120,60 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- DEEP PYTORCH CUDA ARTIFICIAL NEURAL NETWORK (PINN-ANN) LAB -->
+                <div class="panel-card deep-ann-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="cpu"></i> Deep Physics-Informed Artificial Neural Network (PINN-ANN) Lab</h3>
+                            <span class="card-subtitle">PyTorch CUDA Tensor Engine • Residual Skip-Dense Blocks • Monteith RUE Regularization (FP32)</span>
+                        </div>
+                        <span class="sar-status-pill" id="ann-device-badge"><span class="pulse-dot"></span> NVIDIA CUDA • Latency: 1.4 ms</span>
+                    </div>
+
+                    <div class="ann-dashboard-grid" style="margin-top: 1rem;">
+                        <!-- Multi-Task Neural Predictions -->
+                        <div class="ann-predictions-col">
+                            <h4 style="font-size:0.86rem; font-weight:800; margin-bottom:0.6rem;"><i data-lucide="activity"></i> Multi-Head Tensor Outputs:</h4>
+                            <div class="ann-metrics-grid">
+                                <div class="mini-stat">
+                                    <span class="stat-label">Predicted Yield</span>
+                                    <strong class="stat-value text-success" id="ann-yield-val">24.8 Q/ac</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">SOC Sequestration</span>
+                                    <strong class="stat-value text-info" id="ann-carbon-val">+0.42 t CO2e/yr</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">Nitrogen Efficiency (NUE)</span>
+                                    <strong class="stat-value" id="ann-nue-val">78.4%</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">Sub-Cellular Stress</span>
+                                    <strong class="stat-value text-warning" id="ann-stress-val">0.12 (Optimal)</strong>
+                                </div>
+                            </div>
+
+                            <div class="ann-loss-equation-box" style="margin-top: 0.85rem;">
+                                <code>$\mathcal{L}_{Total} = \mathcal{L}_{MSE}(y, \hat{y}) + 0.15 \cdot \mathcal{L}_{Monteith}(Biomass, APAR)$</code>
+                                <div style="font-size: 0.74rem; color: #064e3b; margin-top: 0.3rem;">
+                                    Absorbed PAR: <strong id="ann-apar-val">8.42 MJ/m²</strong> • Physics Biomass Synthesis: <strong id="ann-biomass-val">23.6 g/m²</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Neural Architecture Layer Introspector -->
+                        <div class="ann-layers-col">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                                <h4 style="font-size:0.86rem; font-weight:800;"><i data-lucide="layers"></i> Layer Activations & Latency:</h4>
+                                <button class="btn btn-secondary btn-sm" id="btn-re-infer-ann"><i data-lucide="refresh-cw"></i> Run Forward Pass</button>
+                            </div>
+                            <div class="ann-layers-list" id="ann-layers-list">
+                                <!-- Layer rows populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- TAB 7: AI CROP DISEASE DIAGNOSTICS -->
