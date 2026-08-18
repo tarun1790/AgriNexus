@@ -1,5 +1,5 @@
 /**
- * AgriNexus v3.0 — Next-Generation Agricultural Intelligence System
+ * AgriVeda AI v3.0 — Next-Generation Agricultural Intelligence System
  * Real-Time Live Data Ingestion, 3D Canopy Digital Twin, Satellite Overpass Tracker,
  * Precision VRA Fertilizer Prescription, Drone UAV Thermal Imaging, and BRICS Carbon MRV Ledger.
  */
@@ -57,6 +57,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMandiSpatialArbitrage();
     initHydrusProfile();
     initWALESTankMixLab();
+    initSIFFluorometry();
+    initISOBUSExporter();
+    initFertigationEngine();
+    initPestBiofix();
     
     await checkSystemHealth();
 
@@ -2841,3 +2845,138 @@ function initWALESTankMixLab() {
     checkboxes.forEach(cb => cb.addEventListener('change', runCheck));
     runCheck();
 }
+
+// ----------------- SIF FLUORESCENCE & QUANTUM EFFICIENCY LAB -----------------
+async function initSIFFluorometry() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/sif/telemetry?lat=${AppState.currentLat}&lon=${AppState.currentLon}&crop=${AppState.currentCrop}&ndvi=${AppState.satelliteData ? AppState.satelliteData.mean_ndvi : 0.61}&temp_c=30.5`);
+        const data = await res.json();
+        const tel = data.telemetry;
+
+        const s740El = document.getElementById('sif-740-val');
+        const fvfmEl = document.getElementById('sif-fvfm-val');
+        const ratioEl = document.getElementById('sif-ratio-val');
+        const npqEl = document.getElementById('sif-npq-val');
+        const statusEl = document.getElementById('sif-status-badge');
+        const preEl = document.getElementById('sif-prewarning-text');
+
+        if (s740El) s740El.textContent = `${tel.sif_radiance_740nm_mw_m2_sr_nm} mW/m²`;
+        if (fvfmEl) fvfmEl.textContent = `${tel.fv_fm_photosystem_ii_quantum_efficiency}`;
+        if (ratioEl) ratioEl.textContent = `${tel.canopy_sif_to_ndvi_yield_ratio}`;
+        if (npqEl) npqEl.textContent = `${tel.non_photochemical_quenching_npq} NPQ`;
+        if (statusEl) statusEl.innerHTML = `<span class="pulse-dot"></span> Photosystem II (Fv/Fm: ${tel.fv_fm_photosystem_ii_quantum_efficiency})`;
+        if (preEl) preEl.innerHTML = `<strong>⚡ Pre-Symptomatic SIF Diagnostic:</strong> ${data.diagnostic_summary.actionable_biophysical_advice}`;
+    } catch (e) {
+        console.error('SIF telemetry error:', e);
+    }
+}
+
+// ----------------- TRACTOR ISOBUS ISO-11783 VRA TASK EXPORTER -----------------
+function initISOBUSExporter() {
+    const xmlBtn = document.getElementById('btn-export-isobus-xml');
+    const geoBtn = document.getElementById('btn-export-isobus-geo');
+
+    const fetchAndDownload = async (format) => {
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/isobus/export-task`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    farm_id: 'realtime_custom_field',
+                    crop: AppState.currentCrop,
+                    area_acres: AppState.currentArea
+                })
+            });
+            const data = await res.json();
+
+            let content, filename, mime;
+            if (format === 'xml') {
+                content = data.iso_xml_string;
+                filename = 'TASKDATA.XML';
+                mime = 'application/xml';
+            } else {
+                content = JSON.stringify(data.geojson_task_map, null, 2);
+                filename = 'AgriVeda_VRA_Zones.geojson';
+                mime = 'application/json';
+            }
+
+            const blob = new Blob([content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('ISOBUS export error:', e);
+        }
+    };
+
+    if (xmlBtn) xmlBtn.addEventListener('click', () => fetchAndDownload('xml'));
+    if (geoBtn) geoBtn.addEventListener('click', () => fetchAndDownload('geojson'));
+}
+
+// ----------------- HAZEN-WILLIAMS DRIP FERTIGATION HYDRAULICS -----------------
+function initFertigationEngine() {
+    const slider = document.getElementById('fert-pressure-slider');
+    if (!slider) return;
+
+    const updateFertigation = async () => {
+        const pBar = parseFloat(slider.value);
+        const pText = document.getElementById('fert-pressure-val');
+        if (pText) pText.textContent = `${pBar.toFixed(2)} bar (${(pBar * 10.2).toFixed(1)} m Head)`;
+
+        try {
+            const res = await fetch(`${API_BASE}/api/v1/fertigation/hydraulic-calc?operating_pressure_bar=${pBar}&lateral_length_meters=100.0&nominal_emitter_lph=2.2&fertilizer_solution_liters=80.0`);
+            const data = await res.json();
+            const fl = data.friction_loss_analysis;
+            const vf = data.venturi_fertigation_dosing;
+
+            const hfEl = document.getElementById('fert-hf-val');
+            const tailEl = document.getElementById('fert-tail-val');
+            const suctionEl = document.getElementById('fert-suction-val');
+            const timeEl = document.getElementById('fert-time-val');
+            const euBadge = document.getElementById('fertigation-eu-badge');
+
+            if (hfEl) hfEl.textContent = `${fl.hazen_williams_head_loss_meters} m`;
+            if (tailEl) tailEl.textContent = `${fl.tail_end_pressure_bar} bar`;
+            if (suctionEl) suctionEl.textContent = `${vf.venturi_injection_suction_rate_lph} L/hr`;
+            if (timeEl) timeEl.textContent = `${(vf.required_injection_time_minutes / 60.0).toFixed(1)} Hours`;
+            if (euBadge) euBadge.textContent = `Uniformity DU: ${fl.emission_uniformity_eu_pct}% (${fl.uniformity_grade})`;
+        } catch (e) {
+            console.error('Fertigation hydraulic error:', e);
+        }
+    };
+
+    slider.addEventListener('input', updateFertigation);
+    updateFertigation();
+}
+
+// ----------------- THERMAL DEGREE-DAY PEST BIOFIX FORECASTER -----------------
+async function initPestBiofix() {
+    try {
+        const res = await fetch(`${API_BASE}/api/v1/pest/biofix-forecast?crop=${AppState.currentCrop}&mean_temp_c=30.5&days_since_biofix=6`);
+        const data = await res.json();
+        const bp = data.biofix_parameters;
+        const act = data.active_instar_stage;
+
+        const subEl = document.getElementById('pest-name-subtitle');
+        const badgeEl = document.getElementById('pest-urgency-badge');
+        const ddEl = document.getElementById('pest-dd-val');
+        const progEl = document.getElementById('pest-progress-val');
+        const stageEl = document.getElementById('pest-stage-val');
+        const actEl = document.getElementById('pest-action-text');
+
+        if (subEl) subEl.textContent = `${data.target_pest} (${data.scientific_name}) • Biofix Day #${bp.days_since_pheromone_trap_biofix}`;
+        if (badgeEl) badgeEl.textContent = act.urgency_badge;
+        if (ddEl) ddEl.textContent = `${bp.accumulated_degree_days_dd} DD`;
+        if (progEl) progEl.textContent = `${bp.life_cycle_completion_pct}%`;
+        if (stageEl) stageEl.textContent = act.stage_name;
+        if (actEl) actEl.innerHTML = `<strong>Optimal Intervention Window:</strong> ${act.optimal_intervention}`;
+    } catch (e) {
+        console.error('Pest biofix error:', e);
+    }
+}
+

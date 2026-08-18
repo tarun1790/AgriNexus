@@ -162,7 +162,36 @@ async def run_all_tests():
         assert len(arb["mandi_arbitrage_leaderboard"]) >= 3
         print(f"[PASS] Mandi Spatial Arbitrage Passed (Best: {arb['best_destination']['mandi_name']}, Net Rate: INR {arb['best_destination']['net_price_per_q']}/Q)")
 
-    print("\n>>> ALL 17 REAL-TIME ULTRA-ADVANCED AGRINEXUS TEST SUITES PASSED PERFECTLY! <<<")
+        # 18. Solar-Induced Chlorophyll Fluorescence (SIF & Fv/Fm)
+        sif_res = await client.get("/api/v1/sif/telemetry", params={"lat": 16.5062, "lon": 80.6480, "crop": "Cotton", "ndvi": 0.61, "temp_c": 30.5})
+        assert sif_res.status_code == 200
+        sif = sif_res.json()
+        assert "telemetry" in sif
+        print(f"[PASS] SIF Photochemical Quantum Yield Passed (740nm: {sif['telemetry']['sif_radiance_740nm_mw_m2_sr_nm']} mW/m2, Fv/Fm: {sif['telemetry']['fv_fm_photosystem_ii_quantum_efficiency']})")
+
+        # 19. Tractor ISOBUS ISO-11783 Task Map Generator
+        iso_res = await client.post("/api/v1/isobus/export-task", json={"farm_id": "realtime_custom_field", "crop": "Cotton", "area_acres": 2.4})
+        assert iso_res.status_code == 200
+        iso = iso_res.json()
+        assert "iso_xml_string" in iso
+        assert "geojson_task_map" in iso
+        print(f"[PASS] Tractor ISOBUS TaskData Passed (Standard: {iso['format_standard']}, Zones: {iso['geojson_task_map']['metadata']['total_zones']})")
+
+        # 20. Sub-Surface Drip Fertigation & Hazen-Williams Hydraulic Engine
+        fert_res = await client.get("/api/v1/fertigation/hydraulic-calc", params={"operating_pressure_bar": 1.5, "lateral_length_meters": 100.0, "nominal_emitter_lph": 2.2, "fertilizer_solution_liters": 80.0})
+        assert fert_res.status_code == 200
+        fert = fert_res.json()
+        assert "friction_loss_analysis" in fert
+        print(f"[PASS] Hazen-Williams Drip Fertigation Passed (Head Loss: {fert['friction_loss_analysis']['hazen_williams_head_loss_meters']}m, DU: {fert['friction_loss_analysis']['emission_uniformity_eu_pct']}%)")
+
+        # 21. Thermal Degree-Day Biofix Pest Instar Forecaster
+        pest_res = await client.get("/api/v1/pest/biofix-forecast", params={"crop": "Cotton", "mean_temp_c": 30.5, "days_since_biofix": 6})
+        assert pest_res.status_code == 200
+        pest = pest_res.json()
+        assert "active_instar_stage" in pest
+        print(f"[PASS] Pest Instar Biofix Forecaster Passed (Pest: {pest['target_pest']}, Instar: {pest['active_instar_stage']['stage_name']})")
+
+    print("\n>>> ALL 21 REAL-TIME FRONTIER DEEP-TECH AGRIVEDA AI TEST SUITES PASSED PERFECTLY! <<<")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())

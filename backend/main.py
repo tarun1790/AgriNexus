@@ -1,9 +1,10 @@
 import os
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from typing import Optional, List, Dict, Any
+from pydantic import BaseModel
 
 from backend.models.schemas import (
     FarmProfile,
@@ -45,11 +46,15 @@ from backend.services.regional_soil_knowledge import regional_soil_service
 from backend.services.indian_agri_data_service import indian_agri_service
 from backend.services.sar_radar_service import sar_radar_service
 from backend.services.tankmix_service import tankmix_service
+from backend.services.sif_fluorescence_service import sif_service
+from backend.services.isobus_export_service import isobus_service
+from backend.services.fertigation_hydraulic_service import fertigation_service
+from backend.services.pest_biofix_service import pest_biofix_service
 from backend.services.scientific_agronomy_engine import scientific_engine
 from backend.data.demo_samples import DEMO_FARMS
 
 app = FastAPI(
-    title="AgriNexus API — AI Digital Public Infrastructure for Climate-Resilient Agriculture",
+    title="AgriVeda AI API — Sovereign Digital Public Infrastructure for Climate-Resilient Agriculture",
     version="3.0.0",
     description="Live Real-Time Cross-Border Agronomic Intelligence DPI powered by Google AI (Gemini, Vertex AI, Google Earth Engine, BigQuery, Cloud Speech), Live Meteorological Ingestion, VRA Precision Maps, Satellite Overpass Tracker, and Federated Learning."
 )
@@ -82,7 +87,7 @@ def health_check():
     import torch
     return {
         "status": "online",
-        "service": "AgriNexus Real-Time Agricultural Intelligence Engine v3.0 (Next-Gen)",
+        "service": "AgriVeda AI Real-Time Agricultural Intelligence Engine v3.0 (Next-Gen)",
         "live_data_ingestion": {
             "meteorological_stream": "Open-Meteo & IMD High-Resolution Real-Time Grids",
             "soilgrids_stream": "ISRIC Global SoilGrids 250m REST API",
@@ -598,6 +603,64 @@ def get_mandi_spatial_arbitrage(
 ):
     return indian_agri_service.calculate_spatial_arbitrage(
         lat=lat, lon=lon, crop=crop, harvest_quintals=harvest_quintals
+    )
+
+# ----------------- SOLAR-INDUCED CHLOROPHYLL FLUORESCENCE (SIF) -----------------
+@app.get("/api/v1/sif/telemetry")
+def get_sif_telemetry(
+    lat: float = 16.5062,
+    lon: float = 80.6480,
+    crop: str = "Cotton",
+    ndvi: float = 0.61,
+    temp_c: float = 30.5
+):
+    return sif_service.calculate_sif_telemetry(
+        lat=lat, lon=lon, crop=crop, ndvi=ndvi, temp_c=temp_c
+    )
+
+# ----------------- TRACTOR ISOBUS ISO-11783 VRA PRESCRIPTION EXPORT -----------------
+class ISOBUSExportRequest(BaseModel):
+    farm_id: str = "farm_custom_01"
+    crop: str = "Cotton"
+    area_acres: float = 2.4
+    zones_data: Optional[List[Dict[str, Any]]] = None
+
+@app.post("/api/v1/isobus/export-task")
+def export_isobus_task_file(
+    req: ISOBUSExportRequest = Body(...)
+):
+    return isobus_service.generate_isobus_task_file(
+        farm_id=req.farm_id, crop=req.crop, area_acres=req.area_acres, zones_data=req.zones_data or []
+    )
+
+# ----------------- SUB-SURFACE DRIP FERTIGATION HYDRAULICS -----------------
+@app.get("/api/v1/fertigation/hydraulic-calc")
+def calculate_drip_fertigation_hydraulics(
+    operating_pressure_bar: float = 1.5,
+    lateral_length_meters: float = 100.0,
+    emitter_spacing_meters: float = 0.4,
+    nominal_emitter_lph: float = 2.2,
+    internal_diameter_mm: float = 16.0,
+    fertilizer_solution_liters: float = 80.0
+):
+    return fertigation_service.calculate_fertigation_hydraulics(
+        operating_pressure_bar=operating_pressure_bar,
+        lateral_length_meters=lateral_length_meters,
+        emitter_spacing_meters=emitter_spacing_meters,
+        nominal_emitter_lph=nominal_emitter_lph,
+        internal_diameter_mm=internal_diameter_mm,
+        fertilizer_solution_liters=fertilizer_solution_liters
+    )
+
+# ----------------- THERMAL DEGREE-DAY PEST BIOFIX FORECAST -----------------
+@app.get("/api/v1/pest/biofix-forecast")
+def forecast_pest_biofix_instar(
+    crop: str = "Cotton",
+    mean_temp_c: float = 30.5,
+    days_since_biofix: int = 6
+):
+    return pest_biofix_service.forecast_pest_instar_stage(
+        crop=crop, mean_temp_c=mean_temp_c, days_since_biofix=days_since_biofix
     )
 
 # ----------------- FEDERATED LEARNING / DPI NETWORK -----------------

@@ -187,7 +187,7 @@ class GeminiAutonomousOrchestrator:
         else:
             nearest_m = mandi_data[0] if mandi_data else {}
             reply_text = (
-                f"🌾 **AgriNexus Field Response for {crop}**\n\n"
+                f"🌾 **AgriVeda Field Response for {crop}**\n\n"
                 f"You asked: *\"{user_query}\"*\n\n"
                 f"📍 **Field Telemetry at GPS ({lat:.4f}, {lon:.4f}):**\n"
                 f"• **Soil Series:** {regional_soil['soil_series_name']} (pH {live_soil.ph}, OC {live_soil.organic_carbon}%)\n"

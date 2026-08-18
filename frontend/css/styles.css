@@ -2389,6 +2389,208 @@ body {
     margin-right: 0.3rem;
 }
 
+/* SIF FLUORESCENCE LAB */
+.sif-fluorescence-card {
+    background: var(--bg-card);
+}
+
+.sif-telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.sif-stat-box {
+    background: #022c1b;
+    border: 1px solid #059669;
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.sif-lbl {
+    font-size: 0.72rem;
+    color: #a7f3d0;
+    font-weight: 700;
+}
+
+.sif-val {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0.25rem 0;
+}
+
+.sif-sub {
+    font-size: 0.68rem;
+    color: #6ee7b7;
+}
+
+.sif-pre-warning-box {
+    background: #f0fdf4;
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius-xs);
+    padding: 0.65rem 0.95rem;
+    font-size: 0.82rem;
+    color: #064e3b;
+    line-height: 1.4;
+}
+
+/* TRACTOR ISOBUS ACTION STRIP */
+.isobus-action-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.15rem;
+}
+
+.isobus-buttons {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.btn-isobus-xml, .btn-isobus-geo {
+    background: #022c1b;
+    color: #ffffff;
+    border: 1px solid #059669;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.78rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-isobus-xml:hover, .btn-isobus-geo:hover {
+    background: #059669;
+}
+
+/* HAZEN-WILLIAMS DRIP FERTIGATION */
+.fertigation-card {
+    background: #ffffff;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+
+.fertigation-tuner-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1.25rem;
+}
+
+.fertigation-slider-box {
+    background: var(--bg-base);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xs);
+    padding: 0.85rem;
+}
+
+.fert-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+/* PEST BIOFIX CARD */
+.pest-biofix-card {
+    background: var(--bg-card);
+}
+
+.pest-metrics-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+
+.pest-action-box {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius-xs);
+    padding: 0.65rem 0.95rem;
+    font-size: 0.82rem;
+    color: #991b1b;
+    line-height: 1.4;
+}
+
+/* MULTI-AGENT TREE-OF-THOUGHTS (ToT) DAG VISUALIZER */
+.tot-dag-container {
+    background: #021a10;
+    border: 1px solid #059669;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.tot-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.76rem;
+    color: #a7f3d0;
+    margin-bottom: 0.5rem;
+}
+
+.tot-latency-pill {
+    background: rgba(5, 150, 105, 0.3);
+    color: #34d399;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+}
+
+.tot-dag-nodes {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.tot-node {
+    background: #064e3b;
+    color: #ffffff;
+    border: 1px solid #10b981;
+    border-radius: var(--radius-xs);
+    padding: 0.3rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: default;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.3);
+    transition: all 0.2s ease;
+}
+.tot-node:hover {
+    transform: scale(1.05);
+    background: #047857;
+}
+
+.tot-connector {
+    width: 2px;
+    height: 8px;
+    background: #34d399;
+}
+
+.tot-branches-row {
+    display: flex;
+    gap: 0.45rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.tot-branches-row .tot-node {
+    font-size: 0.66rem;
+    padding: 0.25rem 0.45rem;
+    background: #022c1b;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1080px) {
     .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {

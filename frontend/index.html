@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriNexus v3.0 — AI Digital Public Infrastructure for Climate-Resilient Agriculture</title>
+    <title>AgriVeda AI — Sovereign Agricultural Intelligence & Climate Digital Public Infrastructure</title>
     <meta name="description" content="Next-Gen Agricultural Intelligence: Live GPS, Sentinel-2 & Micro-UAV Drone Thermal Imaging, 3D Canopy Digital Twin, VRA Fertilizer Prescription, Bharat AgData Hub, and BRICS Carbon MRV Ledger.">
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -34,11 +34,11 @@
         <!-- Top Navigation Header -->
         <header class="top-nav" id="top-nav">
             <div class="nav-brand">
-                <div class="brand-logo" title="AgriNexus Rice Grains Identity">
-                    <img src="/static/assets/rice_logo.svg" alt="AgriNexus Rice Grains Logo" width="38" height="38" class="rice-logo-img">
+                <div class="brand-logo" title="AgriVeda Rice Grains Identity">
+                    <img src="/static/assets/rice_logo.svg" alt="AgriVeda Rice Grains Logo" width="38" height="38" class="rice-logo-img">
                 </div>
                 <div class="brand-text">
-                    <h1>AgriNexus <span class="version-badge">v3.0</span></h1>
+                    <h1>AgriVeda <span class="version-badge">AI</span></h1>
                     <span class="brand-subtitle">Autonomous Climate-Resilient Agricultural Digital Public Infrastructure</span>
                 </div>
             </div>
@@ -624,6 +624,44 @@
                         <strong>C-Band SAR Radar Insight:</strong> Microwave radar penetrated 6.4 cm beneath crust, measuring root-zone volumetric moisture of 24.0% through heavy cloud cover.
                     </div>
                 </div>
+
+                <!-- SOLAR-INDUCED CHLOROPHYLL FLUORESCENCE (SIF) & QUANTUM EFFICIENCY LAB -->
+                <div class="panel-card sif-fluorescence-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="sun-medium"></i> Solar-Induced Chlorophyll Fluorescence (SIF) & Photochemical Quantum Yield Lab</h3>
+                            <span class="card-subtitle">Sentinel-5P TROPOMI & OCO-3 (740nm & 760nm Fraunhofer O₂-A/B Bands) • 48-72h Pre-Symptomatic Early Warning</span>
+                        </div>
+                        <span class="sar-status-pill" id="sif-status-badge"><span class="pulse-dot"></span> Photosystem II Active (Fv/Fm: 0.812)</span>
+                    </div>
+
+                    <div class="sif-telemetry-grid">
+                        <div class="sif-stat-box">
+                            <span class="sif-lbl">Far-Red SIF (740nm)</span>
+                            <strong class="sif-val text-success" id="sif-740-val">2.14 mW/m²</strong>
+                            <span class="sif-sub">PS-I/II Photon Emission</span>
+                        </div>
+                        <div class="sif-stat-box">
+                            <span class="sif-lbl">PS-II Quantum Yield (Fv/Fm)</span>
+                            <strong class="sif-val text-info" id="sif-fvfm-val">0.812</strong>
+                            <span class="sif-sub">Optimum: 0.78 - 0.84</span>
+                        </div>
+                        <div class="sif-stat-box">
+                            <span class="sif-lbl">SIF / NDVI Yield Ratio</span>
+                            <strong class="sif-val" id="sif-ratio-val">3.51</strong>
+                            <span class="sif-sub">Photochemical Efficiency</span>
+                        </div>
+                        <div class="sif-stat-box">
+                            <span class="sif-lbl">Non-Photochemical Quenching</span>
+                            <strong class="sif-val text-warning" id="sif-npq-val">0.25 NPQ</strong>
+                            <span class="sif-sub">Stomatal Heat Dissipation</span>
+                        </div>
+                    </div>
+
+                    <div class="sif-pre-warning-box" id="sif-prewarning-text" style="margin-top: 1rem;">
+                        <strong>⚡ Pre-Symptomatic SIF Diagnostic:</strong> Photosystem II reaction centers operating with optimal electron transport. Zero cellular photo-inhibition detected across the canopy.
+                    </div>
+                </div>
             </section>
 
             <!-- TAB 2: 🇮🇳 BHARAT AGDATA HUB & MANDI INTELLIGENCE -->
@@ -772,6 +810,61 @@
 
                     <div class="vra-zones-grid" id="vra-zones-grid" style="margin-top: 1.5rem;">
                         <!-- Dynamically populated VRA zones -->
+                    </div>
+
+                    <!-- TRACTOR ISOBUS ISO-11783 TASK EXPORTER BAR -->
+                    <div class="isobus-action-strip" style="margin-top: 1.25rem;">
+                        <div class="isobus-info">
+                            <strong><i data-lucide="tractor"></i> On-Board Tractor Terminal Compatibility:</strong>
+                            <span style="font-size: 0.76rem; color: var(--text-secondary); margin-left: 0.4rem;">John Deere GS4/G5 • Trimble TMX-2050 • Topcon X35 • Case IH AFS</span>
+                        </div>
+                        <div class="isobus-buttons">
+                            <button class="btn-isobus-xml" id="btn-export-isobus-xml"><i data-lucide="file-code"></i> <span>Export ISO-11783 Task XML</span></button>
+                            <button class="btn-isobus-geo" id="btn-export-isobus-geo"><i data-lucide="map"></i> <span>Export GeoJSON Shapefile</span></button>
+                        </div>
+                    </div>
+
+                    <!-- HAZEN-WILLIAMS DRIP FERTIGATION HYDRAULIC ENGINE -->
+                    <div class="fertigation-card" style="margin-top: 1.5rem;">
+                        <div class="card-header">
+                            <div>
+                                <h4><i data-lucide="gauge"></i> Sub-Surface Drip Fertigation & Hazen-Williams Hydraulic Engine</h4>
+                                <span class="card-subtitle">Friction Head Loss (hf) • Venturi Vacuum Suction (L/hr) • Emission Uniformity (DU ≥ 92%)</span>
+                            </div>
+                            <span class="sar-status-pill" id="fertigation-eu-badge">Uniformity DU: 94.2% (Class A)</span>
+                        </div>
+
+                        <div class="fertigation-tuner-layout" style="margin-top: 1rem;">
+                            <div class="fertigation-slider-box">
+                                <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:700;">
+                                    <span>Operating Pump Pressure:</span>
+                                    <strong id="fert-pressure-val">1.50 bar (15.3 m Head)</strong>
+                                </div>
+                                <input type="range" id="fert-pressure-slider" min="1.0" max="2.5" step="0.1" value="1.5" class="custom-range" style="margin-top: 0.4rem;">
+                                <div style="font-size: 0.72rem; color: var(--text-muted); display:flex; justify-content:space-between; margin-top:0.2rem;">
+                                    <span>1.0 bar (Low Pressure)</span><span>1.5 bar (Optimal)</span><span>2.5 bar (High Pressure)</span>
+                                </div>
+                            </div>
+
+                            <div class="fert-metrics-grid">
+                                <div class="mini-stat">
+                                    <span class="stat-label">Hazen-Williams Head Loss (hf)</span>
+                                    <strong class="stat-value" id="fert-hf-val">0.34 m</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">Tail-End Lateral Pressure</span>
+                                    <strong class="stat-value text-success" id="fert-tail-val">1.47 bar</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">Venturi Fertilizer Suction</span>
+                                    <strong class="stat-value text-info" id="fert-suction-val">18.1 L/hr</strong>
+                                </div>
+                                <div class="mini-stat">
+                                    <span class="stat-label">Total Fertigation Cycle Time</span>
+                                    <strong class="stat-value text-warning" id="fert-time-val">4.4 Hours</strong>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1189,6 +1282,38 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- THERMAL DEGREE-DAY PEST INSTAR BIOFIX FORECASTER -->
+                <div class="panel-card pest-biofix-card" style="margin-top: 1.75rem;">
+                    <div class="card-header">
+                        <div>
+                            <h3><i data-lucide="bug"></i> Multi-Genomic Thermal Degree-Day (DD) Pest Instar Forecaster</h3>
+                            <span class="card-subtitle" id="pest-name-subtitle">Pink Bollworm (Pectinophora gossypiella) • Biofix Day #6</span>
+                        </div>
+                        <span class="sar-status-pill" id="pest-urgency-badge">🚨 ACTION REQUIRED (Peak 72h Window)</span>
+                    </div>
+
+                    <div class="pest-biofix-layout" style="margin-top: 1rem;">
+                        <div class="pest-metrics-summary">
+                            <div class="mini-stat">
+                                <span class="stat-label">Accumulated Degree-Days</span>
+                                <strong class="stat-value text-danger" id="pest-dd-val">111.0 DD</strong>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="stat-label">Generation Progress</span>
+                                <strong class="stat-value" id="pest-progress-val">23.1%</strong>
+                            </div>
+                            <div class="mini-stat">
+                                <span class="stat-label">Active Instar Stage</span>
+                                <strong class="stat-value text-warning" id="pest-stage-val">1st-2nd Instar Crawlers</strong>
+                            </div>
+                        </div>
+
+                        <div class="pest-action-box" id="pest-action-text" style="margin-top: 0.85rem;">
+                            <strong>Optimal Intervention Window:</strong> CRITICAL 72h WINDOW: Neem Oil (10,000 ppm) + Emamectin Benzoate 5% SG before larvae bore into green cotton bolls.
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- TAB 8: FEDERATED DPI NETWORK -->
@@ -1316,6 +1441,25 @@
                     <button class="close-copilot-btn" id="close-copilot-btn"><i data-lucide="x"></i></button>
                 </div>
 
+                <!-- Live Multi-Agent Tree-of-Thoughts (ToT) DAG Graph Visualizer -->
+                <div class="tot-dag-container" id="tot-dag-container">
+                    <div class="tot-header">
+                        <span><i data-lucide="git-fork"></i> <strong>Multi-Agent Tree of Thoughts (ToT):</strong></span>
+                        <span class="tot-latency-pill">Latency: &lt;42ms • Cons: 98.4%</span>
+                    </div>
+                    <div class="tot-dag-nodes">
+                        <div class="tot-node root" title="Farmer Context / Query Ingestion">🌱 Root Context</div>
+                        <div class="tot-connector"></div>
+                        <div class="tot-branches-row">
+                            <div class="tot-node agent1" title="Gemini 3.6 Pro: Multispectral SIF, SAR & NDVI">🛰️ Satellite Scout</div>
+                            <div class="tot-node agent2" title="Gemini 3.5 Pro: Hydrus-1D & Soil Microbiology">🧪 Soil Specialist</div>
+                            <div class="tot-node agent3" title="Gemini 3.5 Flash: FAO-56 Penman-Monteith & GKMS">🌦️ Climate Forecaster</div>
+                        </div>
+                        <div class="tot-connector"></div>
+                        <div class="tot-node consensus" title="Gemini 3.6 Consensus Synthesis & Actionable Prescription">🧠 Consensus Synthesis</div>
+                    </div>
+                </div>
+
                 <!-- Live Agent Thought Stream & Tool Invocations Console -->
                 <div class="agent-thoughts-box" id="agent-thoughts-box">
                     <div class="thoughts-header">
@@ -1328,7 +1472,7 @@
 
                 <div class="copilot-messages" id="copilot-messages">
                     <div class="msg-bot">
-                        👋 Hello! I am your <strong>AgriNexus Copilot</strong>, powered by autonomous multi-agent reasoning and 3 specialized agronomic sub-agents (Satellite Scout, Soil Microbiome, and Hydrology Forecaster). Ask me anything about your field!
+                        👋 Hello! I am your <strong>AgriVeda AI Copilot</strong>, powered by autonomous multi-agent reasoning and 3 specialized agronomic sub-agents (Satellite Scout, Soil Microbiome, and Hydrology Forecaster). Ask me anything about your field!
                     </div>
                 </div>
 
