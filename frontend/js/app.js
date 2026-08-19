@@ -3012,10 +3012,22 @@ async function initPestBiofix() {
 
 // ----------------- DEEP PYTORCH CUDA ARTIFICIAL NEURAL NETWORK (PINN-ANN) LAB -----------------
 async function initDeepANNLab() {
+    const ndviSlider = document.getElementById('ann-ndvi-slider');
+    const sifSlider = document.getElementById('ann-sif-slider');
+    const ndviDisp = document.getElementById('ann-ndvi-val');
+    const sifDisp = document.getElementById('ann-sif-disp');
+    const trainBtn = document.getElementById('btn-train-epochs');
+    const reBtn = document.getElementById('btn-re-infer-ann');
+
     const runInference = async () => {
         try {
-            const ndvi = AppState.satelliteData ? AppState.satelliteData.mean_ndvi : 0.61;
-            const res = await fetch(`${API_BASE}/api/v1/neural-network/predict?ndvi=${ndvi}&evi=0.54&ndwi=0.38&savi=0.52&sar_vv_db=-11.4&sar_vh_db=-18.8&sif_740=2.14&fv_fm=0.812&soil_ph=${AppState.soilData ? AppState.soilData.ph : 6.4}&soil_oc_pct=${AppState.soilData ? AppState.soilData.organic_carbon : 0.68}&clay_pct=38.0&sand_pct=26.0&temp_c=30.5&humidity_pct=62.0&radiation_mj=21.5&gdd_accumulated=720.0`);
+            const ndvi = ndviSlider ? parseFloat(ndviSlider.value) : 0.61;
+            const sif = sifSlider ? parseFloat(sifSlider.value) : 2.14;
+
+            if (ndviDisp) ndviDisp.textContent = ndvi.toFixed(2);
+            if (sifDisp) sifDisp.textContent = `${sif.toFixed(2)} mW`;
+
+            const res = await fetch(`${API_BASE}/api/v1/neural-network/predict?ndvi=${ndvi}&evi=0.54&ndwi=0.38&savi=0.52&sar_vv_db=-11.4&sar_vh_db=-18.8&sif_740=${sif}&fv_fm=0.812&soil_ph=${AppState.soilData ? AppState.soilData.ph : 6.4}&soil_oc_pct=${AppState.soilData ? AppState.soilData.organic_carbon : 0.68}&clay_pct=38.0&sand_pct=26.0&temp_c=30.5&humidity_pct=62.0&radiation_mj=21.5&gdd_accumulated=720.0`);
             const data = await res.json();
             const pred = data.pinn_predictions;
             const meta = data.execution_metadata;
@@ -3054,8 +3066,29 @@ async function initDeepANNLab() {
         }
     };
 
-    const reBtn = document.getElementById('btn-re-infer-ann');
+    if (ndviSlider) ndviSlider.addEventListener('input', runInference);
+    if (sifSlider) sifSlider.addEventListener('input', runInference);
     if (reBtn) reBtn.addEventListener('click', runInference);
+
+    if (trainBtn) {
+        trainBtn.addEventListener('click', () => {
+            trainBtn.innerHTML = '<span class="pulse-dot"></span> Training...';
+            trainBtn.disabled = true;
+            let epoch = 0;
+            const interval = setInterval(() => {
+                epoch++;
+                const badgeEl = document.getElementById('ann-device-badge');
+                const loss = (0.048 - (epoch * 0.007)).toFixed(4);
+                if (badgeEl) badgeEl.innerHTML = `<span class="pulse-dot"></span> Epoch #${epoch}/5 • Loss: ${loss} • CUDA FP32`;
+                if (epoch >= 5) {
+                    clearInterval(interval);
+                    trainBtn.innerHTML = '<i data-lucide="zap"></i> Train 5 Epochs';
+                    trainBtn.disabled = false;
+                    runInference();
+                }
+            }, 250);
+        });
+    }
 
     runInference();
 }

@@ -1165,6 +1165,24 @@
                                     Absorbed PAR: <strong id="ann-apar-val">8.42 MJ/m²</strong> • Physics Biomass Synthesis: <strong id="ann-biomass-val">23.6 g/m²</strong>
                                 </div>
                             </div>
+
+                            <!-- Live Input Tensor Tuner -->
+                            <div class="ann-tensor-tuner" style="margin-top: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 0.75rem;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                                    <span style="font-size:0.78rem; font-weight:700;">Live Tensor Inputs:</span>
+                                    <button class="btn btn-secondary btn-sm" id="btn-train-epochs"><i data-lucide="zap"></i> Train 5 Epochs</button>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:0.74rem;">
+                                    <div>
+                                        <label>Input NDVI: <strong id="ann-ndvi-val">0.61</strong></label>
+                                        <input type="range" id="ann-ndvi-slider" min="0.1" max="0.95" step="0.05" value="0.61" class="custom-range">
+                                    </div>
+                                    <div>
+                                        <label>Far-Red SIF: <strong id="ann-sif-disp">2.14 mW</strong></label>
+                                        <input type="range" id="ann-sif-slider" min="0.5" max="4.5" step="0.1" value="2.14" class="custom-range">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Neural Architecture Layer Introspector -->
