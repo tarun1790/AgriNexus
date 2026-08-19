@@ -44,6 +44,11 @@
             </div>
 
             <div class="nav-controls">
+                <!-- Field Guide & Explainer Modal Button -->
+                <button class="btn-guide-modal" id="btn-guide-modal" title="Open complete guide and understand every system">
+                    <i data-lucide="book-open"></i> <span>Field Guide & Insights</span>
+                </button>
+
                 <!-- Export Dossier Button -->
                 <button class="btn-export-dossier" id="btn-export-dossier" title="Export official printable DPI field dossier">
                     <i data-lucide="file-text"></i> <span>Export DPI Dossier</span>
@@ -1551,6 +1556,73 @@
                     <button type="button" class="copilot-mic-btn" id="copilot-mic-btn" title="Speak via microphone"><i data-lucide="mic"></i></button>
                     <button type="submit" class="copilot-send-btn"><i data-lucide="send"></i></button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE FIELD GUIDE & AGRONOMIC MASTERCLASS MODAL -->
+    <div class="guide-modal-overlay hidden" id="guide-modal-overlay">
+        <div class="guide-modal-container">
+            <div class="guide-modal-header">
+                <div style="display:flex; align-items:center; gap:0.65rem;">
+                    <img src="/static/assets/agriveda_logo.svg" alt="AgriVeda AI Logo" width="34" height="34">
+                    <div>
+                        <h3>AgriVeda AI — Agronomic Field Masterclass & System Guide</h3>
+                        <span style="font-size:0.76rem; color:var(--text-muted);">How to understand, interpret, and action every scientific metric</span>
+                    </div>
+                </div>
+                <button class="close-guide-btn" id="close-guide-btn"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="guide-modal-body">
+                <div class="guide-grid-sections">
+                    <!-- Section 1 -->
+                    <div class="guide-card">
+                        <h4><i data-lucide="satellite"></i> 1. Remote Sensing & Photon Spectroscopy</h4>
+                        <ul>
+                            <li><strong>NDVI (0.0 to 1.0):</strong> Measures canopy greenness. <code>&gt; 0.6</code> = Dense healthy crop, <code>0.3–0.5</code> = Moderate/sparse vegetative growth, <code>&lt; 0.3</code> = Severe bare soil or waterlogged stress.</li>
+                            <li><strong>SAVI:</strong> Soil-Adjusted Vegetation Index eliminating background soil reflections in early crop stages.</li>
+                            <li><strong>SIF & Fv/Fm (Photosystem II):</strong> Solar-Induced Fluorescence. Measures re-emitted far-red photons at 740nm. Normal: <code>0.78–0.84</code>. Detects sub-cellular heat/water stress <strong>48–72 hours before any visible leaf wilting</strong>.</li>
+                            <li><strong>Sentinel-1 C-Band SAR Microwave Radar:</strong> Dual-polarization ($\sigma^0_{VV}, \sigma^0_{VH}$) that penetrates 100% cloud cover to measure root-zone moisture 6.4 cm beneath dry crust.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="guide-card">
+                        <h4><i data-lucide="flask-conical"></i> 2. Soil Health & 4-Zone VRA Precision</h4>
+                        <ul>
+                            <li><strong>12-Parameter Soil Health Card (SHC):</strong> ICAR standard testing Macro (N, P, K), Secondary (S), Micro (Zn, Fe, Cu, Mn, B), and Physical (pH, OC, EC).</li>
+                            <li><strong>4-Zone Variable Rate Application (VRA):</strong> Automatically splits field into 4 zones based on biomass vigor. Replaces blanket fertilizer dumping with targeted dosing to <strong>save 28%+ chemical urea and ₹1,420/acre</strong>.</li>
+                            <li><strong>Hydrus-1D 4-Layer Soil Physics:</strong> Models unsaturated water movement and Nitrate ($NO_3^-$) leaching vulnerability across 0–15cm, 15–30cm, 30–60cm, and 60–100cm depths.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 3 -->
+                    <div class="guide-card">
+                        <h4><i data-lucide="shield-check"></i> 3. Crop Pathology & WALES Tank-Mix Lab</h4>
+                        <ul>
+                            <li><strong>Gemini 3.6 Multimodal Foliar Vision:</strong> Identifies fungal, bacterial, and viral leaf diseases with localized bounding boxes and organic/chemical prescriptions.</li>
+                            <li><strong>Strict WALES Tank-Mixing Order:</strong> 
+                                <br>• <strong>W:</strong> Wettable powders & granules first
+                                <br>• <strong>A:</strong> Agitate tank thoroughly
+                                <br>• <strong>L:</strong> Liquid flowables & suspensions
+                                <br>• <strong>E:</strong> Emulsifiable concentrates & oils
+                                <br>• <strong>S:</strong> Surfactants & stickers last.
+                            </li>
+                            <li><strong>Thermal Degree-Day Pest Biofix:</strong> Tracks heat accumulation to target the exact 72-hour vulnerable window before larvae bore inside cotton bolls or maize whorls.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section 4 -->
+                    <div class="guide-card">
+                        <h4><i data-lucide="trending-up"></i> 4. Market Arbitrage & Carbon MRV</h4>
+                        <ul>
+                            <li><strong>Mandi Spatial Arbitrage:</strong> Compares nearby APMC yards, deducts diesel road freight (₹3.5/km/Q) and 1% market cess to pinpoint the most profitable delivery route.</li>
+                            <li><strong>ISO-14064 Sovereign Carbon Token:</strong> Cryptographically verifies soil organic carbon (SOC) buildup from biochar and regenerative zero-till for direct farmer monetization.</li>
+                            <li><strong>Tractor ISOBUS XML Exporter:</strong> Downloads plug-and-play task maps directly compatible with John Deere, Trimble, and Topcon cabin consoles.</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

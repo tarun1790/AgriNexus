@@ -2652,6 +2652,133 @@ body {
     font-size: 0.76rem;
 }
 
+/* FIELD GUIDE BUTTON & MODAL */
+.btn-guide-modal {
+    background: #022c1b;
+    color: #ffffff;
+    border: 1px solid #059669;
+    padding: 0.6rem 1.05rem;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-guide-modal:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.guide-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(2, 44, 27, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.guide-modal-container {
+    background: #ffffff;
+    border: 1px solid #059669;
+    border-radius: var(--radius-md);
+    width: 90%;
+    max-width: 960px;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(2, 44, 27, 0.4);
+    overflow: hidden;
+}
+
+.guide-modal-header {
+    background: #022c1b;
+    color: #ffffff;
+    padding: 1.15rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #059669;
+}
+
+.guide-modal-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.close-guide-btn {
+    background: transparent;
+    border: none;
+    color: #a7f3d0;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.2s ease;
+}
+
+.close-guide-btn:hover {
+    color: #ffffff;
+}
+
+.guide-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.guide-grid-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+.guide-card {
+    background: #f8fafc;
+    border: 1px solid var(--border-medium);
+    border-top: 4px solid #059669;
+    border-radius: var(--radius-sm);
+    padding: 1.15rem;
+}
+
+.guide-card h4 {
+    font-family: var(--font-display);
+    font-size: 0.96rem;
+    font-weight: 800;
+    color: var(--brand-dark);
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.65rem;
+}
+
+.guide-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    line-height: 1.45;
+}
+
+.guide-card code {
+    background: #ecfdf5;
+    color: #064e3b;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    font-weight: 700;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1080px) {
     .dashboard-grid, .soil-grid, .simulator-layout, .disease-layout, .vra-zones-grid, .vra-summary-row, .grounding-grid, .shc-12-grid {

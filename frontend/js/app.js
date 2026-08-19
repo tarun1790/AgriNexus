@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initFertigationEngine();
     initPestBiofix();
     initDeepANNLab();
+    initFieldGuideModal();
     
     await checkSystemHealth();
 
@@ -3058,5 +3059,33 @@ async function initDeepANNLab() {
 
     runInference();
 }
+
+// ----------------- INTERACTIVE FIELD GUIDE & MASTERCLASS MODAL -----------------
+function initFieldGuideModal() {
+    const guideBtn = document.getElementById('btn-guide-modal');
+    const closeBtn = document.getElementById('close-guide-btn');
+    const overlay = document.getElementById('guide-modal-overlay');
+
+    if (guideBtn && overlay) {
+        guideBtn.addEventListener('click', () => {
+            overlay.classList.remove('hidden');
+        });
+    }
+
+    if (closeBtn && overlay) {
+        closeBtn.addEventListener('click', () => {
+            overlay.classList.add('hidden');
+        });
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.add('hidden');
+            }
+        });
+    }
+}
+
 
 
