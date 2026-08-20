@@ -83,6 +83,8 @@ app.add_middleware(
 )
 
 # ----------------- SYSTEM & GOOGLE AI HEALTH -----------------
+@app.get("/healthz", include_in_schema=False)
+@app.get("/livez", include_in_schema=False)
 @app.get("/api/v1/health")
 def health_check():
     import torch
